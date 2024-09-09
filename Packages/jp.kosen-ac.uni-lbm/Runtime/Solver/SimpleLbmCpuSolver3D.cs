@@ -124,20 +124,9 @@ namespace Solver
             return idx;
         }
 
-        private static uint Per(uint idx, uint maxIdx)
-        {
-            if (idx > maxIdx) return idx - (maxIdx + 1);
-            return idx;
-        }
-
         private static int3 Per(in int3 idx, in int3 maxIdx)
         {
             return new int3(Per(idx.x, maxIdx.x), Per(idx.y, maxIdx.y), Per(idx.z, maxIdx.z));
-        }
-
-        private static uint3 Per(in uint3 idx, in uint3 maxIdx)
-        {
-            return new uint3(Per(idx.x, maxIdx.x), Per(idx.y, maxIdx.y), Per(idx.z, maxIdx.z));
         }
 
         private void AddDebugForce()
@@ -196,7 +185,7 @@ namespace Solver
 
         #region Constants for LBM
 
-        private const float Tau = 0.91f;
+        private const float Tau = 0.6f;
         private const float Omega = 1.0f / Tau;
 
         private const int Q = 15;

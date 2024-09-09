@@ -208,7 +208,7 @@ void set_boundary_div(uint3 id, uint w, uint h, uint d)
                    : prev[id];
 }
 
-void set_boundary_p(uint3 id, uint w, uint h, uint d)
+void set_boundary_prev(uint3 id, uint w, uint h, uint d)
 {
     prev[id] = (id.x == 0) ? float4(prev[id + uint3(1, 0, 0)].x, prev[id].yzw) : prev[id];
     prev[id] = (id.x == w - 1) ? float4(prev[uint3(w - 2, id.yz)].x, prev[id].yzw) : prev[id];
@@ -520,7 +520,7 @@ void project_step1(uint3 id : SV_DispatchThreadID)
                           prev[id].zw);
 
         set_boundary_div(id, w, h, d);
-        set_boundary_p(id, w, h, d);
+        set_boundary_prev(id, w, h, d);
     }
 }
 
@@ -542,7 +542,7 @@ void project_step2(uint3 id : SV_DispatchThreadID)
                     prev[uint3(id.x, id.y - 1, id.z)].x + prev[uint3(id.x, id.y + 1, id.z)].x +
                     prev[uint3(id.x, id.y, id.z - 1)].x + prev[uint3(id.x, id.y, id.z + 1)].x) / 6,
                 prev[id].yzw);
-            set_boundary_p(id, w, h, d);
+            set_boundary_prev(id, w, h, d);
         }
     }
 }
