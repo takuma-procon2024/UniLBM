@@ -79,7 +79,7 @@ namespace Solver
             }
             else
             {
-                // Advection using velocity solver
+                // Advection using velocity solver               
                 computeShader.SetTexture(KernelMap[ComputeKernels.AdvectDensity], DensityId, DensityTex);
                 computeShader.SetTexture(KernelMap[ComputeKernels.AdvectDensity], PrevId, PrevTex);
                 computeShader.SetTexture(KernelMap[ComputeKernels.AdvectDensity], VelocityId, VelocityTex);
@@ -116,6 +116,7 @@ namespace Solver
             computeShader.Dispatch(KernelMap[ComputeKernels.SwapVelocity], dispatchX, dispatchY, dispatchZ);
 
             // Advection
+            computeShader.SetTexture(KernelMap[ComputeKernels.AdvectVelocity], DensityId, DensityTex);
             computeShader.SetTexture(KernelMap[ComputeKernels.AdvectVelocity], VelocityId, VelocityTex);
             computeShader.SetTexture(KernelMap[ComputeKernels.AdvectVelocity], PrevId, PrevTex);
             computeShader.Dispatch(KernelMap[ComputeKernels.AdvectVelocity], dispatchX, dispatchY, dispatchZ);

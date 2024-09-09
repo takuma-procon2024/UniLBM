@@ -99,16 +99,16 @@ namespace Solver
         protected RenderTexture DensityTex;
         protected RenderTexture VelocityTex;
         protected RenderTexture PrevTex;
-        protected const string SolverProp = "solver";
-        protected const string DensityProp = "density";
-        protected const string VelocityProp = "velocity";
-        protected const string PrevProp = "prev";
-        protected const string SourceProp = "source";
-        protected const string DiffProp = "diff";
-        protected const string ViscProp = "visc";
-        protected const string DTProp = "dt";
-        protected const string VelocityCoefProp = "velocity_coef";
-        protected const string DensityCoefProp = "density_coef";
+        private const string SolverProp = "solver";
+        private const string DensityProp = "density";
+        private const string VelocityProp = "velocity";
+        private const string PrevProp = "prev";
+        private const string SourceProp = "source";
+        private const string DiffProp = "diff";
+        private const string ViscProp = "visc";
+        private const string DTProp = "dt";
+        private const string VelocityCoefProp = "velocity_coef";
+        private const string DensityCoefProp = "density_coef";
 
         protected int SolverId,
             DensityId,
