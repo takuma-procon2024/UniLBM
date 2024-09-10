@@ -122,6 +122,76 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &82044159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 82044160}
+  - component: {fileID: 82044161}
+  m_Layer: 0
+  m_Name: LBM_Solver3D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &82044160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 82044159}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &82044161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 82044159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b81ea3f77bb4e5993a7a60ddd26883a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  solver:
+    GPUThreads:
+      x: 0
+      y: 0
+      z: 0
+    computeShader: {fileID: 7200000, guid: 0517d959724542d0b423794a9534fb58, type: 3}
+    size:
+      x: 10
+      y: 10
+      z: 10
+    tau: 0.91
+    lProp: 0.01388889
+    sProp: 0.1111111
+    zProp: 0.2222222
+    WidthId: 0
+    HeightId: 0
+    DepthId: 0
+    TauId: 0
+    LId: 0
+    SId: 0
+    ZId: 0
+    F0Id: 0
+    F1Id: 0
+    FieldId: 0
+    VelocityId: 0
+    VelocitySourceId: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,7 +512,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &944500173
 Transform:
   m_ObjectHideFlags: 0
@@ -470,13 +540,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4e35c0782644716820cd617908becc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  width: 10
+  height: 10
+  depth: 10
+  force:
+    x: 0.0002
+    y: 0.0001
+    z: 0
+--- !u!1 &1327824599
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1327824601}
+  - component: {fileID: 1327824600}
+  - component: {fileID: 1327824602}
+  m_Layer: 0
+  m_Name: Test_Solver3D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1327824600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327824599}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953c0c79b3224f7a954b717a3d4abe8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
+  width: 10
+  height: 10
+  depth: 10
+  tau: 0.91
+  force: {x: 0.0002, y: 0.0001, z: 0}
+--- !u!4 &1327824601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327824599}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1327824602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327824599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
   width: 20
   height: 20
   depth: 20
-  force:
-    x: 0.0002
-    y: 0
-    z: 0
+  tau: 0.91
+  force: {x: 0.0002, y: 0.0001, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -485,3 +624,5 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 944500173}
+  - {fileID: 82044160}
+  - {fileID: 1327824601}

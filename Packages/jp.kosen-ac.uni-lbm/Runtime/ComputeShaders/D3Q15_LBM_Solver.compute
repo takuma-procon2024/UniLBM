@@ -1,0 +1,113 @@
+﻿#pragma kernel solve
+#pragma kernel initialize
+
+#define Q 15
+#define FLUID_TYPE 0
+#define BOUNDARY_TYPE 1
+
+RWStructuredBuffer<float> f0;
+RWStructuredBuffer<float> f1;
+RWStructuredBuffer<uint> field;
+RWStructuredBuffer<float3> force_source;
+RWStructuredBuffer<float3> velocity;
+
+// LBM uniforms
+uint3 dimensions;
+float3 force;
+float tau;
+
+// LBM constants
+static const float l = 1.0f / 72.0f;
+static const float s = 1.0f / 9.0f;
+static const float z = 2.0f / 9.0f;
+
+static const int3 e[Q] = {
+    int3(0, 0, 0), int3(-1, 0, 0), int3(0, -1, 0), int3(0, 0, -1),
+    int3(-1, -1, -1), int3(-1, -1, 1), int3(-1, 1, -1), int3(-1, 1, 1),
+    int3(1, 0, 0), int3(0, 1, 0), int3(0, 0, 1),
+    int3(1, 1, 1), int3(1, 1, -1), int3(1, -1, 1), int3(1, -1, -1)
+};
+
+static const int inv[Q] = {0, 8, 9, 10, 11, 12, 13, 14, 1, 2, 3, 4, 5, 6, 7};
+
+static const float w[Q] = {
+    z, s, s, s, l, l, l, l, s, s, s, l, l, l, l
+};
+
+uint get_index(in uint3 pos)
+{
+    return pos.x + pos.y * dimensions.x + pos.z * dimensions.x * dimensions.y;
+}
+
+uint3 periodic_boundary(in int3 pos)
+{
+    return (pos + dimensions) % dimensions;
+}
+
+[numthreads(8,8,8)]
+void solve(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id >= dimensions)) return;
+
+    float omega = 1.0f / tau;
+    uint idx = get_index(id);
+    if (field[idx] != FLUID_TYPE) return;
+
+    // Calculate density and velocity
+    float rho = 0;
+    float3 u = float3(0, 0, 0);
+
+    for (int m = 0; m < Q; m++)
+    {
+        float f = f0[idx * Q + m];
+        rho += f;
+        u += f * e[m];
+    }
+
+    u /= rho;
+
+    // Store velocity
+    velocity[idx] = u;
+
+    // Update velocity with force source
+    u += force_source[idx] * 0.5f;
+
+    // Collision and streaming
+    for (int k = 0; k < Q; k++)
+    {
+        uint3 p = periodic_boundary(id + e[k]);
+        uint idx_p = get_index(p);
+
+        float dot_product = dot(e[k], u);
+        float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
+            (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
+
+        if (field[idx_p] == BOUNDARY_TYPE)
+        {
+            f1[idx * Q + inv[k]] = new_f;
+        }
+        else
+        {
+            f1[idx_p * Q + k] = new_f;
+        }
+    }
+}
+
+[numthreads(8,8,8)]
+void initialize(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id >= dimensions)) return;
+
+    uint idx = get_index(id);
+    field[idx] = FLUID_TYPE;
+
+    for (int k = 0; k < Q; k++)
+    {
+        f0[idx * Q + k] = w[k];
+    }
+
+    if (idx % dimensions.x == 0)
+        force_source[idx] = force;
+    else
+        force_source[idx] = float3(0, 0, 0);
+}

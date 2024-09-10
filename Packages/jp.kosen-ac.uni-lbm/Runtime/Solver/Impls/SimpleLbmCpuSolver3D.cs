@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-namespace Solver
+namespace Solver.Impls
 {
     public class SimpleLbmCpuSolver3D : MonoBehaviour
     {
@@ -30,8 +30,8 @@ namespace Solver
 
             Array.Fill(_field, FluidType);
 
-            var random = new Random(231576);
-            PutDebugObstacles(ref random);
+            // var random = new Random(231576);
+            // PutDebugObstacles(ref random);
 
             for (var x = 0; x < width; x++)
             for (var y = 0; y < height; y++)
@@ -134,8 +134,13 @@ namespace Solver
             for (var x = 0; x < width; x++)
             for (var y = 0; y < height; y++)
             for (var z = 0; z < depth; z++)
-                if (x == 0)
-                    _forceSource[x + y * width + z * width * height] = force;
+            {
+                var idx = x + y * width + z * width * height;
+                if (idx % width == 0)
+                    _forceSource[idx] = force;
+                if (idx % width == width - 1)
+                    _forceSource[idx] = -force;
+            }
         }
 
         private void Eval(in int3 pos)
