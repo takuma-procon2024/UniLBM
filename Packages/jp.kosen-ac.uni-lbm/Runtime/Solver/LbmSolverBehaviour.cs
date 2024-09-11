@@ -21,7 +21,7 @@ namespace Solver
         private void Start()
         {
             _solver = new ComputeShaderSolver3D(lbmShader, new uint3(width, height, depth), tau, force);
-            _effector = new PointEffector(new uint3(width, height, depth), 8000, effectorShader, effectorMaterial,
+            _effector = new PointEffector(new uint3(width, height, depth), width * height * depth, effectorShader, effectorMaterial,
                 _solver.GetFieldBuffer(), _solver.GetVelocityBuffer());
         }
 

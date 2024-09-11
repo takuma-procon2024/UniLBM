@@ -106,7 +106,13 @@ void initialize(uint3 id : SV_DispatchThreadID)
         f0[idx * Q + k] = w[k];
     }
 
-    if (idx % dimensions.x == 0)
+    // put obstacles
+    if (id.x > 40 && id.x < 60 && id.y > 40 && id.y < 60 && id.z > 40 && id.z < 60)
+    {
+        field[idx] = BOUNDARY_TYPE;
+    }
+
+    if (id.x > 45 && id.x < 55 && id.y > 20 && id.y < 25 && id.z > 45 && id.z < 55)
         force_source[idx] = force;
     else
         force_source[idx] = float3(0, 0, 0);

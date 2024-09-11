@@ -568,11 +568,11 @@ MonoBehaviour:
   lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
   effectorShader: {fileID: 7200000, guid: 25ce749517234e2698bdf140bbb00fb1, type: 3}
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
-  width: 20
-  height: 20
-  depth: 20
+  width: 100
+  height: 100
+  depth: 100
   tau: 0.91
-  force: {x: 0.002, y: 0, z: 0}
+  force: {x: 0, y: 0.0004, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

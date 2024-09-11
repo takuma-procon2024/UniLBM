@@ -25,70 +25,58 @@
             #pragma geometry geom
             #pragma fragment frag
 
-            struct v2f
+            struct v2g
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 float4 color : COLOR;
+                float4 prev_vertex : TEXCOORD1;
             };
 
-            v2f vert(uint id: SV_VertexID)
+            struct v2f
             {
-                v2f o;
+                float4 vertex : SV_POSITION;
+                float4 color : COLOR;
+            };
+
+            v2g vert(uint id: SV_VertexID)
+            {
+                v2g o;
                 particle_data p = particles[id];
                 o.vertex = float4(p.pos, 1);
+                o.prev_vertex = float4(p.prev_pos, 1);
                 o.uv = float2(0, 0);
                 o.color = p.col;
                 return o;
             }
 
-            [maxvertexcount(4)]
-            void geom(point v2f input[1], inout TriangleStream<v2f> outStream)
+            [maxvertexcount(2)]
+            void geom(point v2g input[1], inout LineStream<v2f> outStream)
             {
                 // 全ての頂点で共通の値を計算しておく
                 float4 pos = input[0].vertex;
+                float4 prev_pos = input[0].prev_vertex;
+                float4 dir = pos - prev_pos;
                 float4 col = input[0].color;
 
-                // 四角形になるように頂点を生産
-                for (int x = 0; x < 2; x++)
-                {
-                    for (int y = 0; y < 2; y++)
-                    {
-                        v2f o;
+                if (Length2(dir) < 0.0001f || Length2(dir) > 0.25f) return;
 
-                        // ビルボード用の行列
-                        float4x4 billboard_matrix = UNITY_MATRIX_V;
-                        billboard_matrix._m03
-                            = billboard_matrix._m13
-                            = billboard_matrix._m23
-                            = billboard_matrix._m33
-                            = 0;
+                v2f o;
+                o.vertex = TransformObjectToHClip(prev_pos);
+                o.color = col;
+                outStream.Append(o);
 
-                        // テクスチャ座標
-                        float2 uv = float2(x, y);
-                        o.uv = uv;
+                o.vertex = TransformObjectToHClip(prev_pos + dir);
+                o.color = col;
+                outStream.Append(o);
 
-                        // 頂点位置を計算
-                        o.vertex = pos + mul(float4((uv * 2 - float2(1, 1)) * 0.1, 0, 1), billboard_matrix);
-                        o.vertex = mul(UNITY_MATRIX_VP, o.vertex);
-
-                        // 色
-                        o.color = col;
-
-                        // ストリームに頂点を追加
-                        outStream.Append(o);
-                    }
-                }
-
-                // トライアングルストリップを終了
                 outStream.RestartStrip();
             }
 
             float4 frag(v2f i) : SV_Target
             {
-                return float4(1.0, 1.0, 1.0
-
-                , 1.0);
+                // return float4(1.0, 1.0, 1.0, 1.0);
+                return i.color;
             }
             ENDHLSL
         }

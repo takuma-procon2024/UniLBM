@@ -29,15 +29,15 @@ namespace Effector.Impl
 
             var threadSize = _gpuThreads.x * _gpuThreads.y * _gpuThreads.z;
             var totalDimension = dimension.x * dimension.y * dimension.z;
-            _totalParticleNum = maxPoints / threadSize * threadSize;
+            var totalParticleNum = maxPoints / threadSize * threadSize;
             _particleNum = new uint3(
-                (uint)(_totalParticleNum * (dimension.x / (float)totalDimension)),
-                (uint)(_totalParticleNum * (dimension.y / (float)totalDimension)),
-                (uint)(_totalParticleNum * (dimension.z / (float)totalDimension))
+                (uint)(totalParticleNum * (dimension.x / (float)totalDimension)),
+                (uint)(totalParticleNum * (dimension.y / (float)totalDimension)),
+                (uint)(totalParticleNum * (dimension.z / (float)totalDimension))
             );
-            _totalParticleNum = _particleNum.x * _particleNum.y * _particleNum.z;
+            totalParticleNum = _particleNum.x * _particleNum.y * _particleNum.z;
 
-            _particlesBuffer = new ComputeBuffer((int)_totalParticleNum, Marshal.SizeOf<ParticleData>());
+            _particlesBuffer = new ComputeBuffer((int)totalParticleNum, Marshal.SizeOf<ParticleData>());
 
             Initialize();
         }
@@ -69,7 +69,8 @@ namespace Effector.Impl
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
 
-            Graphics.DrawProcedural(_material, new Bounds(), MeshTopology.Points, (int)_totalParticleNum);
+            var bound = new Bounds(Vector3.zero, new Vector3(_dimension.x, _dimension.y, _dimension.z));
+            Graphics.DrawProcedural(_material, bound, MeshTopology.Points, _particlesBuffer.count);
         }
 
         private void CalcThreadGroupSize(out int x, out int y, out int z)
@@ -86,7 +87,6 @@ namespace Effector.Impl
         private readonly Material _material;
         private readonly uint3 _dimension;
         private readonly uint3 _particleNum;
-        private readonly uint _totalParticleNum;
 
         #endregion
 
@@ -108,6 +108,7 @@ namespace Effector.Impl
         private struct ParticleData
         {
             public float3 Position;
+            public float3 PrevPos;
             public float4 Color;
         }
 

@@ -46,7 +46,7 @@ Shader "Unlit/LBM_3D_Visualize"
                 float4 vertex : POSITION;
             };
 
-            struct v2f
+            struct v2g
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
@@ -68,9 +68,9 @@ Shader "Unlit/LBM_3D_Visualize"
                 );
             }
 
-            v2f vert(in appdata v)
+            v2g vert(in appdata v)
             {
-                v2f o;
+                v2g o;
                 o.vertex = v.vertex;
                 o.uv = float2(0, 0);
                 o.color = float4(1, 1, 1, 1);
@@ -79,9 +79,9 @@ Shader "Unlit/LBM_3D_Visualize"
             }
 
             [maxvertexcount(4)]
-            void geom(point v2f input[1], inout TriangleStream<v2f> out_stream)
+            void geom(point v2g input[1], inout TriangleStream<v2g> out_stream)
             {
-                v2f o;
+                v2g o;
 
                 // 全ての頂点で共通の値を計算しておく
                 float4 pos = input[0].vertex;
@@ -128,7 +128,7 @@ Shader "Unlit/LBM_3D_Visualize"
                 out_stream.RestartStrip();
             }
 
-            float4 frag(in v2f i) : SV_Target
+            float4 frag(in v2g i) : SV_Target
             {
                 float4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
                 clip(col.a - 0.5);
