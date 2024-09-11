@@ -50,7 +50,17 @@ namespace Solver.Impls
 
             SwapBuffers();
 
-            VelocityDebugDraw();
+            // VelocityDebugDraw();
+        }
+
+        public override ComputeBuffer GetFieldBuffer()
+        {
+            return _fieldBuffer;
+        }
+
+        public override ComputeBuffer GetVelocityBuffer()
+        {
+            return _velocityBuffer;
         }
 
         #region Debug
