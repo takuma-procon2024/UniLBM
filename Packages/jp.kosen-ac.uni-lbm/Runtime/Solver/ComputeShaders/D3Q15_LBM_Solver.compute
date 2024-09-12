@@ -5,35 +5,43 @@
 #define FLUID_TYPE 0
 #define BOUNDARY_TYPE 1
 
-RWStructuredBuffer<float> f0;
-RWStructuredBuffer<float> f1;
+//==============================================================================
+// Uniforms
+//==============================================================================
+RWStructuredBuffer<float> f0; // 前回の分布関数
+RWStructuredBuffer<float> f1; // 今回の分布関数
 RWStructuredBuffer<uint> field;
 RWStructuredBuffer<float3> force_source;
 RWStructuredBuffer<float3> velocity;
 
-// LBM uniforms
 uint3 dimensions;
 float3 force;
 float tau;
 
-// LBM constants
+//==============================================================================
+// Constants
+//==============================================================================
 static const float l = 1.0f / 72.0f;
 static const float s = 1.0f / 9.0f;
 static const float z = 2.0f / 9.0f;
 
+// 各方向への速度ベクトル
 static const int3 e[Q] = {
     int3(0, 0, 0), int3(-1, 0, 0), int3(0, -1, 0), int3(0, 0, -1),
     int3(-1, -1, -1), int3(-1, -1, 1), int3(-1, 1, -1), int3(-1, 1, 1),
     int3(1, 0, 0), int3(0, 1, 0), int3(0, 0, 1),
     int3(1, 1, 1), int3(1, 1, -1), int3(1, -1, 1), int3(1, -1, -1)
 };
-
+// バックバウンスの方向
 static const int inv[Q] = {0, 8, 9, 10, 11, 12, 13, 14, 1, 2, 3, 4, 5, 6, 7};
-
+// 重み
 static const float w[Q] = {
     z, s, s, s, l, l, l, l, s, s, s, l, l, l, l
 };
 
+//==============================================================================
+// Functions
+//==============================================================================
 uint get_index(in uint3 pos)
 {
     return pos.x + pos.y * dimensions.x + pos.z * dimensions.x * dimensions.y;
@@ -44,6 +52,9 @@ uint3 periodic_boundary(in int3 pos)
     return (pos + dimensions) % dimensions;
 }
 
+//==============================================================================
+// LBM D3Q15 Solver
+//==============================================================================
 [numthreads(8,8,8)]
 void solve(uint3 id : SV_DispatchThreadID)
 {

@@ -26,7 +26,6 @@ namespace Solver
             _solver = solverType switch
             {
                 Solvers.D3Q15 => new ComputeD3Q15Solver(lbmShader, new uint3(width, height, depth), tau, force),
-                Solvers.D3Q19 => new ComputeD3Q19Solver(lbmShader, tau, new uint3(width, height, depth)),
                 _ => throw new NotImplementedException()
             };
             _effector = new PointEffector(new uint3(width, height, depth), maxPoints, effectorShader,
@@ -51,8 +50,7 @@ namespace Solver
 
         private enum Solvers
         {
-            D3Q15,
-            D3Q19
+            D3Q15
         }
     }
 }

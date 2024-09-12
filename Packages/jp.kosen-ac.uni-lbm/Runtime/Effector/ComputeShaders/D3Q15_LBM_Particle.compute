@@ -65,7 +65,7 @@ void draw(in uint3 id: SV_DispatchThreadID)
     cell_pos = uint3(p_pos * dimensions);
     cell_idx = get_index(cell_pos);
 
-    if (any(isnan(p_pos)) || any(isinf(p_pos)) || any(abs(p_pos - 0.5f) > 0.5f) || field[cell_idx] != FLUID_TYPE)
+    if (any(isnan(p_pos)) || any(abs(p_pos - 0.5f) > 0.5f) || field[cell_idx] != FLUID_TYPE)
     {
         // p_pos = random3(idx / num_particles) * 0.9f + 0.05f;
         p_pos = id / (float)dimensions;

@@ -21,10 +21,6 @@ namespace Solver
         {
         }
 
-        public virtual void Release()
-        {
-        }
-
         protected void InitializeSolverBase<TKernels, TUniform>(out Dictionary<TKernels, int> kernelMap,
             out Dictionary<TUniform, int> uniformMap) where TKernels : Enum where TUniform : Enum
         {

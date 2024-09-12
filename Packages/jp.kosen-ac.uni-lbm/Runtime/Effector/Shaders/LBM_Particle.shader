@@ -3,6 +3,8 @@
     Properties
     {
         size ("Size", Float) = 100
+        min_velocity ("Min Velocity", Float) = 0.00001
+        max_velocity ("Max Velocity", Float) = 0.25
     }
     SubShader
     {
@@ -22,6 +24,8 @@
         StructuredBuffer<particle_data> particles;
 
         float size;
+        float min_velocity;
+        float max_velocity;
         ENDHLSL
 
         Pass
@@ -65,8 +69,8 @@
                 float4 dir = pos - prev_pos;
                 float4 col = input[0].color;
 
-                // if (Length2(dir) <= 0.00001f) return;
-                // if (Length2(dir) >= 0.25) return;
+                float dir_length = Length2(dir);
+                if (dir_length <= min_velocity || dir_length >= max_velocity) return;
 
                 v2f o;
                 o.vertex = TransformObjectToHClip(prev_pos);
@@ -74,7 +78,6 @@
                 out_stream.Append(o);
 
                 o.vertex = TransformObjectToHClip(prev_pos + dir);
-                // o.vertex = TransformObjectToHClip(prev_pos + float3(0, 0.5, 0));
                 o.color = col;
                 out_stream.Append(o);
 
@@ -83,7 +86,6 @@
 
             float4 frag(v2f i) : SV_Target
             {
-                // return float4(1.0, 1.0, 1.0, 1.0);
                 return i.color;
             }
             ENDHLSL

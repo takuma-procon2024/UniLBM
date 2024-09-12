@@ -585,7 +585,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1327824601}
   - component: {fileID: 1327824602}
-  - component: {fileID: 1327824603}
   m_Layer: 0
   m_Name: Test_Solver3D
   m_TagString: Untagged
@@ -621,7 +620,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
-  effectorShader: {fileID: 7200000, guid: 25ce749517234e2698bdf140bbb00fb1, type: 3}
+  effectorShader: {fileID: 7200000, guid: c512e8841e1b27046adf836b1ebbcbcd, type: 3}
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
   width: 100
   height: 100
@@ -630,28 +629,6 @@ MonoBehaviour:
   force: {x: 0, y: 0.05, z: 0}
   solverType: 0
   maxPoints: 1000000
---- !u!114 &1327824603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1327824599}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lbmShader: {fileID: 7200000, guid: 8ef4499a3a1449b091d49dfc2ce91373, type: 3}
-  effectorShader: {fileID: 7200000, guid: 4ae22eebbf1046dcbf4f29494cc397ea, type: 3}
-  effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
-  width: 50
-  height: 50
-  depth: 50
-  tau: 1.2
-  force: {x: 0.0002, y: 0, z: 0}
-  solverType: 1
-  maxPoints: 100000
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
