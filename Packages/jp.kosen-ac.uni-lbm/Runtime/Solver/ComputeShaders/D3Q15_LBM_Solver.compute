@@ -107,12 +107,23 @@ void initialize(uint3 id : SV_DispatchThreadID)
     }
 
     // put obstacles
-    if (id.x > 40 && id.x < 60 && id.y > 40 && id.y < 60 && id.z > 40 && id.z < 60)
+    float3 center = float3(dimensions) * 0.5f;
+    center.y = 40;
+    float3 pos = float3(id);
+    float3 diff = pos - center;
+    float radius = 10.0f;
+    if (dot(diff, diff) < radius * radius)
+    {
+        field[idx] = BOUNDARY_TYPE;
+    }
+    if (id.x == 0 || id.x == dimensions.x - 1 ||
+        id.y == 0 || id.y == dimensions.y - 1 ||
+        id.z == 0 || id.z == dimensions.z - 1)
     {
         field[idx] = BOUNDARY_TYPE;
     }
 
-    if (id.x > 45 && id.x < 55 && id.y > 20 && id.y < 25 && id.z > 45 && id.z < 55)
+    if (id.x == dimensions.x / 2 && id.y == 20 && id.z == dimensions.z / 2)
         force_source[idx] = force;
     else
         force_source[idx] = float3(0, 0, 0);

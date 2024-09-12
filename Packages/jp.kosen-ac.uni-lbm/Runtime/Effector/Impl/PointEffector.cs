@@ -36,6 +36,11 @@ namespace Effector.Impl
                 (uint)(totalParticleNum * (dimension.z / (float)totalDimension))
             );
             totalParticleNum = _particleNum.x * _particleNum.y * _particleNum.z;
+            if (totalParticleNum <= 0)
+            {
+                Debug.LogError("最大パーティクル数が少なすぎます。");
+                throw new ArgumentException("Invalid particle number");
+            }
 
             _particlesBuffer = new ComputeBuffer((int)totalParticleNum, Marshal.SizeOf<ParticleData>());
 
@@ -51,6 +56,7 @@ namespace Effector.Impl
         private void Initialize()
         {
             _computeShader.SetVector(DimensionsPropId, new Vector4(_dimension.x, _dimension.y, _dimension.z, 0));
+            _computeShader.SetInt(ParticleNumPropId, (int)_particleNum.x * (int)_particleNum.y * (int)_particleNum.z);
             _computeShader.SetBuffer(_initKernelId, ParticlesBufferPropId, _particlesBuffer);
             _computeShader.SetBuffer(_drawKernelId, ParticlesBufferPropId, _particlesBuffer);
             _computeShader.SetBuffer(_drawKernelId, FieldBufferPropId, _fieldBuffer);
@@ -65,7 +71,7 @@ namespace Effector.Impl
         public void Update()
         {
             _computeShader.SetFloat(DeltaTimePropId, Time.deltaTime);
-            
+
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
 
@@ -97,6 +103,7 @@ namespace Effector.Impl
         private static readonly int VelocityBufferPropId = Shader.PropertyToID("velocity");
         private static readonly int DimensionsPropId = Shader.PropertyToID("dimensions");
         private static readonly int DeltaTimePropId = Shader.PropertyToID("delta_time");
+        private static readonly int ParticleNumPropId = Shader.PropertyToID("particle_num");
 
         private ComputeBuffer _particlesBuffer;
         private readonly ComputeBuffer _fieldBuffer;

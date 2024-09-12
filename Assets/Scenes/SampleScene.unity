@@ -253,7 +253,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 50, y: 50, z: -20.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -514,13 +514,67 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4e35c0782644716820cd617908becc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 10
-  height: 10
-  depth: 10
+  width: 30
+  height: 30
+  depth: 30
   force:
-    x: 0.0002
-    y: 0.0001
+    x: 0
+    y: 0.01
     z: 0
+--- !u!1 &1146495278
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1146495280}
+  - component: {fileID: 1146495279}
+  m_Layer: 0
+  m_Name: CpuLBMSolverDebug (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1146495279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1146495278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5681d9d83a544567ad044a67945fed46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size:
+    x: 10
+    y: 10
+    z: 10
+  velocityCoef: 10
+  visc: 0.1
+  force:
+    x: 2
+    y: 0
+    z: 0
+--- !u!4 &1146495280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1146495278}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1327824599
 GameObject:
   m_ObjectHideFlags: 0
@@ -531,6 +585,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1327824601}
   - component: {fileID: 1327824602}
+  - component: {fileID: 1327824603}
   m_Layer: 0
   m_Name: Test_Solver3D
   m_TagString: Untagged
@@ -571,8 +626,32 @@ MonoBehaviour:
   width: 100
   height: 100
   depth: 100
-  tau: 0.91
-  force: {x: 0, y: 0.0004, z: 0}
+  tau: 0.6
+  force: {x: 0, y: 0.05, z: 0}
+  solverType: 0
+  maxPoints: 1000000
+--- !u!114 &1327824603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327824599}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lbmShader: {fileID: 7200000, guid: 8ef4499a3a1449b091d49dfc2ce91373, type: 3}
+  effectorShader: {fileID: 7200000, guid: 4ae22eebbf1046dcbf4f29494cc397ea, type: 3}
+  effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
+  width: 50
+  height: 50
+  depth: 50
+  tau: 1.2
+  force: {x: 0.0002, y: 0, z: 0}
+  solverType: 1
+  maxPoints: 100000
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -581,5 +660,6 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 944500173}
+  - {fileID: 1146495280}
   - {fileID: 82044160}
   - {fileID: 1327824601}

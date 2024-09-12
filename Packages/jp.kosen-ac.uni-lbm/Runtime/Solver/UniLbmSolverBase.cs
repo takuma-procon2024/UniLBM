@@ -25,16 +25,13 @@ namespace Solver
         {
         }
 
-        protected void InitializeSolverBase<TKernels>(out Dictionary<TKernels, int> kernelMap) where TKernels : Enum
+        protected void InitializeSolverBase<TKernels, TUniform>(out Dictionary<TKernels, int> kernelMap,
+            out Dictionary<TUniform, int> uniformMap) where TKernels : Enum where TUniform : Enum
         {
             InitialCheck();
 
-            kernelMap = Enum.GetValues(typeof(TKernels))
-                .Cast<TKernels>()
-                .ToDictionary(
-                    kernel => kernel,
-                    kernel => ComputeShader.FindKernel(kernel.ToString())
-                );
+            kernelMap = CreateKernelMap<TKernels>(ComputeShader);
+            uniformMap = CreateUniformMap<TUniform>();
 
             ComputeShader.GetKernelThreadGroupSizes(
                 kernelMap.First().Value,
@@ -62,8 +59,22 @@ namespace Solver
             z = (int)math.ceil((float)dimensions.z / _gpuThreads.z);
         }
 
+        private static Dictionary<T, int> CreateUniformMap<T>() where T : Enum
+        {
+            return Enum.GetValues(typeof(T))
+                .Cast<T>()
+                .ToDictionary(u => u, u => Shader.PropertyToID(u.ToString()));
+        }
+
+        private static Dictionary<T, int> CreateKernelMap<T>(ComputeShader shader) where T : Enum
+        {
+            return Enum.GetValues(typeof(T))
+                .Cast<T>()
+                .ToDictionary(k => k, k => shader.FindKernel(k.ToString()));
+        }
+
         public abstract void Step();
-        
+
         public abstract ComputeBuffer GetFieldBuffer();
         public abstract ComputeBuffer GetVelocityBuffer();
 

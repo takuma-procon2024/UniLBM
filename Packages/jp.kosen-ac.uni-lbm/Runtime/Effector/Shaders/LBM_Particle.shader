@@ -1,12 +1,16 @@
 ﻿Shader "Unlit/LBM_Particle"
 {
-    Properties {}
+    Properties
+    {
+        size ("Size", Float) = 100
+    }
     SubShader
     {
         Tags
         {
             "RenderType"="Opaque"
             "RenderPipeline"="UniversalPipeline"
+            "PreviewType"="Plane"
         }
         LOD 100
 
@@ -16,6 +20,8 @@
         #include "Packages/jp.kosen-ac.uni-lbm/RUntime/Effector/Shaders/particle_data.hlsl"
 
         StructuredBuffer<particle_data> particles;
+
+        float size;
         ENDHLSL
 
         Pass
@@ -51,26 +57,28 @@
             }
 
             [maxvertexcount(2)]
-            void geom(point v2g input[1], inout LineStream<v2f> outStream)
+            void geom(point v2g input[1], inout LineStream<v2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
-                float4 pos = input[0].vertex;
-                float4 prev_pos = input[0].prev_vertex;
+                float4 pos = input[0].vertex * size;
+                float4 prev_pos = input[0].prev_vertex * size;
                 float4 dir = pos - prev_pos;
                 float4 col = input[0].color;
 
-                if (Length2(dir) < 0.0001f || Length2(dir) > 0.25f) return;
+                // if (Length2(dir) <= 0.00001f) return;
+                // if (Length2(dir) >= 0.25) return;
 
                 v2f o;
                 o.vertex = TransformObjectToHClip(prev_pos);
                 o.color = col;
-                outStream.Append(o);
+                out_stream.Append(o);
 
                 o.vertex = TransformObjectToHClip(prev_pos + dir);
+                // o.vertex = TransformObjectToHClip(prev_pos + float3(0, 0.5, 0));
                 o.color = col;
-                outStream.Append(o);
+                out_stream.Append(o);
 
-                outStream.RestartStrip();
+                out_stream.RestartStrip();
             }
 
             float4 frag(v2f i) : SV_Target

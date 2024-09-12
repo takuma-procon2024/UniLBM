@@ -1,26 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Unity.Mathematics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Solver.Impls
 {
-    public class ComputeShaderSolver3D : UniLbmSolverBase
+    public class ComputeD3Q15Solver : UniLbmSolverBase
     {
         private readonly uint3 _dimensions;
         private readonly float3 _force;
         private readonly Dictionary<Kernels, int> _kernelMap;
         private readonly float _tau;
+        private readonly Dictionary<Uniforms, int> _uniformMap;
 
-        public ComputeShaderSolver3D(ComputeShader computeShader, uint3 dimensions, float tau, float3 force)
+        public ComputeD3Q15Solver(ComputeShader computeShader, uint3 dimensions, float tau, float3 force)
             : base(computeShader)
         {
             _dimensions = dimensions;
             _tau = tau;
             _force = force;
 
-            InitializeSolverBase(out _kernelMap);
+            InitializeSolverBase(out _kernelMap, out _uniformMap);
             InitializeBuffers();
             SetupShader();
         }
@@ -39,8 +41,8 @@ namespace Solver.Impls
         private void SwapBuffers()
         {
             (_f0Buffer, _f1Buffer) = (_f1Buffer, _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], F0PropId, _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], F1PropId, _f1Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f0], _f0Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f1], _f1Buffer);
         }
 
         public override void Step()
@@ -103,19 +105,21 @@ namespace Solver.Impls
 
         private void SetupShader()
         {
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], F0PropId, _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], F1PropId, _f1Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], FieldPropId, _fieldBuffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], ForceSourcePropId, _forceSourceBuffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], VelocityPropId, _velocityBuffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f0], _f0Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f1], _f1Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.field], _fieldBuffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.force_source], _forceSourceBuffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.velocity], _velocityBuffer);
 
-            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], F0PropId, _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], FieldPropId, _fieldBuffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], ForceSourcePropId, _forceSourceBuffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.f0], _f0Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.field], _fieldBuffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.force_source],
+                _forceSourceBuffer);
 
-            ComputeShader.SetVector(DimensionsPropId, new Vector3(_dimensions.x, _dimensions.y, _dimensions.z));
-            ComputeShader.SetVector(ForcePropId, new Vector4(_force.x, _force.y, _force.z));
-            ComputeShader.SetFloat(TauPropId, _tau);
+            ComputeShader.SetVector(_uniformMap[Uniforms.dimensions],
+                new Vector3(_dimensions.x, _dimensions.y, _dimensions.z));
+            ComputeShader.SetVector(_uniformMap[Uniforms.force], new Vector4(_force.x, _force.y, _force.z));
+            ComputeShader.SetFloat(_uniformMap[Uniforms.tau], _tau);
 
             // Dispatch initialization kernel
             CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _dimensions);
@@ -127,23 +131,27 @@ namespace Solver.Impls
         #region ComputeShader properties
 
         private const int Q = 15;
-        private static readonly int F0PropId = Shader.PropertyToID("f0");
-        private static readonly int F1PropId = Shader.PropertyToID("f1");
-        private static readonly int FieldPropId = Shader.PropertyToID("field");
-        private static readonly int ForceSourcePropId = Shader.PropertyToID("force_source");
-        private static readonly int VelocityPropId = Shader.PropertyToID("velocity");
-        private static readonly int DimensionsPropId = Shader.PropertyToID("dimensions");
-        private static readonly int ForcePropId = Shader.PropertyToID("force");
-        private static readonly int TauPropId = Shader.PropertyToID("tau");
 
         private ComputeBuffer _f0Buffer, _f1Buffer, _fieldBuffer, _forceSourceBuffer, _velocityBuffer;
 
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private enum Uniforms
+        {
+            f0,
+            f1,
+            field,
+            force_source,
+            velocity,
+            dimensions,
+            force,
+            tau
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         private enum Kernels
         {
-            // ReSharper disable once InconsistentNaming
             solve,
-
-            // ReSharper disable once InconsistentNaming
             initialize
         }
 

@@ -108,7 +108,10 @@ namespace Solver.Impls
                 var idx = x + y * width + z * width * height;
                 var pos = new Vector3(x, y, z);
                 var dir = new Vector3(_velocity[idx].x, _velocity[idx].y, _velocity[idx].z);
-                dir.Normalize();
+                var dirLength = math.length(dir);
+                if (dirLength < 0.0005f) continue;
+                
+                dir /= dirLength;
                 dir *= 0.9f;
 
                 // 先端の色を変える
@@ -131,16 +134,18 @@ namespace Solver.Impls
 
         private void AddDebugForce()
         {
-            for (var x = 0; x < width; x++)
-            for (var y = 0; y < height; y++)
-            for (var z = 0; z < depth; z++)
-            {
-                var idx = x + y * width + z * width * height;
-                if (idx % width == 0)
-                    _forceSource[idx] = force;
-                if (idx % width == width - 1)
-                    _forceSource[idx] = -force;
-            }
+            // for (var x = 0; x < width; x++)
+            // for (var y = 0; y < height; y++)
+            // for (var z = 0; z < depth; z++)
+            // {
+            //     var idx = x + y * width + z * width * height;
+            //     if (idx % width == 0)
+            //         _forceSource[idx] = force;
+            //     if (idx % width == width - 1)
+            //         _forceSource[idx] = -force;
+            // }
+            
+            _forceSource[10 + 10 * width + 10 * width * height] = force;
         }
 
         private void Eval(in int3 pos)
@@ -178,10 +183,9 @@ namespace Solver.Impls
                 var idxP = p.x + p.y * width + p.z * width * height;
 
                 var newF = (1 - Omega) * _f0[idx * Q + m] + Omega * _w[m] * rho *
-                    (1f - 3f / 2f * (ux * ux + uy * uy * uz * uz) +
+                    (1f - 3f / 2f * (ux * ux + uy * uy + uz * uz) +
                      3f * (_ex[m] * ux + _ey[m] * uy + _ez[m] * uz) + 9f / 2f *
                      (_ex[m] * ux + _ey[m] * uy + _ez[m] * uz) * (_ex[m] * ux + _ey[m] * uy + _ez[m] * uz));
-                newF = math.clamp(newF, (float.MinValue + 1) / Q, (float.MaxValue - 1) / Q);
 
                 if (_field[idxP] == BoundaryType) _f1[idx * Q + _inv[m]] = newF;
                 else _f1[idxP * Q + m] = newF;

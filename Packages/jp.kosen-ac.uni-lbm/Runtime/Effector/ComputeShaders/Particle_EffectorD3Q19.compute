@@ -1,0 +1,157 @@
+﻿#pragma kernel init
+#pragma kernel draw
+
+#define FLUID_TYPE 0
+#define BOUNDARY_TYPE 1
+
+#include "Packages/jp.kosen-ac.uni-lbm/Runtime/Effector/Shaders/particle_data.hlsl"
+
+float delta_time;
+uint3 dimensions;
+StructuredBuffer<uint> field;
+StructuredBuffer<float4> velocity;
+RWStructuredBuffer<particle_data> particles;
+
+float random(in float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453123);
+}
+
+float3 random(in float3 uv)
+{
+    return float3(random(uv.xy), random(uv.yz), random(uv.zx));
+}
+
+float3 periodic_boundary(in float3 pos)
+{
+    return (pos + dimensions) % dimensions;
+}
+
+uint get_index(in uint3 pos)
+{
+    return pos.x + pos.y * dimensions.x + pos.z * dimensions.x * dimensions.y;
+}
+
+float4 color(float t)
+{
+    float col_tab[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 0.00, 0.10, 0.20};
+    float4 col;
+    col.r = col_tab[0] + col_tab[3] * cos(2 * 3.1416 * (col_tab[6] * t + col_tab[9]));
+    col.g = col_tab[1] + col_tab[4] * cos(2 * 3.1416 * (col_tab[7] * t + col_tab[10]));
+    col.b = col_tab[2] + col_tab[5] * cos(2 * 3.1416 * (col_tab[8] * t + col_tab[11]));
+    col.a = 1;
+    return col;
+}
+
+float3 hsv_2_rgb(float3 hsv)
+{
+    float3 rgb;
+
+    if (hsv.y == 0)
+    {
+        // S（彩度）が0と等しいならば無色もしくは灰色
+        rgb.r = rgb.g = rgb.b = hsv.z;
+    }
+    else
+    {
+        // 色環のH（色相）の位置とS（彩度）、V（明度）からRGB値を算出する
+        hsv.x *= 6.0;
+        float i = floor(hsv.x);
+        float f = hsv.x - i;
+        float aa = hsv.z * (1 - hsv.y);
+        float bb = hsv.z * (1 - (hsv.y * f));
+        float cc = hsv.z * (1 - (hsv.y * (1 - f)));
+        if (i < 1)
+        {
+            rgb.r = hsv.z;
+            rgb.g = cc;
+            rgb.b = aa;
+        }
+        else if (i < 2)
+        {
+            rgb.r = bb;
+            rgb.g = hsv.z;
+            rgb.b = aa;
+        }
+        else if (i < 3)
+        {
+            rgb.r = aa;
+            rgb.g = hsv.z;
+            rgb.b = cc;
+        }
+        else if (i < 4)
+        {
+            rgb.r = aa;
+            rgb.g = bb;
+            rgb.b = hsv.z;
+        }
+        else if (i < 5)
+        {
+            rgb.r = cc;
+            rgb.g = aa;
+            rgb.b = hsv.z;
+        }
+        else
+        {
+            rgb.r = hsv.z;
+            rgb.g = aa;
+            rgb.b = bb;
+        }
+    }
+    return rgb;
+}
+
+[numthreads(8,8,8)]
+void init(in uint3 id: SV_DispatchThreadID)
+{
+    if (any(id >= dimensions)) return;
+
+    uint idx = get_index(id);
+
+    particles[idx].pos = id;
+    particles[idx].prev_pos = id;
+    particles[idx].col = float4(0.3f, 0.3f, 0.5f, 0.0f);
+}
+
+[numthreads(8,8,8)]
+void draw(in uint3 id: SV_DispatchThreadID)
+{
+    if (any(id >= dimensions)) return;
+
+    uint idx = get_index(id);
+
+    float3 p_pos = particles[idx].pos;
+    uint3 cell_pos = uint3(p_pos);
+    uint cell_idx = get_index(cell_pos);
+
+    if (
+        // field[cell_idx] != FLUID_TYPE
+        p_pos.x < 0.f || p_pos.x >= (float)dimensions.x
+        || p_pos.y < 0.f || p_pos.y >= (float)dimensions.y
+        || p_pos.z < 0.f || p_pos.z >= (float)dimensions.z
+    )
+    {
+        particles[idx].pos
+            = particles[idx].prev_pos
+            = id;
+    }
+    else
+    {
+        particles[idx].prev_pos = particles[idx].pos;
+
+        p_pos += velocity[cell_idx].xyz * delta_time * 10000;
+        particles[idx].pos = periodic_boundary(p_pos);
+    }
+
+    // colors
+    // float3 uvw = velocity[cell_idx] * 100;
+    // float4 col = color(10.f * (uvw.x * uvw.x + uvw.y * uvw.y + uvw.z * uvw.z));
+    // col.a = 4 * (uvw.x * uvw.x + uvw.y * uvw.y);
+    // col.a = pow(log(1 + col.a) / log(2), 0.9f);
+    float vel_length = length(velocity[cell_idx].xyz) * 100;
+    float4 col = float4(hsv_2_rgb(float3(clamp(vel_length, 0, 1), 1, 1)), 1.f);
+
+    // update
+    // particles[idx].col = field[cell_idx] == FLUID_TYPE ? col : float4(0.3f, 0.3f, 0.5f, 0.0f);
+    particles[idx].col = col;
+}

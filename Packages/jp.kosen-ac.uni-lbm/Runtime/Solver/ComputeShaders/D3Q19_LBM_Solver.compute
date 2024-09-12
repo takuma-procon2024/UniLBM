@@ -1,0 +1,179 @@
+﻿#pragma kernel initialize
+#pragma kernel collision
+#pragma kernel advection
+
+#define THREADS_X 4
+#define THREADS_Y 4
+#define THREADS_Z 4
+
+
+#define GS_ITERATE 2
+#define Q 19
+
+// 各方向への速度ベクトル
+const int3 e[Q] = {
+    int3(+1, +0, +0), int3(-1, +0, +0), int3(+0, +0, +1), int3(+0, +0, -1), //  0 -  3
+    int3(+0, -1, +0), int3(+0, +1, +0), int3(+1, +0, +1), int3(-1, +0, -1), //  4 -  7
+    int3(-1, +0, +1), int3(+1, +0, -1), int3(+1, -1, +0), int3(-1, +1, +0), //  8 - 11
+    int3(-1, -1, +0), int3(+1, +1, +0), int3(+0, -1, +1), int3(+0, +1, -1), // 12 - 15
+    int3(+0, -1, -1), int3(+0, +1, +1), int3(+0, +0, +0) // 16 - 18
+};
+
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
+
+//==============================================================================
+// uniform 変数
+//==============================================================================
+uint3 cell_size;
+float tau;
+// 周囲19格子への流出量
+RWStructuredBuffer<float> current;
+RWStructuredBuffer<float> next;
+// 粒子内の粒子量および流速 (float4(x, y, z, rho))
+RWStructuredBuffer<float4> particle;
+// 外部入力速度
+RWStructuredBuffer<float3> input_velocity;
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP0: 初期化]
+//==============================================================================
+[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+void initialize(in uint3 id: SV_DispatchThreadID)
+{
+    if (any(id >= cell_size)) return;
+
+    uint idx = get_index(id, cell_size);
+
+    const float f_base = 10.5f;
+    const float f_0_5 = f_base * 1.f / 18.f;
+    const float f_6_7 = f_base * 1.f / 3.f;
+    const float f_8_17 = f_base * 1.f / 36.f;
+    const float f_18 = f_base * 1.f / 3.f;
+    const float w[Q] = {
+        f_0_5, f_0_5, f_0_5, f_0_5, //  0 -  3
+        f_0_5, f_0_5, f_6_7, f_6_7, //  4 -  7
+        f_8_17, f_8_17, f_8_17, f_8_17, //  8 - 11
+        f_8_17, f_8_17, f_8_17, f_8_17, //  12 - 15
+        f_8_17, f_8_17, f_18 // 16 - 18
+    };
+
+    [unroll]
+    for (int i = 0; i < Q; i++)
+    {
+        current[idx * Q + i] = w[i];
+        next[idx * Q + i] = 0;
+    }
+    particle[idx] = float4(0, 0, 0, f_base);
+    if (id.x == 0)
+        input_velocity[idx] = float3(0.5f, 0, 0);
+    else
+        input_velocity[idx] = float3(0.f, 0, 0);
+}
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP1: 衝突]
+//==============================================================================
+[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+void collision(in uint3 id: SV_DispatchThreadID)
+{
+    if (any(id >= cell_size)) return;
+
+    int i;
+
+    // ID
+    uint idx = get_index(id, cell_size);
+
+    bool in_wall = is_in_wall(idx, cell_size);
+
+    // 前回の流入量をサンプリング
+    float fl[Q];
+    for (i = 0; i < Q; i++) fl[i] = current[idx * Q + i];
+
+    // 各方向への流出量を計算
+    float3 u = particle[idx].xyz;
+    float lo = particle[idx].w;
+    float u2 = dot(u, u);
+
+    if (!in_wall)
+    {
+        for (i = 0; i < Q; i++)
+        {
+            float feq;
+            float a = dot(e[i], u);
+            float b = 3.f * a + 4.5f * a * a - 1.5f * u2;
+            float c = lo * (1 + b);
+
+            if (i < 6) feq = c / 18.f;
+            else if (i < 18) feq = c / 36.f;
+            else feq = c / 3.f;
+
+            current[idx * Q + i] = fl[i] - (fl[i] - feq) / tau;
+        }
+    }
+    else
+    {
+        const uint inv[Q] = {
+            1, 0, 3, 2,
+            5, 4, 7, 6,
+            9, 8, 11, 10,
+            13, 12, 15, 14,
+            17, 16, 18
+        };
+        for (i = 0; i < Q; i++)
+            current[idx * Q + i] = fl[inv[i]];
+    }
+
+    // PERF: この行は消しても影響がないかも...
+    particle[idx] = float4(u, lo);
+}
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP2: 併進]
+//==============================================================================
+[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+void advection(in uint3 id: SV_DispatchThreadID)
+{
+    if (any(id >= cell_size)) return;
+
+    int i;
+
+    // ID
+    uint idx = get_index(id, cell_size);
+
+    // 各方向からの併進してくる量
+    float fl[Q];
+    for (i = 0; i < Q; i++)
+        fl[i] = current[get_index(id - e[i], cell_size) * Q + i];
+
+    // 現時刻の密度・速度ベクトルの産出
+    float new_lo = 0.f;
+    float3 new_u = 0.f;
+
+    bool in_wall = is_in_wall(idx, cell_size);
+
+    if (!in_wall)
+    {
+        for (i = 0; i < Q; i++)
+        {
+            new_lo += fl[i];
+            new_u += fl[i] * e[i];
+        }
+        if (new_lo > 0) new_u /= new_lo;
+
+        // 入力速度を反映
+        float3 input = input_velocity[idx];
+        if (!any(isnan(input)) && any(input))
+            new_u += input_velocity[idx];
+    }
+    else
+    {
+        float4 p = particle[idx];
+        new_u = p.xyz;
+        new_lo = p.w;
+    }
+
+    // 粒子の速度を更新
+    for (i = 0; i < Q; i++)
+        next[idx * Q + i] = fl[i];
+    particle[idx] = float4(new_u, new_lo);
+}
