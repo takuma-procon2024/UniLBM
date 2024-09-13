@@ -626,7 +626,7 @@ MonoBehaviour:
   height: 100
   depth: 100
   tau: 0.6
-  force: {x: 0, y: 0.05, z: 0}
+  force: {x: 0, y: -0.09, z: 0}
   solverType: 0
   maxPoints: 1000000
 --- !u!1660057539 &9223372036854775807

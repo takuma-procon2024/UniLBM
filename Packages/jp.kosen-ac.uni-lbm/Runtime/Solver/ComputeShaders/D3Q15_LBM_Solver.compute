@@ -86,20 +86,25 @@ void solve(uint3 id : SV_DispatchThreadID)
     // Collision and streaming
     for (int k = 0; k < Q; k++)
     {
-        uint3 p = periodic_boundary(id + e[k]);
-        uint idx_p = get_index(p);
+        int3 neighbor = (int3)id + e[k];
 
-        float dot_product = dot(e[k], u);
-        float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
-            (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
-
-        if (field[idx_p] == BOUNDARY_TYPE)
+        bool is_outside = any(neighbor < 0) || any(neighbor >= (int3)dimensions);
+        if (is_outside)
         {
-            f1[idx * Q + inv[k]] = new_f;
+            f1[idx * Q + k] = f0[idx * Q + k];
         }
         else
         {
-            f1[idx_p * Q + k] = new_f;
+            uint idx_p = get_index(neighbor);
+
+            float dot_product = dot(e[k], u);
+            float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
+                (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
+
+            if (field[idx_p] == BOUNDARY_TYPE)
+                f1[idx * Q + inv[k]] = new_f;
+            else
+                f1[idx_p * Q + k] = new_f;
         }
     }
 }
@@ -124,12 +129,6 @@ void initialize(uint3 id : SV_DispatchThreadID)
     float3 diff = pos - center;
     float radius = 10.0f;
     if (dot(diff, diff) < radius * radius)
-    {
-        field[idx] = BOUNDARY_TYPE;
-    }
-    if (id.x == 0 || id.x == dimensions.x - 1 ||
-        id.y == 0 || id.y == dimensions.y - 1 ||
-        id.z == 0 || id.z == dimensions.z - 1)
     {
         field[idx] = BOUNDARY_TYPE;
     }
