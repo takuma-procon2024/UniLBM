@@ -5,7 +5,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Solver.Impls
 {
-    public class SimpleLbmCpuSolver3D : MonoBehaviour
+    public class CpuD3Q15Solver : MonoBehaviour
     {
         private const uint FluidType = 0, BoundaryType = 1;
 
@@ -110,7 +110,7 @@ namespace Solver.Impls
                 var dir = new Vector3(_velocity[idx].x, _velocity[idx].y, _velocity[idx].z);
                 var dirLength = math.length(dir);
                 if (dirLength < 0.0005f) continue;
-                
+
                 dir /= dirLength;
                 dir *= 0.9f;
 
@@ -144,7 +144,7 @@ namespace Solver.Impls
             //     if (idx % width == width - 1)
             //         _forceSource[idx] = -force;
             // }
-            
+
             _forceSource[10 + 10 * width + 10 * width * height] = force;
         }
 

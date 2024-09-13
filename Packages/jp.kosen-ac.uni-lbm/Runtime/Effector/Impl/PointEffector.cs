@@ -2,21 +2,16 @@
 using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Effector.Impl
 {
     public class PointEffector : IDisposable
     {
-        #region Material Variables
-
-        private static readonly int MatParticlesBufferPropId = Shader.PropertyToID("particles");
-
-        #endregion
-
-        public PointEffector(in uint3 dimension, uint maxPoints, ComputeShader computeShader,
+        public PointEffector(in uint cellSize, uint maxPoints, ComputeShader computeShader,
             Material material, ComputeBuffer fieldBuffer, ComputeBuffer velocityBuffer)
         {
-            _dimension = dimension;
+            _cellSize = cellSize;
             _computeShader = computeShader;
             _material = material;
             _fieldBuffer = fieldBuffer;
@@ -25,27 +20,19 @@ namespace Effector.Impl
             _initKernelId = _computeShader.FindKernel("init");
             _drawKernelId = _computeShader.FindKernel("draw");
             _computeShader.GetKernelThreadGroupSizes(_initKernelId, out var xThread, out var yThread, out var zThread);
+            Assert.IsTrue(xThread == yThread && yThread == zThread, "スレッド数が一致しません。");
             _gpuThreads = new uint3(xThread, yThread, zThread);
 
-            var threadSize = _gpuThreads.x * _gpuThreads.y * _gpuThreads.z;
-            var totalDimension = dimension.x * dimension.y * dimension.z;
-            var totalParticleNum = maxPoints / threadSize * threadSize;
-            _particleNum = new uint3(
-                (uint)(totalParticleNum * (dimension.x / (float)totalDimension)),
-                (uint)(totalParticleNum * (dimension.y / (float)totalDimension)),
-                (uint)(totalParticleNum * (dimension.z / (float)totalDimension))
-            );
-            totalParticleNum = _particleNum.x * _particleNum.y * _particleNum.z;
-            if (totalParticleNum <= 0)
-            {
-                Debug.LogError("最大パーティクル数が少なすぎます。");
-                throw new ArgumentException("Invalid particle number");
-            }
+            var cbrtParticleNum = (uint)math.floor(math.pow(maxPoints, 1f / 3f));
+            _particleNum = cbrtParticleNum / xThread * xThread;
+            Assert.IsTrue(_particleNum.x > 0, "パーティクル数が少なすぎます。");
 
-            _particlesBuffer = new ComputeBuffer((int)totalParticleNum, Marshal.SizeOf<ParticleData>());
+            _particlesBuffer = new ComputeBuffer((int)math.pow(_particleNum.x, 3), Marshal.SizeOf<ParticleData>());
 
             Initialize();
         }
+
+        public float MoveSpeed { get; set; } = 500f;
 
         public void Dispose()
         {
@@ -53,10 +40,23 @@ namespace Effector.Impl
             _particlesBuffer = null;
         }
 
+        /// <summary>
+        ///     パーティクルの色を制御するパラメーターを設定する
+        /// </summary>
+        /// <param name="hueSpeed">色相の変化倍率</param>
+        /// <param name="s">彩度</param>
+        /// <param name="v">明度</param>
+        /// <param name="alpha">出力色のAlpha値</param>
+        public void SetHsvParam(float hueSpeed = 100f, float s = 1f, float v = 1f, float alpha = 1f)
+        {
+            _computeShader.SetVector(HsvParamPropId, new Vector4(hueSpeed, s, v, alpha));
+        }
+
         private void Initialize()
         {
-            _computeShader.SetVector(DimensionsPropId, new Vector4(_dimension.x, _dimension.y, _dimension.z, 0));
-            _computeShader.SetInt(ParticleNumPropId, (int)_particleNum.x * (int)_particleNum.y * (int)_particleNum.z);
+            SetHsvParam();
+            _computeShader.SetInt(CellSizePropId, (int)_cellSize);
+            _computeShader.SetInt(ParticleNumPropId, (int)_particleNum.x);
             _computeShader.SetBuffer(_initKernelId, ParticlesBufferPropId, _particlesBuffer);
             _computeShader.SetBuffer(_drawKernelId, ParticlesBufferPropId, _particlesBuffer);
             _computeShader.SetBuffer(_drawKernelId, FieldBufferPropId, _fieldBuffer);
@@ -70,12 +70,13 @@ namespace Effector.Impl
 
         public void Update()
         {
-            _computeShader.SetFloat(DeltaTimePropId, Time.deltaTime);
+            _computeShader.SetFloat(DeltaTimePropId, Time.deltaTime * MoveSpeed);
 
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
 
-            var bound = new Bounds(Vector3.zero, new Vector3(_dimension.x, _dimension.y, _dimension.z));
+            var matSize = _material.GetFloat(MatSizePropId);
+            var bound = new Bounds(Vector3.zero, new Vector3(matSize, matSize, matSize));
             Graphics.DrawProcedural(_material, bound, MeshTopology.Points, _particlesBuffer.count);
         }
 
@@ -86,12 +87,19 @@ namespace Effector.Impl
             z = (int)math.ceil((float)_particleNum.z / _gpuThreads.z);
         }
 
+        #region Material Variables
+
+        private static readonly int MatParticlesBufferPropId = Shader.PropertyToID("particles");
+        private static readonly int MatSizePropId = Shader.PropertyToID("size");
+
+        #endregion
+
 
         #region Variables
 
         private readonly ComputeShader _computeShader;
         private readonly Material _material;
-        private readonly uint3 _dimension;
+        private readonly uint _cellSize;
         private readonly uint3 _particleNum;
 
         #endregion
@@ -101,9 +109,10 @@ namespace Effector.Impl
         private static readonly int ParticlesBufferPropId = Shader.PropertyToID("particles");
         private static readonly int FieldBufferPropId = Shader.PropertyToID("field");
         private static readonly int VelocityBufferPropId = Shader.PropertyToID("velocity");
-        private static readonly int DimensionsPropId = Shader.PropertyToID("dimensions");
+        private static readonly int CellSizePropId = Shader.PropertyToID("cell_size");
         private static readonly int DeltaTimePropId = Shader.PropertyToID("delta_time");
-        private static readonly int ParticleNumPropId = Shader.PropertyToID("particle_num");
+        private static readonly int ParticleNumPropId = Shader.PropertyToID("num_particles");
+        private static readonly int HsvParamPropId = Shader.PropertyToID("hsv_param");
 
         private ComputeBuffer _particlesBuffer;
         private readonly ComputeBuffer _fieldBuffer;

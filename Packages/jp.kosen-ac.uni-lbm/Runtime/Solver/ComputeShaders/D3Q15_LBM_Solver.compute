@@ -14,7 +14,7 @@ RWStructuredBuffer<uint> field;
 RWStructuredBuffer<float3> force_source;
 RWStructuredBuffer<float3> velocity;
 
-uint3 dimensions;
+int cell_size;
 float3 force;
 float tau;
 
@@ -44,12 +44,12 @@ static const float w[Q] = {
 //==============================================================================
 uint get_index(in uint3 pos)
 {
-    return pos.x + pos.y * dimensions.x + pos.z * dimensions.x * dimensions.y;
+    return pos.x + pos.y * cell_size + pos.z * cell_size * cell_size;
 }
 
 uint3 periodic_boundary(in int3 pos)
 {
-    return (pos + dimensions) % dimensions;
+    return (pos + cell_size) % cell_size;
 }
 
 //==============================================================================
@@ -58,7 +58,7 @@ uint3 periodic_boundary(in int3 pos)
 [numthreads(8,8,8)]
 void solve(uint3 id : SV_DispatchThreadID)
 {
-    if (any(id >= dimensions)) return;
+    if (any(id >= (uint)cell_size)) return;
 
     float omega = 1.0f / tau;
     uint idx = get_index(id);
@@ -88,7 +88,7 @@ void solve(uint3 id : SV_DispatchThreadID)
     {
         int3 neighbor = (int3)id + e[k];
 
-        bool is_outside = any(neighbor < 0) || any(neighbor >= (int3)dimensions);
+        bool is_outside = any(neighbor < 0) || any(neighbor >= (int)cell_size);
         if (is_outside)
         {
             f1[idx * Q + k] = f0[idx * Q + k];
@@ -112,7 +112,7 @@ void solve(uint3 id : SV_DispatchThreadID)
 [numthreads(8,8,8)]
 void initialize(uint3 id : SV_DispatchThreadID)
 {
-    if (any(id >= dimensions)) return;
+    if (any(id >= (uint)cell_size)) return;
 
     uint idx = get_index(id);
     field[idx] = FLUID_TYPE;
@@ -123,18 +123,20 @@ void initialize(uint3 id : SV_DispatchThreadID)
     }
 
     // put obstacles
-    float3 center = float3(dimensions) * 0.5f;
-    center.y = 40;
-    float3 pos = float3(id);
-    float3 diff = pos - center;
-    float radius = 10.0f;
-    if (dot(diff, diff) < radius * radius)
-    {
-        field[idx] = BOUNDARY_TYPE;
-    }
+    // float3 center = cell_size * 0.5f;
+    // center.y = 40;
+    // float3 pos = float3(id);
+    // float3 diff = pos - center;
+    // float radius = 10.0f;
+    // if (dot(diff, diff) < radius * radius)
+    // {
+    //     field[idx] = BOUNDARY_TYPE;
+    // }
 
-    if (id.x == dimensions.x / 2 && id.y == 20 && id.z == dimensions.z / 2)
+    if (id.x == (uint)cell_size / 2 && id.y == 40 && id.z == (uint)cell_size / 2)
         force_source[idx] = force;
+    else if (id.x == (uint)cell_size / 2 && id.y == 60 && id.z == (uint)cell_size / 2)
+        force_source[idx] = -force;
     else
         force_source[idx] = float3(0, 0, 0);
 }
