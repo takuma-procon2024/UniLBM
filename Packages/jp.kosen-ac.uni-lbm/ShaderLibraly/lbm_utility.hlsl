@@ -3,12 +3,6 @@
     return index.x + index.y * size.x + index.z * size.x * size.y;
 }
 
-bool is_in_wall(uint3 index, uint3 size)
-{
-    return index.x == 0 || index.x == size.x - 1 || index.y == 0 || index.y == size.y - 1 || index.z == 0 || index.z ==
-        size.z - 1;
-}
-
 float3 hsv_2_rgb(float3 hsv)
 {
     float3 rgb;
