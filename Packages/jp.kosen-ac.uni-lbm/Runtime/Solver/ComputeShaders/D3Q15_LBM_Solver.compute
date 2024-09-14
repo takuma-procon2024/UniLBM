@@ -123,20 +123,20 @@ void initialize(uint3 id : SV_DispatchThreadID)
     }
 
     // put obstacles
-    // float3 center = cell_size * 0.5f;
-    // center.y = 40;
-    // float3 pos = float3(id);
-    // float3 diff = pos - center;
-    // float radius = 10.0f;
-    // if (dot(diff, diff) < radius * radius)
-    // {
-    //     field[idx] = BOUNDARY_TYPE;
-    // }
+    float3 center = cell_size * 0.5f;
+    center.y = 50;
+    float3 pos = float3(id);
+    float3 diff = pos - center;
+    float radius = 5.0f;
+    if (dot(diff, diff) < radius * radius)
+    {
+        field[idx] = BOUNDARY_TYPE;
+    }
 
     if (id.x == (uint)cell_size / 2 && id.y == 40 && id.z == (uint)cell_size / 2)
         force_source[idx] = force;
-    else if (id.x == (uint)cell_size / 2 && id.y == 60 && id.z == (uint)cell_size / 2)
-        force_source[idx] = -force;
+    // else if (id.x == (uint)cell_size / 2 && id.y == 60 && id.z == (uint)cell_size / 2)
+    //     force_source[idx] = -force;
     else
         force_source[idx] = float3(0, 0, 0);
 }

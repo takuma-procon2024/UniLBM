@@ -550,16 +550,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5681d9d83a544567ad044a67945fed46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size:
-    x: 10
-    y: 10
-    z: 10
-  velocityCoef: 10
-  visc: 0.1
-  force:
-    x: 2
-    y: 0
-    z: 0
 --- !u!4 &1146495280
 Transform:
   m_ObjectHideFlags: 0
@@ -627,6 +617,7 @@ MonoBehaviour:
   force: {x: 0, y: 0.0009, z: 0}
   solverType: 0
   maxPoints: 1000000
+  moveSpeed: 500
   hueSpeed: 100
   sva:
     x: 1
