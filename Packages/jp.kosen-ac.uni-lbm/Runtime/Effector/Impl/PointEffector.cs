@@ -9,7 +9,7 @@ namespace Effector.Impl
     public class PointEffector : IDisposable
     {
         public PointEffector(in uint cellSize, uint maxPoints, ComputeShader computeShader,
-            Material material, ComputeBuffer fieldBuffer, ComputeBuffer velocityBuffer)
+            Material material, GraphicsBuffer fieldBuffer, GraphicsBuffer velocityBuffer)
         {
             _cellSize = cellSize;
             _computeShader = computeShader;
@@ -28,6 +28,13 @@ namespace Effector.Impl
             Assert.IsTrue(_particleNum.x > 0, "パーティクル数が少なすぎます。");
 
             _particlesBuffer = new ComputeBuffer((int)math.pow(_particleNum.x, 3), Marshal.SizeOf<ParticleData>());
+
+            var materialSize = material.GetFloat(MatSizePropId);
+            var bound = new Bounds(Vector3.zero, new Vector3(materialSize, materialSize, materialSize));
+            _renderParams = new RenderParams(material)
+            {
+                worldBounds = bound
+            };
 
             Initialize();
         }
@@ -75,9 +82,7 @@ namespace Effector.Impl
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
 
-            var matSize = _material.GetFloat(MatSizePropId);
-            var bound = new Bounds(Vector3.zero, new Vector3(matSize, matSize, matSize));
-            Graphics.DrawProcedural(_material, bound, MeshTopology.Points, _particlesBuffer.count);
+            Graphics.RenderPrimitives(_renderParams, MeshTopology.Points, _particlesBuffer.count);
         }
 
         private void CalcThreadGroupSize(out int x, out int y, out int z)
@@ -101,6 +106,7 @@ namespace Effector.Impl
         private readonly Material _material;
         private readonly uint _cellSize;
         private readonly uint3 _particleNum;
+        private readonly RenderParams _renderParams;
 
         #endregion
 
@@ -115,8 +121,8 @@ namespace Effector.Impl
         private static readonly int HsvParamPropId = Shader.PropertyToID("hsv_param");
 
         private ComputeBuffer _particlesBuffer;
-        private readonly ComputeBuffer _fieldBuffer;
-        private readonly ComputeBuffer _velocityBuffer;
+        private readonly GraphicsBuffer _fieldBuffer;
+        private readonly GraphicsBuffer _velocityBuffer;
         private　readonly uint3 _gpuThreads;
         private readonly int _drawKernelId, _initKernelId;
 

@@ -9,6 +9,7 @@
 #define Q 19
 #define FLUID_TYPE 0
 #define BOUNDARY_TYPE 1
+#define OUTFLOW_TYPE 2
 
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
@@ -16,18 +17,18 @@
 // 定数
 //==============================================================================
 // 各方向への速度ベクトル
-const int3 ei[Q] = {
+static const int3 ei[Q] = {
     int3(+1, +0, +0), int3(-1, +0, +0), int3(+0, +0, +1), int3(+0, +0, -1), //  0 -  3
     int3(+0, -1, +0), int3(+0, +1, +0), int3(+1, +0, +1), int3(-1, +0, -1), //  4 -  7
     int3(-1, +0, +1), int3(+1, +0, -1), int3(+1, -1, +0), int3(-1, +1, +0), //  8 - 11
     int3(-1, -1, +0), int3(+1, +1, +0), int3(+0, -1, +1), int3(+0, +1, -1), // 12 - 15
     int3(+0, -1, -1), int3(+0, +1, +1), int3(+0, +0, +0) // 16 - 18
 };
-const float s = 1.f / 18.f; // 隣接方向への重み
-const float l = 1.f / 36.f; // 対角方向への重み
-const float z = 1.f / 3.f; // 中心点での重み
+static const float s = 1.f / 18.f; // 隣接方向への重み
+static const float l = 1.f / 36.f; // 対角方向への重み
+static const float z = 1.f / 3.f; // 中心点での重み
 // 各方向での重み
-const float w[Q] = {
+static const float w[Q] = {
     s, s, s, s,
     s, s, l, l,
     l, l, l, l,
@@ -35,7 +36,7 @@ const float w[Q] = {
     l, l, z
 };
 // バックバウンスする方向
-const uint inv[Q] = {
+static const uint inv[Q] = {
     1, 0, 3, 2,
     5, 4, 7, 6,
     9, 8, 11, 10,
@@ -55,8 +56,10 @@ RWStructuredBuffer<float> f0;
 RWStructuredBuffer<float> f1;
 // フィールド
 RWStructuredBuffer<uint> field;
-// 粒子内の粒子量および流速 (float4(x, y, z, rho))
-RWStructuredBuffer<float4> particle;
+// 粒子内の流速
+RWStructuredBuffer<float3> velocity;
+// 粒子の密度
+RWStructuredBuffer<float> density;
 // 外部入力速度
 RWStructuredBuffer<float3> source_velocity;
 
@@ -75,15 +78,16 @@ void initialize(in uint3 id: SV_DispatchThreadID)
     [unroll]
     for (int i = 0; i < Q; i++)
         f0[idx * Q + i] = f_base * w[i];
-    particle[idx] = float4(0, 0, 0, f_base);
+    velocity[idx] = float3(0, 0, 0);
+    density[idx] = f_base;
 
-    if (any(id == 0 || id == cell_size - 1))
-        field[idx] = BOUNDARY_TYPE;
+    if (any(id == 0) || any(id == cell_size - 1))
+        field[idx] = OUTFLOW_TYPE;
     else
         field[idx] = FLUID_TYPE;
 
-    if (id == cell_size / 2)
-        source_velocity[idx] = float3(0.00002f, 0, 0);
+    if (id.x == cell_size / 2 && id.y == cell_size / 2 && id.z == cell_size / 2)
+        source_velocity[idx] = float3(0, 0.02f, 0);
     else
         source_velocity[idx] = float3(0, 0, 0);
 }
@@ -102,12 +106,11 @@ void collision(in uint3 id: SV_DispatchThreadID)
     uint idx = get_index(id, cell_size);
 
     // 各方向への流出量を計算
-    float3 u = particle[idx].xyz;
-    float lo = particle[idx].w;
+    float3 u = velocity[idx];
+    float lo = density[idx];
     float u2 = dot(u, u);
 
     if (field[idx] == FLUID_TYPE)
-    {
         for (i = 0; i < Q; i++)
         {
             float a = dot(ei[i], u);
@@ -116,12 +119,9 @@ void collision(in uint3 id: SV_DispatchThreadID)
 
             f0[idx * Q + i] -= (f0[idx * Q + i] - c * w[i]) / tau;
         }
-    }
     else
-    {
         for (i = 0; i < Q; i++)
             f0[idx * Q + i] = f0[idx * Q + inv[i]];
-    }
 }
 
 //==============================================================================
@@ -141,10 +141,16 @@ void advection(in uint3 id: SV_DispatchThreadID)
     for (i = 0; i < Q; i++)
     {
         int3 neighbor = int3(id) - ei[i];
-        if (any(neighbor < 0 || neighbor >= cell_size))
-            f1[idx * Q + i] = f0[idx * Q + i];
+        if (any(neighbor < 0) || any(neighbor >= (int)cell_size))
+        {
+            f1[idx * Q + i] = w[i] * 10.5f;
+            // density[idx] = 10.5f;
+            // velocity[idx] = float3(0, 0, 0);
+        }
         else
+        {
             f1[idx * Q + i] = f0[get_index(neighbor, cell_size) * Q + i];
+        }
     }
 
     // 現時刻の密度・速度ベクトルの産出
@@ -165,11 +171,11 @@ void advection(in uint3 id: SV_DispatchThreadID)
     }
     else
     {
-        float4 p = particle[idx];
-        new_u = p.xyz;
-        new_lo = p.w;
+        new_u = velocity[idx];
+        new_lo = density[idx];
     }
 
-    // 粒子の速度を更新
-    particle[idx] = float4(new_u, new_lo);
+    // 粒子の速度と密度を更新
+    velocity[idx] = new_u;
+    density[idx] = new_lo;
 }

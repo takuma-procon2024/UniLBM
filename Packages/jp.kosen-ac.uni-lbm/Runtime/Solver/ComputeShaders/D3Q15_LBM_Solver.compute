@@ -1,5 +1,6 @@
 ﻿#pragma kernel solve
 #pragma kernel initialize
+#pragma kernel swap
 
 #define Q 15
 #define FLUID_TYPE 0
@@ -55,7 +56,7 @@ uint3 periodic_boundary(in int3 pos)
 //==============================================================================
 // LBM D3Q15 Solver
 //==============================================================================
-[numthreads(8,8,8)]
+[numthreads(2,2,2)]
 void solve(uint3 id : SV_DispatchThreadID)
 {
     if (any(id >= (uint)cell_size)) return;
@@ -88,10 +89,10 @@ void solve(uint3 id : SV_DispatchThreadID)
     {
         int3 neighbor = (int3)id + e[k];
 
-        bool is_outside = any(neighbor < 0) || any(neighbor >= (int)cell_size);
+        bool is_outside = any(neighbor < 0) || any(neighbor >= cell_size);
         if (is_outside)
         {
-            f1[idx * Q + k] = f0[idx * Q + k];
+            f1[idx * Q + k] = w[k];
         }
         else
         {
@@ -109,7 +110,7 @@ void solve(uint3 id : SV_DispatchThreadID)
     }
 }
 
-[numthreads(8,8,8)]
+[numthreads(2,2,2)]
 void initialize(uint3 id : SV_DispatchThreadID)
 {
     if (any(id >= (uint)cell_size)) return;
@@ -133,10 +134,25 @@ void initialize(uint3 id : SV_DispatchThreadID)
         field[idx] = BOUNDARY_TYPE;
     }
 
-    if (id.x == (uint)cell_size / 2 && id.y == 40 && id.z == (uint)cell_size / 2)
+    if (any(id == 0 || id == (uint)cell_size - 1))
+        field[idx] = BOUNDARY_TYPE;
+
+    if (id.x == (uint)cell_size / 2 && id.y == (uint)cell_size / 2 && id.z == (uint)cell_size / 2)
         force_source[idx] = force;
-    // else if (id.x == (uint)cell_size / 2 && id.y == 60 && id.z == (uint)cell_size / 2)
-    //     force_source[idx] = -force;
     else
         force_source[idx] = float3(0, 0, 0);
+}
+
+[numthreads(2, 2, 2)]
+void swap(in uint3 id : SV_DispatchThreadID)
+{
+    if (any(id >= (uint)cell_size)) return;
+
+    uint idx = get_index(id);
+    for (int k = 0; k < Q; k++)
+    {
+        float tmp = f0[idx * Q + k];
+        f0[idx * Q + k] = f1[idx * Q + k];
+        f1[idx * Q + k] = tmp;
+    }
 }

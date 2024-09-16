@@ -111,8 +111,8 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - max_velocity: 0.5
-    - min_velocity: 0
+    - max_velocity: 1211.88
+    - min_velocity: 0.00001
     - size: 50
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

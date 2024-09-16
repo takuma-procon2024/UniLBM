@@ -38,9 +38,8 @@ namespace Solver.Impls
 
         private void SwapBuffers()
         {
-            (_f0Buffer, _f1Buffer) = (_f1Buffer, _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f0], _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f1], _f1Buffer);
+            CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _cellSize);
+            ComputeShader.Dispatch(_kernelMap[Kernels.swap], groupX, groupY, groupZ);
         }
 
         public override void Step()
@@ -53,12 +52,12 @@ namespace Solver.Impls
             // VelocityDebugDraw();
         }
 
-        public override ComputeBuffer GetFieldBuffer()
+        public override GraphicsBuffer GetFieldBuffer()
         {
             return _fieldBuffer;
         }
 
-        public override ComputeBuffer GetVelocityBuffer()
+        public override GraphicsBuffer GetVelocityBuffer()
         {
             return _velocityBuffer;
         }
@@ -68,11 +67,11 @@ namespace Solver.Impls
         private void InitializeBuffers()
         {
             var totalSize = (int)(_cellSize * _cellSize * _cellSize);
-            _f0Buffer = new ComputeBuffer(totalSize * Q, sizeof(float));
-            _f1Buffer = new ComputeBuffer(totalSize * Q, sizeof(float));
-            _fieldBuffer = new ComputeBuffer(totalSize, sizeof(uint));
-            _forceSourceBuffer = new ComputeBuffer(totalSize, 3 * sizeof(float));
-            _velocityBuffer = new ComputeBuffer(totalSize, 3 * sizeof(float));
+            _f0Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize * Q, sizeof(float));
+            _f1Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize * Q, sizeof(float));
+            _fieldBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize, sizeof(uint));
+            _forceSourceBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize, 3 * sizeof(float));
+            _velocityBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize, 3 * sizeof(float));
         }
 
         private void SetupShader()
@@ -87,6 +86,9 @@ namespace Solver.Impls
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.field], _fieldBuffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.force_source],
                 _forceSourceBuffer);
+
+            ComputeShader.SetBuffer(_kernelMap[Kernels.swap], _uniformMap[Uniforms.f0], _f0Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.swap], _uniformMap[Uniforms.f1], _f1Buffer);
 
             ComputeShader.SetInt(_uniformMap[Uniforms.cell_size], (int)_cellSize);
             ComputeShader.SetVector(_uniformMap[Uniforms.force], new Vector4(_force.x, _force.y, _force.z));
@@ -103,7 +105,7 @@ namespace Solver.Impls
 
         private const int Q = 15;
 
-        private ComputeBuffer _f0Buffer, _f1Buffer, _fieldBuffer, _forceSourceBuffer, _velocityBuffer;
+        private GraphicsBuffer _f0Buffer, _f1Buffer, _fieldBuffer, _forceSourceBuffer, _velocityBuffer;
 
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -123,7 +125,8 @@ namespace Solver.Impls
         private enum Kernels
         {
             solve,
-            initialize
+            initialize,
+            swap
         }
 
         #endregion

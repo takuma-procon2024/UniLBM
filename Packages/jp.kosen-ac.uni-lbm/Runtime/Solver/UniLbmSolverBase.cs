@@ -71,8 +71,8 @@ namespace Solver
 
         public abstract void Step();
 
-        public abstract ComputeBuffer GetFieldBuffer();
-        public abstract ComputeBuffer GetVelocityBuffer();
+        public abstract GraphicsBuffer GetFieldBuffer();
+        public abstract GraphicsBuffer GetVelocityBuffer();
 
         #region Variables
 

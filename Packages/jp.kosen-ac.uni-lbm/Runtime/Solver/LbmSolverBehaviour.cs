@@ -44,6 +44,7 @@ namespace Solver
             _solver = solverType switch
             {
                 Solvers.D3Q15 => new ComputeD3Q15Solver(lbmShader, cellSize, tau, force),
+                Solvers.D3Q19 => new ComputeD3Q19Solver(lbmShader, cellSize, tau),
                 _ => throw new NotImplementedException()
             };
             _effector = new PointEffector(cellSize, maxPoints, effectorShader,
@@ -70,7 +71,8 @@ namespace Solver
 
         private enum Solvers
         {
-            D3Q15
+            D3Q15,
+            D3Q19
         }
 #if UNITY_EDITOR
         private float3 _prevSva;
