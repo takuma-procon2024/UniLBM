@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Solver.Impls
 {
@@ -52,6 +54,25 @@ namespace Solver.Impls
         public override GraphicsBuffer GetVelocityBuffer()
         {
             return _velocityBuffer;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _f0Buffer.Dispose();
+            _f1Buffer.Dispose();
+            _fieldBuffer.Dispose();
+            _forceSourceBuffer.Dispose();
+            _velocityBuffer.Dispose();
+            _densityBuffer.Dispose();
+
+            _f0Buffer = null;
+            _f1Buffer = null;
+            _fieldBuffer = null;
+            _forceSourceBuffer = null;
+            _velocityBuffer = null;
+            _densityBuffer = null;
         }
 
         #region Initialize

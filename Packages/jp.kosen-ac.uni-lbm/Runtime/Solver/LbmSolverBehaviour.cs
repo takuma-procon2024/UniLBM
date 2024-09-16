@@ -50,11 +50,16 @@ namespace Solver
             _effector = new PointEffector(cellSize, maxPoints, effectorShader,
                 effectorMaterial,
                 _solver.GetFieldBuffer(), _solver.GetVelocityBuffer());
+
+            _effector.MoveSpeed = moveSpeed;
+            _effector.SetHsvParam(hueSpeed, sva.x, sva.y, sva.z);
         }
 
         private void Update()
         {
+#if UNITY_EDITOR
             CheckParamUpdate();
+#endif
 
             _solver.Step();
             _effector.Update();

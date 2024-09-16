@@ -69,15 +69,15 @@
                 float4 dir = pos - prev_pos;
                 float4 col = input[0].color;
 
-                float dir_length = Length2(dir);
+                float dir_length = Length2(dir.xyz);
                 if (dir_length <= min_velocity || dir_length >= max_velocity) return;
 
                 v2f o;
-                o.vertex = TransformObjectToHClip(prev_pos);
+                o.vertex = TransformObjectToHClip(prev_pos.xyz);
                 o.color = col;
                 out_stream.Append(o);
 
-                o.vertex = TransformObjectToHClip(prev_pos + dir);
+                o.vertex = TransformObjectToHClip((prev_pos + dir).xyz);
                 o.color = col;
                 out_stream.Append(o);
 
