@@ -58,7 +58,7 @@ namespace Solver
         private void Update()
         {
 #if UNITY_EDITOR
-            CheckParamUpdate();
+            // CheckParamUpdate();
 #endif
 
             _solver.Step();

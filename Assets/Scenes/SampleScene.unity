@@ -393,7 +393,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &832575518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,7 +466,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1327824599}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
   m_Name: 
@@ -474,12 +474,12 @@ MonoBehaviour:
   lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
   effectorShader: {fileID: 7200000, guid: 9c77618f0ea35ea4096e11216c0c694d, type: 3}
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
-  cellSize: 64
-  tau: 0.6
-  force: {x: 0, y: 0.001, z: 0}
+  cellSize: 100
+  tau: 1.2
+  force: {x: 0, y: 0.1, z: 0}
   solverType: 0
   maxPoints: 1000000
-  moveSpeed: 1000
+  moveSpeed: 500
   hueSpeed: 100
   sva:
     x: 1
@@ -492,7 +492,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1327824599}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
   m_Name: 

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Unity.Mathematics;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Solver.Impls
 {
@@ -38,20 +36,11 @@ namespace Solver.Impls
             _velocityBuffer?.Dispose();
         }
 
-        private void SwapBuffers()
-        {
-            CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _cellSize);
-            ComputeShader.Dispatch(_kernelMap[Kernels.swap], groupX, groupY, groupZ);
-        }
-
         public override void Step()
         {
             CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _cellSize);
             ComputeShader.Dispatch(_kernelMap[Kernels.solve], groupX, groupY, groupZ);
-
-            SwapBuffers();
-
-            // VelocityDebugDraw();
+            ComputeShader.Dispatch(_kernelMap[Kernels.swap], groupX, groupY, groupZ);
         }
 
         public override GraphicsBuffer GetFieldBuffer()

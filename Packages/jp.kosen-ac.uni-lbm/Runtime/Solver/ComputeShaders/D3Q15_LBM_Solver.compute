@@ -2,6 +2,7 @@
 #pragma kernel initialize
 #pragma kernel swap
 
+#define NUM_THREADS 2
 #define Q 15
 #define FLUID_TYPE 0
 #define BOUNDARY_TYPE 1
@@ -48,27 +49,21 @@ uint get_index(in uint3 pos)
     return pos.x + pos.y * cell_size + pos.z * cell_size * cell_size;
 }
 
-uint3 periodic_boundary(in int3 pos)
-{
-    return (pos + cell_size) % cell_size;
-}
-
 //==============================================================================
 // LBM D3Q15 Solver
 //==============================================================================
-[numthreads(2,2,2)]
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void solve(uint3 id : SV_DispatchThreadID)
 {
-    if (any(id >= (uint)cell_size)) return;
-
     float omega = 1.0f / tau;
     uint idx = get_index(id);
-    if (field[idx] != FLUID_TYPE) return;
+    bool is_invalid = any(id >= (uint)cell_size) || field[idx] != FLUID_TYPE;
 
     // Calculate density and velocity
     float rho = 0;
     float3 u = float3(0, 0, 0);
 
+    [unroll]
     for (int m = 0; m < Q; m++)
     {
         float f = f0[idx * Q + m];
@@ -85,32 +80,31 @@ void solve(uint3 id : SV_DispatchThreadID)
     u += force_source[idx] * 0.5f;
 
     // Collision and streaming
+    [unroll]
     for (int k = 0; k < Q; k++)
     {
         int3 neighbor = (int3)id + e[k];
+        uint idx_p = get_index(neighbor);
 
-        bool is_outside = any(neighbor < 0) || any(neighbor >= cell_size);
-        if (is_outside)
-        {
-            f1[idx * Q + k] = w[k];
-        }
-        else
-        {
-            uint idx_p = get_index(neighbor);
+        float dot_product = dot(e[k], u);
+        float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
+            (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
 
-            float dot_product = dot(e[k], u);
-            float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
-                (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
-
-            if (field[idx_p] == BOUNDARY_TYPE)
-                f1[idx * Q + inv[k]] = new_f;
-            else
-                f1[idx_p * Q + k] = new_f;
-        }
+        bool is_boundary = field[idx_p] == BOUNDARY_TYPE;
+        bool is_outside = any(neighbor < 0 || neighbor >= cell_size);
+        uint f1_idx = is_invalid
+                          ? 0
+                          : is_outside
+                          ? idx * Q + k
+                          : is_boundary
+                          ? idx * Q + inv[k]
+                          : idx_p * Q + k;
+        float f1_val = is_invalid ? f1[0] : is_outside ? w[k] : new_f;
+        f1[f1_idx] = isinf(f1_val) || isnan(f1_val) ? w[k] : f1_val;
     }
 }
 
-[numthreads(2,2,2)]
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void initialize(uint3 id : SV_DispatchThreadID)
 {
     if (any(id >= (uint)cell_size)) return;
@@ -118,14 +112,13 @@ void initialize(uint3 id : SV_DispatchThreadID)
     uint idx = get_index(id);
     field[idx] = FLUID_TYPE;
 
+    [unroll]
     for (int k = 0; k < Q; k++)
-    {
         f0[idx * Q + k] = w[k];
-    }
 
     // put obstacles
     float3 center = cell_size * 0.5f;
-    center.y = 50;
+    center.y = 80;
     float3 pos = float3(id);
     float3 diff = pos - center;
     float radius = 5.0f;
@@ -143,12 +136,13 @@ void initialize(uint3 id : SV_DispatchThreadID)
         force_source[idx] = float3(0, 0, 0);
 }
 
-[numthreads(2, 2, 2)]
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void swap(in uint3 id : SV_DispatchThreadID)
 {
     if (any(id >= (uint)cell_size)) return;
 
     uint idx = get_index(id);
+    [unroll]
     for (int k = 0; k < Q; k++)
     {
         float tmp = f0[idx * Q + k];

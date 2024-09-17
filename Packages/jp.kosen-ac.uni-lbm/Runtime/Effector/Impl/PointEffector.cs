@@ -77,11 +77,11 @@ namespace Effector.Impl
 
         public void Update()
         {
-            _computeShader.SetFloat(DeltaTimePropId, Time.deltaTime * MoveSpeed);
+            _computeShader.SetFloat(DeltaTimePropId, 0.02f * MoveSpeed);
 
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
-
+            
             Graphics.RenderPrimitives(_renderParams, MeshTopology.Points, _particlesBuffer.count);
         }
 
