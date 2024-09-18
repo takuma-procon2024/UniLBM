@@ -121,6 +121,7 @@ namespace Cloth
         private void ReleaseBuffers()
         {
             ReleaseBuffers(ref _normalBuffer);
+            ReleaseBuffers(ref _inputForceBuffer);
             ReleaseBuffers(ref _positionBuffer[0]);
             ReleaseBuffers(ref _positionBuffer[1]);
             ReleaseBuffers(ref _prevPosBuffer[0]);
@@ -134,6 +135,7 @@ namespace Cloth
         private RenderTexture[] _positionBuffer;
         private RenderTexture[] _prevPosBuffer;
         private RenderTexture _normalBuffer;
+        private RenderTexture _inputForceBuffer;
         private float2 _totalClothLength;
 
         private uint2 _groupThreads;
@@ -142,6 +144,7 @@ namespace Cloth
 
         public RenderTexture PositionBuffer => _positionBuffer[0];
         public RenderTexture NormalBuffer => _normalBuffer;
+        public RenderTexture InputForceBuffer => _inputForceBuffer;
 
         private void InitComputeShader()
         {
@@ -170,6 +173,7 @@ namespace Cloth
             }
 
             _normalBuffer = CreateRenderTexture();
+            _inputForceBuffer = CreateRenderTexture();
 
             SetBuffers();
         }
@@ -225,6 +229,7 @@ namespace Cloth
                 computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_prev_buffer_out], _prevPosBuffer[1]);
                 computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_curr_buffer_out], _positionBuffer[1]);
                 computeShader.SetTexture(kernelId, _uniformMap[Uniforms.normal_buffer_out], _normalBuffer);
+                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.input_force], _inputForceBuffer);
             }
         }
 
@@ -250,6 +255,7 @@ namespace Cloth
             pos_prev_buffer_out,
             pos_curr_buffer_out,
             normal_buffer_out,
+            input_force,
             cloth_resolution,
             total_cloth_length,
             rest_length,

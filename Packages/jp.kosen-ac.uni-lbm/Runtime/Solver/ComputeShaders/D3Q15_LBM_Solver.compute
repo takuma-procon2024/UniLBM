@@ -135,18 +135,3 @@ void initialize(uint3 id : SV_DispatchThreadID)
     else
         force_source[idx] = float3(0, 0, 0);
 }
-
-[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
-void swap(in uint3 id : SV_DispatchThreadID)
-{
-    if (any(id >= (uint)cell_size)) return;
-
-    uint idx = get_index(id);
-    [unroll]
-    for (int k = 0; k < Q; k++)
-    {
-        float tmp = f0[idx * Q + k];
-        f0[idx * Q + k] = f1[idx * Q + k];
-        f1[idx * Q + k] = tmp;
-    }
-}

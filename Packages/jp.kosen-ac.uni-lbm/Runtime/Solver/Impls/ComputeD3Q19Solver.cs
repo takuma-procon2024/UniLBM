@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Solver.Impls
 {
@@ -54,6 +52,11 @@ namespace Solver.Impls
         public override GraphicsBuffer GetVelocityBuffer()
         {
             return _velocityBuffer;
+        }
+
+        public override uint GetCellSize()
+        {
+            return _cellSize;
         }
 
         public override void Dispose()

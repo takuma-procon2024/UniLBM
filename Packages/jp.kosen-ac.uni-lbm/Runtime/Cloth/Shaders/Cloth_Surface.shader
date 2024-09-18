@@ -60,7 +60,6 @@
 
                 v2f o;
                 o.vertex = TransformObjectToHClip(float4(pos, v.vertex.w));
-                // o.vertex = TransformObjectToHClip(v.vertex);
                 o.normal = tex2Dlod(_normal_tex, float4(v.uv, 0, 0)).xyz;
                 o.uv = TRANSFORM_TEX(v.uv, _main_tex);
                 o.fog_factor = ComputeFogFactor(o.vertex.z);

@@ -73,6 +73,7 @@ namespace Solver
 
         public abstract GraphicsBuffer GetFieldBuffer();
         public abstract GraphicsBuffer GetVelocityBuffer();
+        public abstract uint GetCellSize();
 
         #region Variables
 

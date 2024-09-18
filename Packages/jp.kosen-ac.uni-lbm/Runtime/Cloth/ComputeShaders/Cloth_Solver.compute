@@ -17,6 +17,9 @@ RWTexture2D<float4> pos_curr_buffer_out;
 // 法線データ (書き込み用)
 RWTexture2D<float4> normal_buffer_out;
 
+// 入力速度 (読み込み用)
+Texture2D input_force;
+
 // 布の解像度
 int2 cloth_resolution;
 // 布の総合的な長さ
@@ -96,9 +99,10 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     float iter = 0;
 
     // パーティクルにかかる力、初期値として重力を代入
-    float3 force = gravity;
+    float3 force = gravity + input_force[id].xyz;
 
     // 布の上辺は位置を固定するため計算を省く
+    [flatten]
     if (id.y == (uint)(cloth_resolution.y - 1)) return;
 
     // 近傍のパーティクルについて計算を行う
@@ -107,6 +111,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     {
         int2 neighbor_id = id + directions[k];
         // 端のパーティクルについては計算しない
+        [flatten]
         if (any(neighbor_id < 0) || any(neighbor_id >= cloth_resolution)) continue;
         float3 neighbor_pos = pos_curr_buffer[neighbor_id].xyz;
         float3 pos_diff = neighbor_pos - pos;
@@ -123,6 +128,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
         float neighbour_rest_length = length(directions[k] * rest_length);
         force += curr_diff * (length(pos_diff) - neighbour_rest_length) * stiffness - vel * damp;
+        [flatten]
         if (k < 8) iter += 1.f;
     }
 

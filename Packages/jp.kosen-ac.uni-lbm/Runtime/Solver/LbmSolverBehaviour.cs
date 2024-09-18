@@ -23,7 +23,7 @@ namespace Solver
 
         [Header("初期速度")] [SerializeField] private Vector3 force = new(0.0002f, 0, 0);
 
-        [Header("使用するソルバー (ほぼ未使用)")] [SerializeField]
+        [Header("使用するソルバー (D3Q15推奨)")] [SerializeField]
         private Solvers solverType;
 
         [Header("最大パーティクル数")] [SerializeField] private uint maxPoints = 100000;
@@ -37,19 +37,18 @@ namespace Solver
         private float3 sva = new(1f, 1f, 1f);
 
         private PointEffector _effector;
-        private UniLbmSolverBase _solver;
+        public UniLbmSolverBase Solver { get; private set; }
 
         private void Start()
         {
-            _solver = solverType switch
+            Solver = solverType switch
             {
                 Solvers.D3Q15 => new ComputeD3Q15Solver(lbmShader, cellSize, tau, force),
                 Solvers.D3Q19 => new ComputeD3Q19Solver(lbmShader, cellSize, tau),
                 _ => throw new NotImplementedException()
             };
             _effector = new PointEffector(cellSize, maxPoints, effectorShader,
-                effectorMaterial,
-                _solver.GetFieldBuffer(), _solver.GetVelocityBuffer());
+                effectorMaterial, Solver.GetFieldBuffer(), Solver.GetVelocityBuffer());
 
             _effector.MoveSpeed = moveSpeed;
             _effector.SetHsvParam(hueSpeed, sva.x, sva.y, sva.z);
@@ -58,19 +57,19 @@ namespace Solver
         private void Update()
         {
 #if UNITY_EDITOR
-            // CheckParamUpdate();
+            CheckParamUpdate();
 #endif
 
-            _solver.Step();
+            Solver.Step();
             _effector.Update();
         }
 
         private void OnDestroy()
         {
-            _solver?.Dispose();
+            Solver?.Dispose();
             _effector?.Dispose();
 
-            _solver = null;
+            Solver = null;
             _effector = null;
         }
 

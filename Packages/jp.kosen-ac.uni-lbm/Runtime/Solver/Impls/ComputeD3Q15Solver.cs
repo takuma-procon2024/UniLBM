@@ -40,7 +40,10 @@ namespace Solver.Impls
         {
             CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _cellSize);
             ComputeShader.Dispatch(_kernelMap[Kernels.solve], groupX, groupY, groupZ);
-            ComputeShader.Dispatch(_kernelMap[Kernels.swap], groupX, groupY, groupZ);
+
+            (_f1Buffer, _f0Buffer) = (_f0Buffer, _f1Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f0], _f0Buffer);
+            ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f1], _f1Buffer);
         }
 
         public override GraphicsBuffer GetFieldBuffer()
@@ -51,6 +54,11 @@ namespace Solver.Impls
         public override GraphicsBuffer GetVelocityBuffer()
         {
             return _velocityBuffer;
+        }
+
+        public override uint GetCellSize()
+        {
+            return _cellSize;
         }
 
         #region Initialize
@@ -77,9 +85,6 @@ namespace Solver.Impls
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.field], _fieldBuffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.force_source],
                 _forceSourceBuffer);
-
-            ComputeShader.SetBuffer(_kernelMap[Kernels.swap], _uniformMap[Uniforms.f0], _f0Buffer);
-            ComputeShader.SetBuffer(_kernelMap[Kernels.swap], _uniformMap[Uniforms.f1], _f1Buffer);
 
             ComputeShader.SetInt(_uniformMap[Uniforms.cell_size], (int)_cellSize);
             ComputeShader.SetVector(_uniformMap[Uniforms.force], new Vector4(_force.x, _force.y, _force.z));
@@ -116,8 +121,7 @@ namespace Solver.Impls
         private enum Kernels
         {
             solve,
-            initialize,
-            swap
+            initialize
         }
 
         #endregion
