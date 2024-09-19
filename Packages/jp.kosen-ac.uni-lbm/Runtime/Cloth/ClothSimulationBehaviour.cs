@@ -72,16 +72,19 @@ namespace Cloth
             var r01 = new Rect(rw * 1, rh * 0, rw, rh);
             var r10 = new Rect(rw * 0, rh * 1, rw, rh);
             var r11 = new Rect(rw * 1, rh * 1, rw, rh);
+            var r20 = new Rect(rw * 0, rh * 2, rw, rh);
 
             GUI.DrawTexture(r00, _positionBuffer[0]);
             GUI.DrawTexture(r01, _positionBuffer[1]);
             GUI.DrawTexture(r10, _prevPosBuffer[0]);
             GUI.DrawTexture(r11, _prevPosBuffer[1]);
+            GUI.DrawTexture(r20, _normalBuffer);
 
             GUI.Label(r00, "Position Buffer 0");
             GUI.Label(r01, "Position Buffer 1");
             GUI.Label(r10, "Prev Position Buffer 0");
             GUI.Label(r11, "Prev Position Buffer 1");
+            GUI.Label(r20, "Normal Buffer");
 
             GUI.color = storeColor;
         }
