@@ -113,7 +113,7 @@ Material:
     - _ZWrite: 1
     - max_velocity: 5
     - min_velocity: 0.0002
-    - size: 20
+    - size: 103.125
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}

@@ -1,0 +1,68 @@
+﻿#pragma kernel main
+#pragma kernel reset_field
+
+#define NUM_THREADS 2
+
+#define LIQUID_TYPE 0
+#define BOUNDARY_TYPE 1
+
+//==============================================================================
+// Uniforms
+//==============================================================================
+// 位置データ
+Texture2D pos_buffer;
+// フィールドデータ
+RWStructuredBuffer<uint> field_buffer;
+// 布の解像度
+int2 cloth_res;
+// LBMの解像度
+int lbm_res;
+// LBMのセルの大きさ
+float lbm_cell_size;
+// オフセット
+float3 offset;
+// スケール
+float3 scale;
+
+//==============================================================================
+// フィールドリセットカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
+void reset_field(in uint3 id: SV_DispatchThreadID)
+{
+    uint field_id = id.z * lbm_res * lbm_res + id.y * lbm_res + id.x;
+
+    bool is_out_boundary = any(id == 0 || id == (uint)(lbm_res - 1));
+    field_buffer[field_id] = is_out_boundary ? BOUNDARY_TYPE : LIQUID_TYPE;
+}
+
+//==============================================================================
+// メインカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void main(in uint2 id: SV_DispatchThreadID)
+{
+    float3 pos00 = pos_buffer[id * 4 + uint2(0, 0)].xyz;
+    float3 pos01 = pos_buffer[id * 4 + uint2(0, 1)].xyz;
+    float3 pos10 = pos_buffer[id * 4 + uint2(1, 0)].xyz;
+    float3 pos11 = pos_buffer[id * 4 + uint2(1, 1)].xyz;
+
+    float3 min_pos = min(min(pos00, pos01), min(pos10, pos11));
+    float3 max_pos = max(max(pos00, pos01), max(pos10, pos11));
+    min_pos = min_pos * scale + offset;
+    max_pos = max_pos * scale + offset;
+
+    max_pos += lbm_cell_size;
+
+    for (float x = min_pos.x; x < max_pos.x; x += lbm_cell_size)
+        for (float y = min_pos.y; y < max_pos.y; y += lbm_cell_size)
+            for (float z = min_pos.z; z < max_pos.z; z += lbm_cell_size)
+            {
+                uint3 lbm_id = uint3(x / lbm_cell_size, y / lbm_cell_size, z / lbm_cell_size);
+                if (any(lbm_id >= (uint)lbm_res))
+                    continue;
+
+                uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
+                field_buffer[field_id] = BOUNDARY_TYPE;
+            }
+}

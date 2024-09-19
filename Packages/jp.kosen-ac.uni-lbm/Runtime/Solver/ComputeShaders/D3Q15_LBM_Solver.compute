@@ -1,6 +1,5 @@
 ﻿#pragma kernel solve
 #pragma kernel initialize
-#pragma kernel swap
 
 #define NUM_THREADS 2
 #define Q 15
@@ -57,7 +56,11 @@ void solve(uint3 id : SV_DispatchThreadID)
 {
     float omega = 1.0f / tau;
     uint idx = get_index(id);
-    bool is_invalid = any(id >= (uint)cell_size) || field[idx] != FLUID_TYPE;
+    [flatten]
+    if (any(id >= (uint)cell_size) || field[idx] != FLUID_TYPE)
+    {
+        return;
+    }
 
     // Calculate density and velocity
     float rho = 0;
@@ -91,16 +94,11 @@ void solve(uint3 id : SV_DispatchThreadID)
             (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
 
         bool is_boundary = field[idx_p] == BOUNDARY_TYPE;
-        bool is_outside = any(neighbor < 0 || neighbor >= cell_size);
-        uint f1_idx = is_invalid
-                          ? 0
-                          : is_outside
-                          ? idx * Q + k
-                          : is_boundary
+        uint f1_idx = is_boundary
                           ? idx * Q + inv[k]
                           : idx_p * Q + k;
-        float f1_val = is_invalid ? f1[0] : is_outside ? w[k] : new_f;
-        f1[f1_idx] = isinf(f1_val) || isnan(f1_val) ? w[k] : f1_val;
+        float f1_val = isinf(new_f) || isnan(new_f) ? w[k] : new_f;
+        f1[f1_idx] = f1_val;
     }
 }
 
@@ -117,15 +115,15 @@ void initialize(uint3 id : SV_DispatchThreadID)
         f0[idx * Q + k] = w[k];
 
     // put obstacles
-    float3 center = cell_size * 0.5f;
-    center.y = 80;
-    float3 pos = float3(id);
-    float3 diff = pos - center;
-    float radius = 5.0f;
-    if (dot(diff, diff) < radius * radius)
-    {
-        field[idx] = BOUNDARY_TYPE;
-    }
+    // float3 center = cell_size * 0.5f;
+    // center.y = 80;
+    // float3 pos = float3(id);
+    // float3 diff = pos - center;
+    // float radius = 5.0f;
+    // if (dot(diff, diff) < radius * radius)
+    // {
+    //     field[idx] = BOUNDARY_TYPE;
+    // }
 
     if (any(id == 0 || id == (uint)cell_size - 1))
         field[idx] = BOUNDARY_TYPE;
