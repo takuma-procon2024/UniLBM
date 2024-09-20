@@ -19,10 +19,8 @@ int2 cloth_res;
 int lbm_res;
 // LBMのセルの大きさ
 float lbm_cell_size;
-// オフセット
-float3 offset;
-// スケール
-float3 scale;
+// 変換行列
+float4x4 transform;
 
 //==============================================================================
 // フィールドリセットカーネル
@@ -49,8 +47,8 @@ void main(in uint2 id: SV_DispatchThreadID)
 
     float3 min_pos = min(min(pos00, pos01), min(pos10, pos11));
     float3 max_pos = max(max(pos00, pos01), max(pos10, pos11));
-    min_pos = min_pos * scale + offset;
-    max_pos = max_pos * scale + offset;
+    min_pos = mul(transform, float4(min_pos, 1)).xyz;
+    max_pos = mul(transform, float4(max_pos, 1)).xyz;
 
     max_pos += lbm_cell_size;
 

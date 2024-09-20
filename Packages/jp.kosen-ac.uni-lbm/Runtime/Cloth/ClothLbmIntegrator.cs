@@ -39,8 +39,10 @@ namespace Cloth
             if (!_isInitialized) return;
             var offset = transform.position;
             var scale = transform.localScale;
-            computeShader.SetFloats(_shaderWrapper.UniformMap[Uniforms.offset], offset.x, offset.y, offset.z);
-            computeShader.SetFloats(_shaderWrapper.UniformMap[Uniforms.scale], scale.x, scale.y, scale.z);
+            var rotation = transform.rotation;
+            var transformMatrix = Matrix4x4.TRS(offset, rotation, scale);
+            computeShader.SetMatrix(_shaderWrapper.UniformMap[Uniforms.transform], transformMatrix);
+
             computeShader.SetFloat(_shaderWrapper.UniformMap[Uniforms.lbm_cell_size], cellSize);
 
             computeShader.Dispatch(_shaderWrapper.KernelMap[Kernels.reset_field], (int)_resetKernelGroups.x,
@@ -106,8 +108,7 @@ namespace Cloth
             cloth_res,
             lbm_res,
             lbm_cell_size,
-            offset,
-            scale
+            transform
         }
 
         #endregion

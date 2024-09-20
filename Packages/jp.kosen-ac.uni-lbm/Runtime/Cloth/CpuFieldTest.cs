@@ -11,7 +11,6 @@ namespace Cloth
         [SerializeField] private ClothSimulationBehaviour cloth;
         [SerializeField] private LbmSolverBehaviour lbmSolver;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private float3 offset, scale = 1;
         
         private uint[] _obstacleMap;
         private Texture2D _posTex;
@@ -33,13 +32,13 @@ namespace Cloth
             var size = new Vector3(cellRes, cellRes, cellRes) * cellSize;
             Gizmos.DrawWireCube(center, size);
             
+            var trs = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
             var clothRes = cloth.ClothResolution;
             for (var x = 0; x < clothRes.x; x++)
             for (var y = 0; y < clothRes.y; y++)
             {
                 var pos = _posBuffer[(int)(x + y * clothRes.x)].xyz;
-                pos *= scale;
-                pos += offset;
+                pos = trs.MultiplyPoint(pos);
                 Gizmos.DrawWireSphere(pos * cellSize, 0.1f);
             }
             
@@ -69,29 +68,27 @@ namespace Cloth
 
             _posBuffer = _posTex.GetPixelData<float4>(0);
 
+            var trs = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
             Array.Clear(_obstacleMap, 0, _obstacleMap.Length);
-            for (var x = 0; x < posTex.width / 4; x++)
-            for (var y = 0; y < posTex.height / 4; y++)
-                Kernel(new uint2((uint)x, (uint)y), _posBuffer);
+            for (var x = 0; x < posTex.width - 1; x++)
+            for (var y = 0; y < posTex.height - 1; y++)
+                Kernel(new uint2((uint)x, (uint)y), _posBuffer, trs);
             
             _isInitialized = true;
         }
 
-        private void Kernel(in uint2 id, in NativeArray<float4> posBuffer)
+        private void Kernel(in uint2 quadId, in NativeArray<float4> posBuffer, Matrix4x4 trs)
         {
-            var pos00 = posBuffer[GetIdx(id * 4 + new uint2(0, 0))].xyz;
-            var pos01 = posBuffer[GetIdx(id * 4 + new uint2(0, 1))].xyz;
-            var pos10 = posBuffer[GetIdx(id * 4 + new uint2(1, 0))].xyz;
-            var pos11 = posBuffer[GetIdx(id * 4 + new uint2(1, 1))].xyz;
+            var pos00 = posBuffer[GetIdx(quadId + new uint2(0, 0))].xyz;
+            var pos01 = posBuffer[GetIdx(quadId + new uint2(0, 1))].xyz;
+            var pos10 = posBuffer[GetIdx(quadId + new uint2(1, 0))].xyz;
+            var pos11 = posBuffer[GetIdx(quadId + new uint2(1, 1))].xyz;
 
             var min = math.min(math.min(pos00, pos01), math.min(pos10, pos11));
             var max = math.max(math.max(pos00, pos01), math.max(pos10, pos11));
-            min *= scale;
-            max *= scale;
-            min += offset;
-            max += offset;
-            
-            max += cellSize;
+
+            min = trs.MultiplyPoint(min);
+            max = trs.MultiplyPoint(max);
 
             var cellRes = lbmSolver.Solver.GetCellSize();
             for (var x = min.x; x < max.x; x += cellSize)
@@ -99,7 +96,7 @@ namespace Cloth
             for (var z = min.z; z < max.z; z += cellSize)
             {
                 var cellIdFloat = new float3(x, y, z) / cellSize;
-                var cellId = new uint3(math.floor(cellIdFloat));
+                var cellId = new uint3(math.ceil(cellIdFloat));
                 if (cellId.x >= cellRes || cellId.y >= cellRes || cellId.z >= cellRes) continue;
 
                 var idx = cellId.z * cellRes * cellRes + cellId.y * cellRes + cellId.x;

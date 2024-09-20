@@ -440,6 +440,7 @@ GameObject:
   - component: {fileID: 991164550}
   - component: {fileID: 991164549}
   - component: {fileID: 991164551}
+  - component: {fileID: 991164552}
   m_Layer: 0
   m_Name: Cloth_Solver
   m_TagString: Untagged
@@ -471,7 +472,10 @@ MonoBehaviour:
   gravity:
     x: 0
     y: -9.81
-    z: 5
+    z: 0
+  lbmCellSize: 1
+  lbmForceScale: 10000
+  lbmSolver: {fileID: 1327824602}
   computeShader: {fileID: 7200000, guid: 4aa18fd7a3be4ec0afaacd36a8e22bca, type: 3}
   drawSimulationBuffer: 1
   debugDrawScale: 2
@@ -484,7 +488,7 @@ Transform:
   m_GameObject: {fileID: 991164545}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 51.5, y: 58.7, z: 20.52}
+  m_LocalPosition: {x: 51.5, y: 58.7, z: 47.5}
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -569,6 +573,21 @@ MonoBehaviour:
   lbmSolver: {fileID: 1327824602}
   clothSimulation: {fileID: 991164546}
   computeShader: {fileID: 7200000, guid: 08d18a338ab64488989e5e5ca8301033, type: 3}
+--- !u!114 &991164552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991164545}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48a7e4161d2c59a40873d94b4a649430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cloth: {fileID: 991164546}
+  lbmSolver: {fileID: 1327824602}
+  cellSize: 1
 --- !u!1 &1327824599
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,7 +637,7 @@ MonoBehaviour:
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
   cellSize: 100
   tau: 1.2
-  force: {x: 0, y: 0.1, z: 0}
+  force: {x: 0, y: 0, z: -0.1}
   solverType: 0
   maxPoints: 1000000
   moveSpeed: 500

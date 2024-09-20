@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Solver;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -21,13 +23,22 @@ namespace Cloth
         [SerializeField] private float damping = 0.996f;
         [SerializeField] private float mass = 1.0f;
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
+        [SerializeField] private float lbmCellSize = 1;
+        [SerializeField] private float lbmForceScale = 1;
+
+        [Header("References")] [SerializeField]
+        private LbmSolverBehaviour lbmSolver;
 
         [Header("Resources")] [SerializeField] private ComputeShader computeShader;
 
         public uint2 ClothResolution => clothResolution;
+        private bool _isInitialized;
 
-        private void Start()
+        private IEnumerator Start()
         {
+            yield return new WaitUntil(() => lbmSolver?.Solver?.GetVelocityBuffer() != null);
+            _isInitialized = true;
+            
             InitComputeShader();
             InitBuffers();
             ResetBuffer();
@@ -38,6 +49,7 @@ namespace Cloth
 
         private void Update()
         {
+            if (!_isInitialized) return;
             Simulation();
         }
 
@@ -184,9 +196,21 @@ namespace Cloth
         private void Simulation()
         {
             var dt = timeStep / verletIteration;
+            var trs = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
+
+            computeShader.SetMatrix(_uniformMap[Uniforms.lbm_transform], trs);
+            // PERF: 多分毎フレーム設定する必要ない
+            computeShader.SetFloat(_uniformMap[Uniforms.dt], dt);
+
+#if UNITY_EDITOR
+            // DEBUG: SerializeFieldからの変更を反映するために毎フレーム設定
+            computeShader.SetInt(_uniformMap[Uniforms.lbm_cell_res], (int)lbmSolver.Solver.GetCellSize());
+            computeShader.SetFloat(_uniformMap[Uniforms.lbm_cell_size], lbmCellSize);
+            computeShader.SetFloat(_uniformMap[Uniforms.lbm_force_scale], lbmForceScale);
+#endif
+
             for (var i = 0; i < verletIteration; i++)
             {
-                computeShader.SetFloat(_uniformMap[Uniforms.dt], dt);
                 computeShader.Dispatch(_kernelMap[Kernels.simulation], (int)_groupThreads.x, (int)_groupThreads.y, 1);
                 SwapBuffers();
             }
@@ -225,15 +249,30 @@ namespace Cloth
             computeShader.SetFloat(_uniformMap[Uniforms.inv_mass], 1.0f / mass);
             computeShader.SetFloats(_uniformMap[Uniforms.gravity], gravity.x, gravity.y, gravity.z);
 
-            foreach (var (_, kernelId) in _kernelMap)
-            {
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_prev_buffer], _prevPosBuffer[0]);
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_curr_buffer], _positionBuffer[0]);
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_prev_buffer_out], _prevPosBuffer[1]);
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.pos_curr_buffer_out], _positionBuffer[1]);
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.normal_buffer_out], _normalBuffer);
-                computeShader.SetTexture(kernelId, _uniformMap[Uniforms.input_force], _inputForceBuffer);
-            }
+            computeShader.SetInt(_uniformMap[Uniforms.lbm_cell_res], (int)lbmSolver.Solver.GetCellSize());
+            computeShader.SetFloat(_uniformMap[Uniforms.lbm_cell_size], lbmCellSize);
+            computeShader.SetFloat(_uniformMap[Uniforms.lbm_force_scale], lbmForceScale);
+
+            computeShader.SetTexture(_kernelMap[Kernels.init], _uniformMap[Uniforms.pos_prev_buffer_out],
+                _prevPosBuffer[1]);
+            computeShader.SetTexture(_kernelMap[Kernels.init], _uniformMap[Uniforms.pos_curr_buffer_out],
+                _positionBuffer[1]);
+            computeShader.SetTexture(_kernelMap[Kernels.init], _uniformMap[Uniforms.normal_buffer_out], _normalBuffer);
+
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.pos_prev_buffer],
+                _prevPosBuffer[0]);
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.pos_curr_buffer],
+                _positionBuffer[0]);
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.pos_prev_buffer_out],
+                _prevPosBuffer[1]);
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.pos_curr_buffer_out],
+                _positionBuffer[1]);
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.normal_buffer_out],
+                _normalBuffer);
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.input_force],
+                _inputForceBuffer);
+            computeShader.SetBuffer(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.lbm_velocity],
+                lbmSolver.Solver.GetVelocityBuffer());
         }
 
         private void ResetBuffer()
@@ -266,7 +305,13 @@ namespace Cloth
             stiffness,
             damp,
             inv_mass,
-            dt
+            dt,
+
+            lbm_velocity,
+            lbm_cell_res,
+            lbm_cell_size,
+            lbm_force_scale,
+            lbm_transform
         }
 
         #endregion

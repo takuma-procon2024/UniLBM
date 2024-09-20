@@ -19,8 +19,16 @@ RWTexture2D<float4> pos_curr_buffer_out;
 // 法線データ (書き込み用)
 RWTexture2D<float4> normal_buffer_out;
 
-// 入力速度 (読み込み用)
-Texture2D input_force;
+// LBMで計算されたセルごとの速度 (読み込み用)
+StructuredBuffer<float3> lbm_velocity;
+// LBMのセル解像度
+int lbm_cell_res;
+// LBMのセルの大きさ
+float lbm_cell_size;
+// LBMから受ける力の倍率
+float lbm_force_scale;
+// LBMセル上に布を置くときの変換行列
+float4x4 lbm_transform;
 
 // 布の解像度
 int2 cloth_resolution;
@@ -102,6 +110,24 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
     // パーティクルにかかる力、初期値として重力を代入
     float3 force = gravity;
+
+    // 近傍のパーティクルにかかる力を計算
+    float3 lbm_pos = mul(lbm_transform, float4(pos, 1)).xyz;
+    uint3 lbm_id = uint3(lbm_pos / lbm_cell_size);
+    [unroll]
+    for (int x = -1; x <= 1; x++)
+        [unroll]
+        for (int y = -1; y <= 1; y++)
+            [unroll]
+            for (int z = -1; z <= 1; z++)
+            {
+                uint3 lbm_cell_id = lbm_id + uint3(x, y, z);
+                if (any(lbm_cell_id >= (uint)lbm_cell_res))
+                    continue;
+                uint idx = lbm_cell_id.x + lbm_cell_id.y * lbm_cell_res + lbm_cell_id.z * lbm_cell_res * lbm_cell_res;
+                float3 lbm_force = lbm_velocity[idx] * lbm_force_scale;
+                force += clamp(lbm_force, -10, 10);
+            }
 
     // 布の上辺は位置を固定するため計算を省く
     [flatten]
