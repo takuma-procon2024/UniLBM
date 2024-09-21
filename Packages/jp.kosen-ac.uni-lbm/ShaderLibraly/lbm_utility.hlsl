@@ -1,4 +1,8 @@
-﻿uint get_index(uint3 index, uint3 size)
+﻿#define FLUID_TYPE 0
+#define BOUNDARY_TYPE 1
+#define OUTFLOW_BOUNDARY_TYPE 2
+
+uint get_index(uint3 index, uint3 size)
 {
     return index.x + index.y * size.x + index.z * size.x * size.y;
 }

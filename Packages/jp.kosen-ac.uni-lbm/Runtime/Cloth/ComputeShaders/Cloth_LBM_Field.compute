@@ -3,8 +3,7 @@
 
 #define NUM_THREADS 2
 
-#define LIQUID_TYPE 0
-#define BOUNDARY_TYPE 1
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
 //==============================================================================
 // Uniforms
@@ -31,7 +30,7 @@ void reset_field(in uint3 id: SV_DispatchThreadID)
     uint field_id = id.z * lbm_res * lbm_res + id.y * lbm_res + id.x;
 
     bool is_out_boundary = any(id == 0 || id == (uint)(lbm_res - 1));
-    field_buffer[field_id] = is_out_boundary ? BOUNDARY_TYPE : LIQUID_TYPE;
+    field_buffer[field_id] = is_out_boundary ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
 }
 
 //==============================================================================

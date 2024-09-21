@@ -43,7 +43,7 @@
                 float4 prev_vertex : TEXCOORD1;
             };
 
-            struct v2f
+            struct g2f
             {
                 float4 vertex : SV_POSITION;
                 float4 color : COLOR;
@@ -61,7 +61,7 @@
             }
 
             [maxvertexcount(2)]
-            void geom(point v2g input[1], inout LineStream<v2f> out_stream)
+            void geom(point v2g input[1], inout LineStream<g2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
                 float4 pos = input[0].vertex * size;
@@ -72,7 +72,7 @@
                 float dir_length = Length2(dir.xyz);
                 bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
 
-                v2f o;
+                g2f o;
                 o.vertex = TransformObjectToHClip(prev_pos.xyz);
                 o.color = col;
                 out_stream.Append(o);
@@ -84,7 +84,7 @@
                 out_stream.RestartStrip();
             }
 
-            float4 frag(v2f i) : SV_Target
+            float4 frag(g2f i) : SV_Target
             {
                 return i.color;
             }

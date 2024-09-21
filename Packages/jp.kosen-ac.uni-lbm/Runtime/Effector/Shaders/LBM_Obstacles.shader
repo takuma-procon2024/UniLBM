@@ -4,6 +4,7 @@
     {
         size ("Size", Float) = 100
         line_color ("Line Color", Color) = (1,1,1,1)
+        outflow_color ("Outflow Color", Color) = (1,0,0,1)
         [Toggle(SHOW_OUTFLOW)] show_outflow ("Show Outflow", Float) = 0
     }
     SubShader
@@ -19,12 +20,14 @@
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal//ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
+        #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
         StructuredBuffer<uint> field;
         int cell_res;
 
         float size;
         float4 line_color;
+        float4 outflow_color;
         ENDHLSL
 
         Pass
@@ -41,9 +44,10 @@
                 float4 vertex : SV_POSITION;
             };
 
-            struct v2f
+            struct g2f
             {
                 float4 vertex : SV_POSITION;
+                float4 color: COLOR;
             };
 
             v2g vert(uint id: SV_VertexID)
@@ -55,17 +59,16 @@
             }
 
             [maxvertexcount(24)]
-            void geom(point v2g input[1], uint pid: SV_PrimitiveID, inout LineStream<v2f> out_stream)
+            void geom(point v2g input[1], uint pid: SV_PrimitiveID, inout LineStream<g2f> out_stream)
             {
                 uint field_type = field[pid];
 
                 [flatten]
-                if (field_type == 0) return;
+                if (field_type == FLUID_TYPE) return;
                 
                 #ifndef SHOW_OUTFLOW
-                uint3 cell = uint3(pid % cell_res, pid / cell_res % cell_res, pid / (cell_res * cell_res));
                 [flatten]
-                if (any(cell == 0) || any(cell == cell_res - 1)) return;
+                if (field_type == OUTFLOW_BOUNDARY_TYPE) return;
                 #endif
 
                 static const uint3 vertices[24] = {
@@ -90,17 +93,22 @@
                 [unroll]
                 for (uint i = 0; i < 24; i++)
                 {
-                    v2f o;
+                    g2f o;
                     uint3 vertex = vertices[i];
                     float3 pos = (input[0].vertex.xyz + vertex) * size / cell_res;
                     o.vertex = TransformObjectToHClip(pos);
+                    #ifdef SHOW_OUTFLOW
+                    o.color = field_type == OUTFLOW_BOUNDARY_TYPE ? outflow_color : line_color;
+                    #else
+                    o.color = line_color;
+                    #endif
                     out_stream.Append(o);
                 }
             }
 
-            float4 frag(v2f i) : SV_Target
+            float4 frag(g2f i) : SV_Target
             {
-                return line_color;
+                return i.color;
             }
             ENDHLSL
         }

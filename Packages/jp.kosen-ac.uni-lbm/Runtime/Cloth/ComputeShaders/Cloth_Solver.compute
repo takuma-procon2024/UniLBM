@@ -2,8 +2,6 @@
 #pragma kernel simulation
 
 #define NUM_THREADS 2
-#define LIQUID_TYPE 0
-#define BOUNDARY_TYPE 1
 
 //==============================================================================
 // Uniforms

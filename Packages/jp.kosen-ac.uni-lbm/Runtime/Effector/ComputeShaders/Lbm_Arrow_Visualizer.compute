@@ -1,9 +1,6 @@
 ﻿#pragma kernel init
 #pragma kernel draw
 
-#define FLUID_TYPE 0
-#define BOUNDARY_TYPE 1
-
 #define THREAD_NUM 2
 
 #include "Packages/jp.kosen-ac.uni-lbm/Runtime/Effector/Shaders/particle_data.hlsl"

@@ -7,9 +7,6 @@
 #define THREADS_Z 4
 
 #define Q 19
-#define FLUID_TYPE 0
-#define BOUNDARY_TYPE 1
-#define OUTFLOW_TYPE 2
 
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
@@ -82,7 +79,7 @@ void initialize(in uint3 id: SV_DispatchThreadID)
     density[idx] = f_base;
 
     if (any(id == 0) || any(id == cell_size - 1))
-        field[idx] = OUTFLOW_TYPE;
+        field[idx] = OUTFLOW_BOUNDARY_TYPE;
     else
         field[idx] = FLUID_TYPE;
 
