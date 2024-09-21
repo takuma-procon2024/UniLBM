@@ -18,17 +18,8 @@ RWTexture2D<float4> pos_prev_buffer_out;
 RWTexture2D<float4> pos_curr_buffer_out;
 // 法線データ (書き込み用)
 RWTexture2D<float4> normal_buffer_out;
-
-// LBMで計算されたセルごとの速度 (読み込み用)
-StructuredBuffer<float3> lbm_velocity;
-// LBMのセル解像度
-int lbm_cell_res;
-// LBMのセルの大きさ
-float lbm_cell_size;
-// LBMから受ける力の倍率
-float lbm_force_scale;
-// LBMセル上に布を置くときの変換行列
-float4x4 lbm_transform;
+// 外部入力速度データ (読み込み用)
+Texture2D velocity_buffer;
 
 // 布の解像度
 int2 cloth_resolution;
@@ -94,8 +85,6 @@ void init(in uint2 id: SV_DispatchThreadID)
 [numthreads(NUM_THREADS, NUM_THREADS, 1)]
 void simulation(in uint2 id: SV_DispatchThreadID)
 {
-    int k;
-
     // 位置を読み込み
     float3 pos = pos_curr_buffer[id].xyz;
     float3 pos_prev = pos_prev_buffer[id].xyz;
@@ -112,32 +101,8 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
     // パーティクルにかかる力、初期値として重力を代入
     float3 force = gravity;
-
-    // 近傍のパーティクルにかかる力を計算
-    float3 lbm_pos = mul(lbm_transform, float4(pos, 1)).xyz;
-    uint3 lbm_id = uint3(lbm_pos / lbm_cell_size);
-    static const uint3 lbm_directions[6] = {
-        uint3(0, 0, 1),
-        uint3(0, 1, 0),
-        uint3(1, 0, 0),
-        uint3(0, 0, -1),
-        uint3(0, -1, 0),
-        uint3(-1, 0, 0),
-    };
-
-    float3 lbm_force = 0;
-    [unroll]
-    for (k = 0; k < 6; k++)
-    {
-        int3 neighbor_id = lbm_id + lbm_directions[k];
-        [flatten]
-        if (any(neighbor_id >= lbm_cell_res || neighbor_id < 0))
-            continue;
-        uint idx = neighbor_id.z * lbm_cell_res * lbm_cell_res + neighbor_id.y * lbm_cell_res + neighbor_id.x;
-        float3 lbm_vel = lbm_velocity[idx].xyz * lbm_force_scale;
-        lbm_force += lbm_vel * (1.f / 6.f);
-    }
-    force += clamp(lbm_force, -20, 20);
+    // 外部入力速度を加算
+    force += velocity_buffer[id].xyz;
 
     // 布の上辺は位置を固定するため計算を省く
     [flatten]
@@ -146,7 +111,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
     // 近傍のパーティクルについて計算を行う
     [unroll]
-    for (k = 0; k < 12; k++)
+    for (int k = 0; k < 12; k++)
     {
         int2 neighbor_id = id + directions[k];
         // 端のパーティクルについては計算しない
@@ -158,9 +123,11 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
         // 法線計算
         float3 curr_diff = normalize(pos_diff);
+        [flatten]
         if (iter > 0.f && k < 8)
         {
             float a = dot(curr_diff, last_diff);
+            [flatten]
             if (a > 0.f)
                 normal += cross(last_diff, curr_diff);
         }

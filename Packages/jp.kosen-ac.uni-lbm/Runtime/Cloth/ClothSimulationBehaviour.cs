@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Solver;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -23,23 +21,13 @@ namespace Cloth
         [SerializeField] private float damping = 0.996f;
         [SerializeField] private float mass = 1.0f;
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
-        [SerializeField] private float lbmCellSize = 1;
-        [SerializeField] private float lbmForceScale = 1;
-        [SerializeField] private Vector3 lbmForceOffset = new(0, 0, 0);
-
-        [Header("References")] [SerializeField]
-        private LbmSolverBehaviour lbmSolver;
 
         [Header("Resources")] [SerializeField] private ComputeShader computeShader;
 
         public uint2 ClothResolution => clothResolution;
-        private bool _isInitialized;
 
-        private IEnumerator Start()
+        private void Start()
         {
-            yield return new WaitUntil(() => lbmSolver?.Solver?.GetVelocityBuffer() != null);
-            _isInitialized = true;
-            
             InitComputeShader();
             InitBuffers();
             ResetBuffer();
@@ -50,7 +38,6 @@ namespace Cloth
 
         private void Update()
         {
-            if (!_isInitialized) return;
             Simulation();
         }
 
@@ -73,7 +60,7 @@ namespace Cloth
         [Conditional("UNITY_EDITOR")]
         private void DrawSimulationBufferOnGui()
         {
-            if (!drawSimulationBuffer || !_isInitialized) return;
+            if (!drawSimulationBuffer) return;
 
             var rw = (int)math.round(clothResolution.x * debugDrawScale);
             var rh = (int)math.round(clothResolution.y * debugDrawScale);
@@ -197,19 +184,9 @@ namespace Cloth
         private void Simulation()
         {
             var dt = timeStep / verletIteration;
-            var pos = transform.position + lbmForceOffset;
-            var trs = Matrix4x4.TRS(pos, transform.rotation, transform.localScale);
 
-            computeShader.SetMatrix(_uniformMap[Uniforms.lbm_transform], trs);
             // PERF: 多分毎フレーム設定する必要ない
             computeShader.SetFloat(_uniformMap[Uniforms.dt], dt);
-
-#if UNITY_EDITOR
-            // DEBUG: SerializeFieldからの変更を反映するために毎フレーム設定
-            computeShader.SetInt(_uniformMap[Uniforms.lbm_cell_res], (int)lbmSolver.Solver.GetCellSize());
-            computeShader.SetFloat(_uniformMap[Uniforms.lbm_cell_size], lbmCellSize);
-            computeShader.SetFloat(_uniformMap[Uniforms.lbm_force_scale], lbmForceScale);
-#endif
 
             for (var i = 0; i < verletIteration; i++)
             {
@@ -251,10 +228,6 @@ namespace Cloth
             computeShader.SetFloat(_uniformMap[Uniforms.inv_mass], 1.0f / mass);
             computeShader.SetFloats(_uniformMap[Uniforms.gravity], gravity.x, gravity.y, gravity.z);
 
-            computeShader.SetInt(_uniformMap[Uniforms.lbm_cell_res], (int)lbmSolver.Solver.GetCellSize());
-            computeShader.SetFloat(_uniformMap[Uniforms.lbm_cell_size], lbmCellSize);
-            computeShader.SetFloat(_uniformMap[Uniforms.lbm_force_scale], lbmForceScale);
-
             computeShader.SetTexture(_kernelMap[Kernels.init], _uniformMap[Uniforms.pos_prev_buffer_out],
                 _prevPosBuffer[1]);
             computeShader.SetTexture(_kernelMap[Kernels.init], _uniformMap[Uniforms.pos_curr_buffer_out],
@@ -273,8 +246,8 @@ namespace Cloth
                 _normalBuffer);
             computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.input_force],
                 _inputForceBuffer);
-            computeShader.SetBuffer(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.lbm_velocity],
-                lbmSolver.Solver.GetVelocityBuffer());
+            computeShader.SetTexture(_kernelMap[Kernels.simulation], _uniformMap[Uniforms.velocity_buffer],
+                _inputForceBuffer);
         }
 
         private void ResetBuffer()
@@ -309,11 +282,7 @@ namespace Cloth
             inv_mass,
             dt,
 
-            lbm_velocity,
-            lbm_cell_res,
-            lbm_cell_size,
-            lbm_force_scale,
-            lbm_transform
+            velocity_buffer
         }
 
         #endregion

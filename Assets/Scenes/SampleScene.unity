@@ -472,11 +472,7 @@ MonoBehaviour:
   gravity:
     x: 0
     y: -9.81
-    z: 0
-  lbmCellSize: 1
-  lbmForceScale: 270000
-  lbmForceOffset: {x: 0, y: 0, z: 0}
-  lbmSolver: {fileID: 1327824602}
+    z: 9
   computeShader: {fileID: 7200000, guid: 4aa18fd7a3be4ec0afaacd36a8e22bca, type: 3}
   drawSimulationBuffer: 1
   debugDrawScale: 2
