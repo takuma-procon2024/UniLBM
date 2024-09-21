@@ -30,7 +30,11 @@ namespace Effector.Impl
             _particlesBuffer = new ComputeBuffer((int)math.pow(_particleNum.x, 3), Marshal.SizeOf<ParticleData>());
 
             var materialSize = material.GetFloat(MatSizePropId);
-            var bound = new Bounds(Vector3.zero, new Vector3(materialSize, materialSize, materialSize));
+            var bound = new Bounds
+            {
+                min = new Vector3(0, 0, 0),
+                max = new Vector3(materialSize, materialSize, materialSize)
+            };
             _renderParams = new RenderParams(material)
             {
                 worldBounds = bound
@@ -81,7 +85,7 @@ namespace Effector.Impl
 
             CalcThreadGroupSize(out var threadX, out var threadY, out var threadZ);
             _computeShader.Dispatch(_drawKernelId, threadX, threadY, threadZ);
-            
+
             Graphics.RenderPrimitives(_renderParams, MeshTopology.Points, _particlesBuffer.count);
         }
 

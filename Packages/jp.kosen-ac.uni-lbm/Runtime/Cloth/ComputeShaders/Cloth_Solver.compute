@@ -94,6 +94,8 @@ void init(in uint2 id: SV_DispatchThreadID)
 [numthreads(NUM_THREADS, NUM_THREADS, 1)]
 void simulation(in uint2 id: SV_DispatchThreadID)
 {
+    int k;
+
     // 位置を読み込み
     float3 pos = pos_curr_buffer[id].xyz;
     float3 pos_prev = pos_prev_buffer[id].xyz;
@@ -114,20 +116,28 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     // 近傍のパーティクルにかかる力を計算
     float3 lbm_pos = mul(lbm_transform, float4(pos, 1)).xyz;
     uint3 lbm_id = uint3(lbm_pos / lbm_cell_size);
+    static const uint3 lbm_directions[6] = {
+        uint3(0, 0, 1),
+        uint3(0, 1, 0),
+        uint3(1, 0, 0),
+        uint3(0, 0, -1),
+        uint3(0, -1, 0),
+        uint3(-1, 0, 0),
+    };
+
+    float3 lbm_force = 0;
     [unroll]
-    for (int x = -1; x <= 1; x++)
-        [unroll]
-        for (int y = -1; y <= 1; y++)
-            [unroll]
-            for (int z = -1; z <= 1; z++)
-            {
-                uint3 lbm_cell_id = lbm_id + uint3(x, y, z);
-                if (any(lbm_cell_id >= (uint)lbm_cell_res))
-                    continue;
-                uint idx = lbm_cell_id.x + lbm_cell_id.y * lbm_cell_res + lbm_cell_id.z * lbm_cell_res * lbm_cell_res;
-                float3 lbm_force = lbm_velocity[idx] * lbm_force_scale;
-                force += clamp(lbm_force, -10, 10);
-            }
+    for (k = 0; k < 6; k++)
+    {
+        int3 neighbor_id = lbm_id + lbm_directions[k];
+        [flatten]
+        if (any(neighbor_id >= lbm_cell_res || neighbor_id < 0))
+            continue;
+        uint idx = neighbor_id.z * lbm_cell_res * lbm_cell_res + neighbor_id.y * lbm_cell_res + neighbor_id.x;
+        float3 lbm_vel = lbm_velocity[idx].xyz * lbm_force_scale;
+        lbm_force += lbm_vel * (1.f / 6.f);
+    }
+    force += clamp(lbm_force, -20, 20);
 
     // 布の上辺は位置を固定するため計算を省く
     [flatten]
@@ -136,7 +146,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
 
     // 近傍のパーティクルについて計算を行う
     [unroll]
-    for (int k = 0; k < 12; k++)
+    for (k = 0; k < 12; k++)
     {
         int2 neighbor_id = id + directions[k];
         // 端のパーティクルについては計算しない

@@ -36,8 +36,8 @@ void draw(in uint3 id: SV_DispatchThreadID)
     // 障害物セルの場合
     bool is_boundary = field[cell_idx] == BOUNDARY_TYPE;
     float3 b_pos = frac((float3)id / num_particles);
-    float3 b_prev_pos = b_pos + float3(0, 0.005, 0);
-    const float4 b_col = float4(1.f, 1.f, 1.f, 1.0f);
+    float3 b_prev_pos = b_pos;
+    const float4 b_col = 0;
 
     // 流体セルの場合
     float3 prev = p_pos;

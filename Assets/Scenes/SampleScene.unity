@@ -474,7 +474,8 @@ MonoBehaviour:
     y: -9.81
     z: 0
   lbmCellSize: 1
-  lbmForceScale: 10000
+  lbmForceScale: 270000
+  lbmForceOffset: {x: 0, y: 0, z: 0}
   lbmSolver: {fileID: 1327824602}
   computeShader: {fileID: 7200000, guid: 4aa18fd7a3be4ec0afaacd36a8e22bca, type: 3}
   drawSimulationBuffer: 1
@@ -488,7 +489,7 @@ Transform:
   m_GameObject: {fileID: 991164545}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 51.5, y: 58.7, z: 47.5}
+  m_LocalPosition: {x: 51.5, y: 58.7, z: 37.2}
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -564,12 +565,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 991164545}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9612dcdfba9e483daeedca3e16d652a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cellSize: 1
+  offset: {x: 0, y: 0, z: 0}
   lbmSolver: {fileID: 1327824602}
   clothSimulation: {fileID: 991164546}
   computeShader: {fileID: 7200000, guid: 08d18a338ab64488989e5e5ca8301033, type: 3}
@@ -580,7 +582,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 991164545}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48a7e4161d2c59a40873d94b4a649430, type: 3}
   m_Name: 
@@ -598,6 +600,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1327824601}
   - component: {fileID: 1327824602}
+  - component: {fileID: 1327824603}
   m_Layer: 0
   m_Name: Test_Solver3D
   m_TagString: Untagged
@@ -637,7 +640,7 @@ MonoBehaviour:
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
   cellSize: 100
   tau: 1.2
-  force: {x: 0, y: 0, z: -0.1}
+  force: {x: 0, y: 0, z: -0.01}
   solverType: 0
   maxPoints: 1000000
   moveSpeed: 500
@@ -646,6 +649,21 @@ MonoBehaviour:
     x: 1
     y: 1
     z: 1
+--- !u!114 &1327824603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327824599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ae0de0d42dd4ecaa5d8581b84bf17e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: 100
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  mat: {fileID: 2100000, guid: 3aaf6c4082d34f042bff4fda72fbb34c, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

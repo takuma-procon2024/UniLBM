@@ -32,7 +32,7 @@ namespace Cloth
             var size = new Vector3(cellRes, cellRes, cellRes) * cellSize;
             Gizmos.DrawWireCube(center, size);
             
-            var trs = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
+            var trs = transform.localToWorldMatrix;
             var clothRes = cloth.ClothResolution;
             for (var x = 0; x < clothRes.x; x++)
             for (var y = 0; y < clothRes.y; y++)

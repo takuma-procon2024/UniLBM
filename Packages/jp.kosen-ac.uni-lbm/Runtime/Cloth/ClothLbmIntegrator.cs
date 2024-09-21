@@ -12,6 +12,8 @@ namespace Cloth
         [Header("Parameters")] [SerializeField]
         private float cellSize = 1f;
 
+        [SerializeField] private Vector3 offset;
+
         [Header("Resources")] [SerializeField] private LbmSolverBehaviour lbmSolver;
 
         [SerializeField] private ClothSimulationBehaviour clothSimulation;
@@ -37,10 +39,10 @@ namespace Cloth
         private void Update()
         {
             if (!_isInitialized) return;
-            var offset = transform.position;
+            var pos = transform.position + offset;
             var scale = transform.localScale;
             var rotation = transform.rotation;
-            var transformMatrix = Matrix4x4.TRS(offset, rotation, scale);
+            var transformMatrix = Matrix4x4.TRS(pos, rotation, scale);
             computeShader.SetMatrix(_shaderWrapper.UniformMap[Uniforms.transform], transformMatrix);
 
             computeShader.SetFloat(_shaderWrapper.UniformMap[Uniforms.lbm_cell_size], cellSize);
@@ -71,8 +73,8 @@ namespace Cloth
                 (uint)math.ceil(lbmCellRes / (float)resetZ)
             );
             _mainKernelGroups = new uint2(
-                (uint)math.ceil((float)clothRes.x / 4 / mainX),
-                (uint)math.ceil((float)clothRes.y / 4 / mainY)
+                (uint)math.ceil((clothRes.x - 1f) / mainX),
+                (uint)math.ceil((clothRes.y - 1f) / mainY)
             );
         }
 

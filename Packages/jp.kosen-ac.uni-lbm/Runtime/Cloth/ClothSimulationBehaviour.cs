@@ -25,6 +25,7 @@ namespace Cloth
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
         [SerializeField] private float lbmCellSize = 1;
         [SerializeField] private float lbmForceScale = 1;
+        [SerializeField] private Vector3 lbmForceOffset = new(0, 0, 0);
 
         [Header("References")] [SerializeField]
         private LbmSolverBehaviour lbmSolver;
@@ -72,7 +73,7 @@ namespace Cloth
         [Conditional("UNITY_EDITOR")]
         private void DrawSimulationBufferOnGui()
         {
-            if (!drawSimulationBuffer) return;
+            if (!drawSimulationBuffer || !_isInitialized) return;
 
             var rw = (int)math.round(clothResolution.x * debugDrawScale);
             var rh = (int)math.round(clothResolution.y * debugDrawScale);
@@ -196,7 +197,8 @@ namespace Cloth
         private void Simulation()
         {
             var dt = timeStep / verletIteration;
-            var trs = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
+            var pos = transform.position + lbmForceOffset;
+            var trs = Matrix4x4.TRS(pos, transform.rotation, transform.localScale);
 
             computeShader.SetMatrix(_uniformMap[Uniforms.lbm_transform], trs);
             // PERF: 多分毎フレーム設定する必要ない
