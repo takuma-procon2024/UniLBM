@@ -3,12 +3,12 @@ using System.Collections;
 using System.Diagnostics;
 using Cloth;
 using Effector.Impl;
-using Solver.Impls;
+using Lbm.Impls;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Solver
+namespace Lbm
 {
     public class LbmSolverBehaviour : MonoBehaviour
     {

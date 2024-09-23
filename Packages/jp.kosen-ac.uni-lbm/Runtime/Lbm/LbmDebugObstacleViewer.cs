@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Solver
+namespace Lbm
 {
     public class LbmDebugObstacleViewer : MonoBehaviour
     {

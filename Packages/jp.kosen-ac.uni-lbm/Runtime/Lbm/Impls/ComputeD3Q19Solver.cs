@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Solver.Impls
+namespace Lbm.Impls
 {
     public class ComputeD3Q19Solver : UniLbmSolverBase
     {

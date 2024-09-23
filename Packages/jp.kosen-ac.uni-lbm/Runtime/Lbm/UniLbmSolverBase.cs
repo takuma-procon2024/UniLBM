@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Solver
+namespace Lbm
 {
     /// <summary>
     ///     ソルバーの基底クラス

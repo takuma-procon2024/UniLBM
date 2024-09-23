@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Common;
-using Solver;
+using Lbm;
 using Unity.Mathematics;
 using UnityEngine;
 

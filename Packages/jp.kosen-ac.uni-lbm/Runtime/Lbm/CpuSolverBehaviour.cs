@@ -1,7 +1,7 @@
-﻿using Solver.Impls;
+﻿using Lbm.Impls;
 using UnityEngine;
 
-namespace Solver
+namespace Lbm
 {
     public class CpuSolverBehaviour : MonoBehaviour
     {

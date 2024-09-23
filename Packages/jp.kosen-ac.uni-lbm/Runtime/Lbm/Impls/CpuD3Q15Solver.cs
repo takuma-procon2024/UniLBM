@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-namespace Solver.Impls
+namespace Lbm.Impls
 {
     public class CpuD3Q15Solver : MonoBehaviour
     {

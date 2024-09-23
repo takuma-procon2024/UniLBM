@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Solver.Impls
+namespace Lbm.Impls
 {
     public class CpuD3Q19Solver
     {

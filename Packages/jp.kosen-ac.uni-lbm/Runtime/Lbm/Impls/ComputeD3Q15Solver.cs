@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Solver.Impls
+namespace Lbm.Impls
 {
     public class ComputeD3Q15Solver : UniLbmSolverBase
     {

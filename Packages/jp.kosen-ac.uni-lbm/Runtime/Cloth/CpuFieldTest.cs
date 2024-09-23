@@ -1,5 +1,5 @@
 ﻿using System;
-using Solver;
+using Lbm;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
