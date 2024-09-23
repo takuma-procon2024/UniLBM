@@ -11,7 +11,7 @@ namespace Cloth
     public class ClothSimulationBehaviour : MonoBehaviour
     {
         [Header("Simulation Parameters")] [SerializeField]
-        private float timeStep = 0.01f;
+        private float timeStepScale = 2;
 
         [Range(1, 16)] [SerializeField] private int verletIteration = 4;
 
@@ -21,10 +21,13 @@ namespace Cloth
         [SerializeField] private float damping = 0.996f;
         [SerializeField] private float mass = 1.0f;
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
+        [SerializeField] private float velocityScale = 1.0f;
 
         [Header("Resources")] [SerializeField] private ComputeShader computeShader;
 
         public uint2 ClothResolution => clothResolution;
+
+        public bool IsInitialized { get; private set; }
 
         private void Start()
         {
@@ -34,11 +37,13 @@ namespace Cloth
 
             if (TryGetComponent(out ClothRenderer clothRenderer))
                 clothRenderer.InitializeClothRenderer(this);
+
+            IsInitialized = true;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            Simulation();
+            Simulation(Time.fixedDeltaTime * timeStepScale);
         }
 
         private void OnDestroy()
@@ -181,10 +186,11 @@ namespace Cloth
             SetBuffers();
         }
 
-        private void Simulation()
+        private void Simulation(float deltaTime)
         {
-            var dt = timeStep / verletIteration;
+            var dt = deltaTime / verletIteration;
 
+            computeShader.SetFloat(_uniformMap[Uniforms.velocity_scale], velocityScale);
             // PERF: 多分毎フレーム設定する必要ない
             computeShader.SetFloat(_uniformMap[Uniforms.dt], dt);
 
@@ -282,7 +288,8 @@ namespace Cloth
             inv_mass,
             dt,
 
-            velocity_buffer
+            velocity_buffer,
+            velocity_scale
         }
 
         #endregion

@@ -35,6 +35,8 @@ float stiffness;
 float damp;
 // 布の質量の逆数
 float inv_mass;
+// 外部入力速度の倍率
+float velocity_scale;
 
 // タイムステップ
 float dt;
@@ -100,7 +102,9 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     // パーティクルにかかる力、初期値として重力を代入
     float3 force = gravity;
     // 外部入力速度を加算
-    force += velocity_buffer[id].xyz;
+    float3 external_velocity = velocity_buffer[id].xyz * velocity_scale;
+    external_velocity = clamp(external_velocity, -20, 20);
+    force += external_velocity;
 
     // 布の上辺は位置を固定するため計算を省く
     [flatten]

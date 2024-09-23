@@ -53,9 +53,9 @@ void main(in uint2 id: SV_DispatchThreadID)
     min_pos = mul(transform, float4(min_pos, 1)).xyz;
     max_pos = mul(transform, float4(max_pos, 1)).xyz;
 
-    for (float x = min_pos.x; x < max_pos.x; x += lbm_cell_size)
-        for (float y = min_pos.y; y < max_pos.y; y += lbm_cell_size)
-            for (float z = min_pos.z; z < max_pos.z; z += lbm_cell_size)
+    for (float x = min_pos.x; x <= max_pos.x; x += lbm_cell_size)
+        for (float y = min_pos.y; y <= max_pos.y; y += lbm_cell_size)
+            for (float z = min_pos.z; z <= max_pos.z; z += lbm_cell_size)
             {
                 int3 xyz = int3(x, y, z);
                 [flatten]
@@ -64,6 +64,9 @@ void main(in uint2 id: SV_DispatchThreadID)
                 
                 uint3 lbm_id = uint3(x / lbm_cell_size, y / lbm_cell_size, z / lbm_cell_size);
                 uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
-                field_buffer[field_id] = BOUNDARY_TYPE;
+
+                // 境界情報として、Cloth上の位置を格納
+                uint boundary_val = id.x << 16 | id.y;
+                field_buffer[field_id] = boundary_val;
             }
 }

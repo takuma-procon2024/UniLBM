@@ -5,7 +5,6 @@ using UnityEngine.Rendering;
 
 namespace Cloth
 {
-    [RequireComponent(typeof(ClothSimulationBehaviour), typeof(MeshRenderer), typeof(MeshFilter))]
     public class ClothRenderer : MonoBehaviour
     {
         private static readonly int PositionTexPropId = Shader.PropertyToID("_position_tex");
@@ -15,8 +14,8 @@ namespace Cloth
 
         public void InitializeClothRenderer(ClothSimulationBehaviour simulation)
         {
-            TryGetComponent(out MeshRenderer meshRenderer);
-            TryGetComponent(out MeshFilter meshFilter);
+            var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            var meshFilter = gameObject.AddComponent<MeshFilter>();
 
             meshRenderer.material = material;
             material.SetTexture(PositionTexPropId, simulation.PositionBuffer);
@@ -80,7 +79,7 @@ namespace Cloth
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             mesh.SetIndices(triangles, MeshTopology.Triangles, 0);
-            
+
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
 
             mesh.RecalculateNormals();

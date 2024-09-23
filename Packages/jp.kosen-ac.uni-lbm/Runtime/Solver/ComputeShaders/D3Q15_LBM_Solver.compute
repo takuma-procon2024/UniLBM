@@ -15,6 +15,9 @@ RWStructuredBuffer<uint> field;
 RWStructuredBuffer<float3> force_source;
 RWStructuredBuffer<float3> velocity;
 
+// 布に外部から力を与えるためのテクスチャ
+RWTexture2D<float4> cloth_velocity;
+
 int cell_size;
 float3 force;
 float tau;
@@ -50,12 +53,13 @@ uint get_index(in uint3 pos)
 
 //==============================================================================
 // LBM D3Q15 Solver
+// REMARKS: 軽量化のために、本来衝突と併進を分けるべきところを一緒にしている
 //==============================================================================
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void solve(uint3 id : SV_DispatchThreadID)
 {
     int k;
-    
+
     float omega = 1.0f / tau;
     uint idx = get_index(id);
     [flatten]
@@ -93,7 +97,17 @@ void solve(uint3 id : SV_DispatchThreadID)
         float new_f = (1 - omega) * f0[idx * Q + k] + omega * w[k] * rho *
             (1.0f - 1.5f * dot(u, u) + 3.0f * dot_product + 4.5f * dot_product * dot_product);
 
-        bool is_boundary = field[idx_p] != FLUID_TYPE;
+        uint field_type = field[idx_p];
+        bool is_boundary = field_type != FLUID_TYPE;
+        bool is_cloth_boundary = is_boundary && field_type != OUTFLOW_BOUNDARY_TYPE;
+
+        // 布との衝突の場合
+        uint cloth_x = (field_type & 0xFFFF0000) >> 16; // 上位16ビット
+        uint cloth_y = field_type & 0x0000FFFF; // 下位16ビット
+
+        uint2 cloth_pos = is_cloth_boundary ? uint2(cloth_x, cloth_y) : 0;
+        cloth_velocity[cloth_pos] = is_cloth_boundary ? float4(u, 0) : 0;
+
         uint f1_idx = is_boundary
                           ? idx * Q + inv[k]
                           : idx_p * Q + k;
@@ -109,12 +123,12 @@ void initialize(uint3 id : SV_DispatchThreadID)
     if (any(id >= (uint)cell_size)) return;
 
     uint idx = get_index(id);
-    field[idx] = FLUID_TYPE;
 
     [unroll]
     for (int k = 0; k < Q; k++)
         f0[idx * Q + k] = w[k];
 
+    field[idx] = FLUID_TYPE;
     if (any(id == 0 || id == (uint)cell_size - 1))
         field[idx] = OUTFLOW_BOUNDARY_TYPE;
 

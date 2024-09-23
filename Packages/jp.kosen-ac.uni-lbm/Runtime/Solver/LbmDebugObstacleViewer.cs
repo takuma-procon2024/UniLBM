@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Solver
 {
-    [RequireComponent(typeof(LbmSolverBehaviour))]
     public class LbmDebugObstacleViewer : MonoBehaviour
     {
         private static readonly int SizePropId = Shader.PropertyToID("size");
@@ -15,23 +14,24 @@ namespace Solver
         [SerializeField] private float size = 100;
         [SerializeField] private Color lineColor = Color.white;
         [SerializeField] private Material mat;
+        [SerializeField] private LbmSolverBehaviour lbmSolver;
 
         private bool _isInitialized;
         private RenderParams _renderParams;
-        private LbmSolverBehaviour _solver;
         private int _vertCount;
 
         private IEnumerator Start()
         {
-            TryGetComponent(out _solver);
-            yield return new WaitUntil(() => _solver.Solver != null);
+            Assert.IsNotNull(lbmSolver);
 
-            var cellSize = _solver.Solver.GetCellSize();
+            yield return new WaitUntil(() => lbmSolver.Solver != null);
+
+            var cellSize = lbmSolver.Solver.GetCellSize();
             _vertCount = (int)(cellSize * cellSize * cellSize);
 
-            if (!mat) 
+            if (!mat)
                 mat = new Material(Shader.Find("Unlit/LBM_Obstacles"));
-            mat.SetBuffer(fieldPropId, _solver.Solver.GetFieldBuffer());
+            mat.SetBuffer(fieldPropId, lbmSolver.Solver.GetFieldBuffer());
             mat.SetInt(cellResPropId, (int)cellSize);
 
             _renderParams = new RenderParams(mat)

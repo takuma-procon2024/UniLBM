@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
+using Cloth;
 using Effector.Impl;
 using Solver.Impls;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Solver
 {
     public class LbmSolverBehaviour : MonoBehaviour
     {
-        [Header("コンピュートシェーダー")] [SerializeField]
+        [Header("Parameters")] [Header("コンピュートシェーダー")] [SerializeField]
         private ComputeShader lbmShader, effectorShader;
 
         [Header("エフェクターのマテリアル")] [SerializeField]
@@ -36,14 +39,28 @@ namespace Solver
         [Header("S: 彩度, V: 明度, A: Alpha値")] [SerializeField]
         private float3 sva = new(1f, 1f, 1f);
 
+        [Header("References")] [SerializeField]
+        private ClothSimulationBehaviour clothSimulation;
+
         private PointEffector _effector;
+
+        private bool _isInitialized;
         public UniLbmSolverBase Solver { get; private set; }
 
-        private void Start()
+        private IEnumerator Start()
         {
+            Assert.IsNotNull(clothSimulation);
+            Assert.IsNotNull(lbmShader);
+            Assert.IsNotNull(effectorShader);
+            Assert.IsNotNull(effectorMaterial);
+
+            // 布シミュレーションの初期化が終わるまで待機
+            yield return new WaitUntil(() => clothSimulation.IsInitialized);
+
             Solver = solverType switch
             {
-                Solvers.D3Q15 => new ComputeD3Q15Solver(lbmShader, cellSize, tau, force),
+                Solvers.D3Q15 => new ComputeD3Q15Solver(lbmShader, clothSimulation.InputForceBuffer, cellSize, tau,
+                    force),
                 Solvers.D3Q19 => new ComputeD3Q19Solver(lbmShader, cellSize, tau),
                 _ => throw new NotImplementedException()
             };
@@ -52,10 +69,14 @@ namespace Solver
 
             _effector.MoveSpeed = moveSpeed;
             _effector.SetHsvParam(hueSpeed, sva.x, sva.y, sva.z);
+            
+            _isInitialized = true;
         }
 
         private void Update()
         {
+            if (!_isInitialized) return;
+
 #if UNITY_EDITOR
             CheckParamUpdate();
 #endif

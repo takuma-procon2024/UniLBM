@@ -13,7 +13,8 @@ namespace Solver.Impls
         private readonly float _tau;
         private readonly Dictionary<Uniforms, int> _uniformMap;
 
-        public ComputeD3Q15Solver(ComputeShader computeShader, uint cellSize, float tau, float3 force)
+        public ComputeD3Q15Solver(ComputeShader computeShader, RenderTexture clothVelocityTexture, uint cellSize,
+            float tau, in float3 force)
             : base(computeShader)
         {
             _cellSize = cellSize;
@@ -22,7 +23,7 @@ namespace Solver.Impls
 
             InitializeSolverBase(out _kernelMap, out _uniformMap);
             InitializeBuffers();
-            SetupShader();
+            SetupShader(clothVelocityTexture);
         }
 
         public override void Dispose()
@@ -73,13 +74,15 @@ namespace Solver.Impls
             _velocityBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, totalSize, 3 * sizeof(float));
         }
 
-        private void SetupShader()
+        private void SetupShader(RenderTexture clothVelocityTexture)
         {
             ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f0], _f0Buffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.f1], _f1Buffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.field], _fieldBuffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.force_source], _forceSourceBuffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.solve], _uniformMap[Uniforms.velocity], _velocityBuffer);
+            ComputeShader.SetTexture(_kernelMap[Kernels.solve], _uniformMap[Uniforms.cloth_velocity],
+                clothVelocityTexture);
 
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.f0], _f0Buffer);
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.field], _fieldBuffer);
@@ -112,6 +115,7 @@ namespace Solver.Impls
             field,
             force_source,
             velocity,
+            cloth_velocity,
             cell_size,
             force,
             tau
