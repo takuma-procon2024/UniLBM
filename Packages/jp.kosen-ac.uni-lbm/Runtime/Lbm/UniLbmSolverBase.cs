@@ -73,6 +73,7 @@ namespace Lbm
 
         public abstract GraphicsBuffer GetFieldBuffer();
         public abstract GraphicsBuffer GetVelocityBuffer();
+        public abstract GraphicsBuffer GetExternalForceBuffer();
         public abstract uint GetCellSize();
 
         #region Variables

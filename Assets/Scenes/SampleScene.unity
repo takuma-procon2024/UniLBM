@@ -610,20 +610,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b882ce8f0b35477380cbba9addfc5296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeStepScale: 3
-  verletIteration: 4
+  timeStepScale: 1
+  verletIteration: 10
   clothResolution:
     x: 64
     y: 64
   restLength: 0.05
-  stiffness: 10000
-  damping: 2.23
-  mass: 100
+  stiffness: 11500
+  damping: 0.96
+  mass: 1
   gravity:
     x: 0
     y: -9.81
     z: 0
-  velocityScale: 5000000
+  velocityScale: 1000
   computeShader: {fileID: 7200000, guid: 4aa18fd7a3be4ec0afaacd36a8e22bca, type: 3}
   drawSimulationBuffer: 0
   debugDrawScale: 2
@@ -636,8 +636,8 @@ Transform:
   m_GameObject: {fileID: 991164545}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 51.5, y: 58.7, z: 37.2}
-  m_LocalScale: {x: 20, y: 20, z: 20}
+  m_LocalPosition: {x: 50, y: 71.5, z: 40}
+  m_LocalScale: {x: 25, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1833343485}
@@ -756,7 +756,7 @@ MonoBehaviour:
   effectorShader: {fileID: 7200000, guid: 9c77618f0ea35ea4096e11216c0c694d, type: 3}
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
   cellSize: 100
-  tau: 1.2
+  tau: 0.8
   force: {x: 0, y: 0, z: -0.1}
   solverType: 0
   maxPoints: 1000000
@@ -1116,22 +1116,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fanNum:
-    x: 0
-    y: 0
+    x: 6
+    y: 6
   fanSize:
+    x: 1
+    y: 1
+    z: 1
+  fanDir:
     x: 0
     y: 0
-    z: 0
-  fanPower:
-    x: 0
-    y: 0
-    z: 0
-  fanMargin: 0
+    z: 0.01
+  fanMargin:
+    x: 10
+    y: 10
   fanOffset:
-    x: 0
-    y: 0
-    z: 0
-  lbmSolver: {fileID: 0}
+    x: 30
+    y: 30
+    z: 10
+  computeShader: {fileID: 7200000, guid: 8c14773bbec84ab4ba04b1e0e2cf7cdc, type: 3}
+  lbmSolver: {fileID: 1327824602}
+  debugPowers: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

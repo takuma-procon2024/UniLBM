@@ -44,7 +44,7 @@ namespace Lbm
 
         private PointEffector _effector;
 
-        private bool _isInitialized;
+        public bool IsInitialized { get; private set; }
         public UniLbmSolverBase Solver { get; private set; }
 
         private IEnumerator Start()
@@ -69,13 +69,13 @@ namespace Lbm
 
             _effector.MoveSpeed = moveSpeed;
             _effector.SetHsvParam(hueSpeed, sva.x, sva.y, sva.z);
-            
-            _isInitialized = true;
+
+            IsInitialized = true;
         }
 
         private void Update()
         {
-            if (!_isInitialized) return;
+            if (!IsInitialized) return;
 
 #if UNITY_EDITOR
             CheckParamUpdate();

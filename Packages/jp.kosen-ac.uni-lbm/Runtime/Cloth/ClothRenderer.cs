@@ -9,6 +9,7 @@ namespace Cloth
     {
         private static readonly int PositionTexPropId = Shader.PropertyToID("_position_tex");
         private static readonly int NormalTexPropId = Shader.PropertyToID("_normal_tex");
+        private static readonly int ExternalForceTexPropId = Shader.PropertyToID("_external_force_tex");
 
         [SerializeField] private Material material;
 
@@ -20,6 +21,7 @@ namespace Cloth
             meshRenderer.material = material;
             material.SetTexture(PositionTexPropId, simulation.PositionBuffer);
             material.SetTexture(NormalTexPropId, simulation.NormalBuffer);
+            material.SetTexture(ExternalForceTexPropId, simulation.InputForceBuffer);
 
             meshFilter.mesh = new Mesh();
             GenerateMesh(meshFilter.mesh, meshRenderer, simulation);

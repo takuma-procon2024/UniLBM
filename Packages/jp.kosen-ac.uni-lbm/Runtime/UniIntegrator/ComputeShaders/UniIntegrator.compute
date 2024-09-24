@@ -1,0 +1,59 @@
+﻿#pragma kernel set_fan_power
+
+#define NUM_THREADS 2
+
+//==============================================================================
+// Uniforms
+//==============================================================================
+// LBMの外力データ (書き込み用)
+RWStructuredBuffer<float3> lbm_force_buffer;
+// ファンパワー
+StructuredBuffer<float> fan_power_buffer;
+
+// ファンの向き
+float3 fan_dir;
+// ファン同士の間隔
+uint2 fan_margin;
+// ファンを配置するオフセット
+float3 fan_offset;
+// 速度を与えるセルサイズ
+uint3 fan_size;
+// LBMソルバーのセル解像度
+uint lbm_res;
+// ファンの数
+uint2 fan_num;
+
+//==============================================================================
+// ファンパワー書き込み用カーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void set_fan_power(in uint2 id: SV_DispatchThreadID)
+{
+    [flatten]
+    if (any(id >= fan_num))
+        return;
+
+    uint idx = id.y * fan_num.x + id.x;
+    float power = fan_power_buffer[idx];
+
+    float3 offset_cell_idx = float3(id.x, id.y, 0);
+    offset_cell_idx *= uint3(fan_margin, 0) + fan_size;
+    offset_cell_idx += fan_offset;
+
+    for (uint offset_x = 0; offset_x < fan_size.x; offset_x++)
+    {
+        for (uint offset_y = 0; offset_y < fan_size.y; offset_y++)
+        {
+            for (uint offset_z = 0; offset_z < fan_size.z; offset_z++)
+            {
+                uint3 cell_idx = uint3(offset_cell_idx + float3(offset_x, offset_y, offset_z));
+                [flatten]
+                if (any(cell_idx >= lbm_res))
+                    continue;
+
+                uint lbm_idx = cell_idx.z * lbm_res * lbm_res + cell_idx.y * lbm_res + cell_idx.x;
+                lbm_force_buffer[lbm_idx] = fan_dir * power;
+            }
+        }
+    }
+}

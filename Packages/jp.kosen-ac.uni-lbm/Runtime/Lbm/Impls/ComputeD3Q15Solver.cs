@@ -56,6 +56,11 @@ namespace Lbm.Impls
         {
             return _velocityBuffer;
         }
+        
+        public override GraphicsBuffer GetExternalForceBuffer()
+        {
+            return _forceSourceBuffer;
+        }
 
         public override uint GetCellSize()
         {
