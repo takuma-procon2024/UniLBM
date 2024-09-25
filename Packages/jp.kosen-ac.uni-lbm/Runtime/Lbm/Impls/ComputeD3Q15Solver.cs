@@ -8,6 +8,7 @@ namespace Lbm.Impls
     public class ComputeD3Q15Solver : UniLbmSolverBase
     {
         private readonly uint _cellSize;
+        private readonly uint2 _clothRes;
         private readonly float3 _force;
         private readonly Dictionary<Kernels, int> _kernelMap;
         private readonly float _tau;
@@ -20,6 +21,7 @@ namespace Lbm.Impls
             _cellSize = cellSize;
             _tau = tau;
             _force = force;
+            _clothRes = new uint2((uint)clothVelocityTexture.width, (uint)clothVelocityTexture.height);
 
             InitializeSolverBase(out _kernelMap, out _uniformMap);
             InitializeBuffers();
@@ -40,6 +42,9 @@ namespace Lbm.Impls
         public override void Step()
         {
             CalcDispatchThreadGroups(out var groupX, out var groupY, out var groupZ, _cellSize);
+            CalcDispatchThreadGroups(out var clothX, out var clothY, out var _, new uint3(_clothRes, 0));
+
+            ComputeShader.Dispatch(_kernelMap[Kernels.initialize_cloth_velocity], clothX, clothY, 1);
             ComputeShader.Dispatch(_kernelMap[Kernels.solve], groupX, groupY, groupZ);
 
             (_f1Buffer, _f0Buffer) = (_f0Buffer, _f1Buffer);
@@ -56,7 +61,7 @@ namespace Lbm.Impls
         {
             return _velocityBuffer;
         }
-        
+
         public override GraphicsBuffer GetExternalForceBuffer()
         {
             return _forceSourceBuffer;
@@ -94,6 +99,10 @@ namespace Lbm.Impls
             ComputeShader.SetBuffer(_kernelMap[Kernels.initialize], _uniformMap[Uniforms.force_source],
                 _forceSourceBuffer);
 
+            ComputeShader.SetTexture(_kernelMap[Kernels.initialize_cloth_velocity],
+                _uniformMap[Uniforms.cloth_velocity],
+                clothVelocityTexture);
+
             ComputeShader.SetInt(_uniformMap[Uniforms.cell_size], (int)_cellSize);
             ComputeShader.SetVector(_uniformMap[Uniforms.force], new Vector4(_force.x, _force.y, _force.z));
             ComputeShader.SetFloat(_uniformMap[Uniforms.tau], _tau);
@@ -130,7 +139,8 @@ namespace Lbm.Impls
         private enum Kernels
         {
             solve,
-            initialize
+            initialize,
+            initialize_cloth_velocity
         }
 
         #endregion

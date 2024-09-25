@@ -15,6 +15,7 @@ namespace Lbm
         [SerializeField] private Color lineColor = Color.white;
         [SerializeField] private Material mat;
         [SerializeField] private LbmSolverBehaviour lbmSolver;
+        [SerializeField] private bool showCollisionCell = true;
 
         private bool _isInitialized;
         private RenderParams _renderParams;
@@ -42,6 +43,11 @@ namespace Lbm
                     max = new Vector3(cellSize, cellSize, cellSize)
                 }
             };
+
+            if (showCollisionCell)
+                Shader.EnableKeyword("SHOW_COLLISION_CELL");
+            else
+                Shader.DisableKeyword("SHOW_COLLISION_CELL");
 
             _isInitialized = true;
         }

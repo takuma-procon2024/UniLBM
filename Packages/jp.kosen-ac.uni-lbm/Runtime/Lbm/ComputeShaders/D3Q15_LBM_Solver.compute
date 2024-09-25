@@ -1,5 +1,8 @@
 ﻿#pragma kernel solve
 #pragma kernel initialize
+#pragma kernel initialize_cloth_velocity
+
+#pragma multi_compile _ PACK_COLLISION_CELL
 
 #define NUM_THREADS 2
 #define Q 15
@@ -49,6 +52,21 @@ static const float w[Q] = {
 uint get_index(in uint3 pos)
 {
     return pos.x + pos.y * cell_size + pos.z * cell_size * cell_size;
+}
+
+//==============================================================================
+// 布外部速度の初期化
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void initialize_cloth_velocity(uint2 id : SV_DispatchThreadID)
+{
+    uint2 cloth_res;
+    cloth_velocity.GetDimensions(cloth_res.x, cloth_res.y);
+    if (any(id >= cloth_res)) return;
+
+    // float3 vel = cloth_velocity[id].xyz;
+    // vel = max(vel - 0.0001f, 0);
+    cloth_velocity[id] = 0;
 }
 
 //==============================================================================
@@ -103,11 +121,27 @@ void solve(uint3 id : SV_DispatchThreadID)
         bool is_cloth_boundary = is_boundary && field_type != OUTFLOW_BOUNDARY_TYPE;
 
         // 布との衝突の場合
+        #ifdef PACK_COLLISION_CELL
+        uint cloth_x = (field_type & 0x0FFF0000) >> 16; // 上位16ビット
+        #else
         uint cloth_x = (field_type & 0xFFFF0000) >> 16; // 上位16ビット
+        #endif
         uint cloth_y = field_type & 0x0000FFFF; // 下位16ビット
 
+        static const float min_vel = 0.00000425f;
+        bool is_in_vel_range = length2(vel) > min_vel * min_vel;
         uint2 cloth_pos = is_cloth_boundary ? uint2(cloth_x, cloth_y) : 0;
-        cloth_velocity[cloth_pos] = is_cloth_boundary ? length(vel) > 0.000001f ? float4(vel, 0) : 0 : 0;
+        if (is_cloth_boundary && is_in_vel_range)
+        {
+            [unroll]
+            for (int x = -2; x <= 2; x++)
+                [unroll]
+                for (int y = -2; y <= 2; y++)
+                    cloth_velocity[cloth_pos + int2(x, y)] = float4(vel, 0);
+            #ifdef PACK_COLLISION_CELL
+            field[idx_p] = field_type & 0x0FFFFFFF | 0x10000000;
+            #endif
+        }
 
         uint f1_idx = is_boundary
                           ? idx * Q + inv[k]

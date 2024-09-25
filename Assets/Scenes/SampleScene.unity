@@ -610,8 +610,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b882ce8f0b35477380cbba9addfc5296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeStepScale: 1
-  verletIteration: 10
+  timeStepScale: 0.5
+  verletIteration: 4
   clothResolution:
     x: 64
     y: 64
@@ -623,7 +623,7 @@ MonoBehaviour:
     x: 0
     y: -9.81
     z: 0
-  velocityScale: 1000
+  velocityScale: 10000000
   computeShader: {fileID: 7200000, guid: 4aa18fd7a3be4ec0afaacd36a8e22bca, type: 3}
   drawSimulationBuffer: 0
   debugDrawScale: 2
@@ -724,7 +724,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1327824601
 Transform:
   m_ObjectHideFlags: 0
@@ -752,13 +752,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4702ceb548aa45df97e0e3992f8a21a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lbmShader: {fileID: 7200000, guid: 77cf52998bfa424ba64e73af66710f4d, type: 3}
+  lbmShader: {fileID: 7200000, guid: a2fcfd7c1567ee94b95fac1e8ef28dd7, type: 3}
   effectorShader: {fileID: 7200000, guid: 9c77618f0ea35ea4096e11216c0c694d, type: 3}
   effectorMaterial: {fileID: 2100000, guid: 116d9e63eb5f0d249b6b5462315a0c10, type: 2}
   cellSize: 100
   tau: 0.8
   force: {x: 0, y: 0, z: -0.1}
-  solverType: 0
+  solverType: 1
   maxPoints: 1000000
   moveSpeed: 500
   hueSpeed: 100
@@ -942,6 +942,7 @@ MonoBehaviour:
   lineColor: {r: 1, g: 1, b: 1, a: 1}
   mat: {fileID: 2100000, guid: 3aaf6c4082d34f042bff4fda72fbb34c, type: 2}
   lbmSolver: {fileID: 1327824602}
+  showCollisionCell: 1
 --- !u!1 &1550144900
 GameObject:
   m_ObjectHideFlags: 0
@@ -1087,7 +1088,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2137590249
 Transform:
   m_ObjectHideFlags: 0

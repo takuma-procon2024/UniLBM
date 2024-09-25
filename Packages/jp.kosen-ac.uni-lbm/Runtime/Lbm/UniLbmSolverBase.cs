@@ -48,11 +48,11 @@ namespace Lbm
             Assert.IsTrue(_gpuThreads.z <= DirectCompute5_0.MaxZ, "THREAD_Z is too large : UniLBM");
         }
 
-        protected void CalcDispatchThreadGroups(out int x, out int y, out int z, in uint cellSize)
+        protected void CalcDispatchThreadGroups(out int x, out int y, out int z, in uint3 cellSize)
         {
-            x = (int)math.ceil((float)cellSize / _gpuThreads.x);
-            y = (int)math.ceil((float)cellSize / _gpuThreads.y);
-            z = (int)math.ceil((float)cellSize / _gpuThreads.z);
+            x = (int)math.ceil((float)cellSize.x / _gpuThreads.x);
+            y = (int)math.ceil((float)cellSize.y / _gpuThreads.y);
+            z = (int)math.ceil((float)cellSize.z / _gpuThreads.z);
         }
 
         private static Dictionary<T, int> CreateUniformMap<T>() where T : Enum

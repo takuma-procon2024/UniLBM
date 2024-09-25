@@ -103,8 +103,6 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     float3 force = gravity;
     // 外部入力速度を加算
     float3 external_velocity = velocity_buffer[id].xyz * velocity_scale;
-    // external_velocity.xy = 0;
-    // external_velocity.z = external_velocity.z < 0 ? 0 : external_velocity.z; 
     external_velocity = clamp(external_velocity, -100000, 100000);
     force += external_velocity;
 

@@ -38,6 +38,7 @@
             #pragma fragment frag
 
             #pragma shader_feature _ SHOW_OUTFLOW
+            #pragma multi_compile _ PACK_COLLISION_CELL
 
             struct v2g
             {
@@ -64,11 +65,13 @@
                 uint field_type = field[pid];
 
                 [flatten]
-                if (field_type == FLUID_TYPE) return;
-                
+                if (field_type == FLUID_TYPE)
+                    return;
+
                 #ifndef SHOW_OUTFLOW
                 [flatten]
-                if (field_type == OUTFLOW_BOUNDARY_TYPE) return;
+                if (field_type == OUTFLOW_BOUNDARY_TYPE)
+                    return;
                 #endif
 
                 static const uint3 vertices[24] = {
@@ -90,6 +93,19 @@
                     uint3(1, 1, 1), uint3(0, 1, 1),
                 };
 
+                bool is_cloth = field_type != OUTFLOW_BOUNDARY_TYPE;
+
+                #ifdef PACK_COLLISION_CELL
+                uint cloth_x = (field_type & 0x0fff0000) >> 16;
+                #else
+                uint cloth_x = (field_type & 0xffff0000) >> 16;
+                #endif
+                uint cloth_y = field_type & 0x0000ffff;
+                float4 c_color = float4(cloth_x, cloth_y, 0, 0) / 64;
+                #ifdef PACK_COLLISION_CELL
+                c_color = field_type & 0x10000000 ? 1 : c_color;
+                #endif
+
                 [unroll]
                 for (uint i = 0; i < 24; i++)
                 {
@@ -98,9 +114,9 @@
                     float3 pos = (input[0].vertex.xyz + vertex) * size / cell_res;
                     o.vertex = TransformObjectToHClip(pos);
                     #ifdef SHOW_OUTFLOW
-                    o.color = field_type == OUTFLOW_BOUNDARY_TYPE ? outflow_color : line_color;
+                    o.color = field_type == OUTFLOW_BOUNDARY_TYPE ? outflow_color : is_cloth ? c_color : line_color;
                     #else
-                    o.color = line_color;
+                    o.color = is_cloth ? c_color : line_color;
                     #endif
                     out_stream.Append(o);
                 }

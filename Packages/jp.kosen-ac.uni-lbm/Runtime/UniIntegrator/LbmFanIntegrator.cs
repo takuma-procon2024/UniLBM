@@ -58,6 +58,7 @@ namespace UniIntegrator
 
 #if UNITY_EDITOR
             debugPowers = new float[fanNum.x * fanNum.y];
+            debugPowers[19] = 1;
 #endif
         }
 
