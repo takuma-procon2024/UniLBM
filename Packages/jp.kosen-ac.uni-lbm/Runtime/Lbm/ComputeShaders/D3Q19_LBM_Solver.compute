@@ -1,0 +1,162 @@
+﻿#pragma kernel initialize
+#pragma kernel collision
+#pragma kernel advection
+
+#define THREADS_NUM 4
+
+#define Q 19
+
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
+
+//==============================================================================
+// 定数
+//==============================================================================
+// 各方向への速度ベクトル
+static const int3 ei[Q] = {
+    int3(+1, +0, +0), int3(-1, +0, +0), int3(+0, +0, +1), int3(+0, +0, -1), //  0 -  3
+    int3(+0, -1, +0), int3(+0, +1, +0), int3(+1, +0, +1), int3(-1, +0, -1), //  4 -  7
+    int3(-1, +0, +1), int3(+1, +0, -1), int3(+1, -1, +0), int3(-1, +1, +0), //  8 - 11
+    int3(-1, -1, +0), int3(+1, +1, +0), int3(+0, -1, +1), int3(+0, +1, -1), // 12 - 15
+    int3(+0, -1, -1), int3(+0, +1, +1), int3(+0, +0, +0) // 16 - 18
+};
+static const float s = 1.f / 18.f; // 隣接方向への重み
+static const float l = 1.f / 36.f; // 対角方向への重み
+static const float z = 1.f / 3.f; // 中心点での重み
+static const float f_base = 10.5f;
+// 各方向での重み
+static const float w[Q] = {
+    s, s, s, s,
+    s, s, l, l,
+    l, l, l, l,
+    l, l, l, l,
+    l, l, z
+};
+// バックバウンスする方向
+static const uint inv[Q] = {
+    1, 0, 3, 2,
+    5, 4, 7, 6,
+    9, 8, 11, 10,
+    13, 12, 15, 14,
+    17, 16, 18
+};
+
+//==============================================================================
+// uniform 変数
+//==============================================================================
+// 1辺当たりシミュレーションセル解像度
+int cell_res_int;
+// 粘性係数
+float tau;
+// 周囲19格子への流出量
+RWStructuredBuffer<float> f0;
+RWStructuredBuffer<float> f1;
+// フィールド
+RWStructuredBuffer<uint> field;
+// 粒子内の流速・密度
+RWStructuredBuffer<float4> vel_dens;
+// 外部入力速度
+RWStructuredBuffer<float3> external_force;
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP0: 初期化]
+//==============================================================================
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
+void initialize(in uint3 id: SV_DispatchThreadID)
+{
+    uint cell_res = cell_res_int;
+    uint idx = get_index(id, cell_res);
+
+    [unroll]
+    for (int i = 0; i < Q; i++)
+        f0[idx * Q + i] = f_base * w[i];
+
+    field[idx] = any(id == 0 || id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
+    // external_force[idx] = all(id == cell_res / 2) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
+    external_force[idx] = float3(0.1f, 0, 0);
+}
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP1: 衝突]
+//==============================================================================
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
+void collision(in uint3 id: SV_DispatchThreadID)
+{
+    uint cell_res = cell_res_int;
+    int i;
+
+    // ID
+    uint idx = get_index(id, cell_res);
+
+    // 各方向への流出量を計算
+    float3 u = vel_dens[idx].xyz;
+    float lo = vel_dens[idx].w;
+    float u2 = dot(u, u);
+
+    if (field[idx] == FLUID_TYPE)
+        [unroll]
+        for (i = 0; i < Q; i++)
+        {
+            float a = dot(ei[i], u);
+            float b = 3.f * a + 4.5f * a * a - 1.5f * u2;
+            float c = lo * (1 + b);
+
+            f0[idx * Q + i] -= (f0[idx * Q + i] - c * w[i]) / tau;
+        }
+    else
+        [unroll]
+        for (i = 0; i < Q; i++)
+            f0[idx * Q + i] = f0[idx * Q + inv[i]];
+}
+
+//==============================================================================
+// 格子ボルツマン法 (LBM: D3Q19) [STEP2: 併進]
+//==============================================================================
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
+void advection(in uint3 id: SV_DispatchThreadID)
+{
+    uint cell_res = cell_res_int;
+    int i;
+
+    // ID
+    uint idx = get_index(id, cell_res);
+
+    // 各方向からの併進してくる量
+    [unroll]
+    for (i = 0; i < Q; i++)
+    {
+        int3 neighbor = int3(id) - ei[i];
+        bool is_out_of_range = any(neighbor < 0 || neighbor >= (int)cell_res);
+        f1[idx * Q + i] = is_out_of_range
+                              ? w[i] * f_base
+                              : f0[get_index(neighbor, cell_res) * Q + i];
+    }
+
+    // 現時刻の密度・速度ベクトルの産出
+    float new_lo = 0.f;
+    float3 new_u = 0.f;
+
+    [flatten]
+    if (field[idx] == FLUID_TYPE)
+    {
+        [unroll]
+        for (i = 0; i < Q; i++)
+        {
+            new_lo += f1[idx * Q + i];
+            new_u += f1[idx * Q + i] * ei[i];
+        }
+        [flatten]
+        if (new_lo > 0)
+            new_u /= new_lo;
+
+        // 入力速度を反映
+        new_u += external_force[idx];
+    }
+    else
+    {
+        new_u = vel_dens[idx].xyz;
+        new_lo = vel_dens[idx].w;
+    }
+
+    // 粒子の速度と密度を更新
+    vel_dens[idx] = float4(new_u, new_lo);
+}

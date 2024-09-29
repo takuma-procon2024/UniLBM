@@ -4,6 +4,9 @@
   "displayName": "UniLBM",
   "description": "3D LBM solver for Unity(Uni)",
   "unity": "2022.3",
+  "dependencies": {
+    "com.unity.mathematics": "1.2.6"
+  },
   "author": {
     "name": "g22307",
     "email": "g22307@kagawa.kosen-ac.jp"

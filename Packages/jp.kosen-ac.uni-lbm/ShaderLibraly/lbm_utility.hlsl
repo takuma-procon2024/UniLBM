@@ -2,6 +2,14 @@
 #define BOUNDARY_TYPE 1
 #define OUTFLOW_BOUNDARY_TYPE 2
 
+struct lbm_particle_data
+{
+    // XYZ: Position, W: Lifetime
+    float4 pos_lifetime;
+    // XYZ: Prev Position, W: VelLength
+    float4 prev_pos_vel;
+};
+
 uint get_index(uint3 index, uint3 size)
 {
     return index.x + index.y * size.x + index.z * size.x * size.y;

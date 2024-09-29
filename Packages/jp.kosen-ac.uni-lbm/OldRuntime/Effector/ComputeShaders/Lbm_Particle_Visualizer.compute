@@ -3,7 +3,7 @@
 
 #define THREAD_NUM 2
 
-#include "Packages/jp.kosen-ac.uni-lbm/Runtime/Effector/Shaders/particle_data.hlsl"
+#include "Packages/jp.kosen-ac.uni-lbm/OldRuntime/Effector/Shaders/particle_data.hlsl"
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
 float delta_time;

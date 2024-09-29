@@ -5,6 +5,7 @@
         size ("Size", Float) = 100
         min_velocity ("Min Velocity", Float) = 0.00001
         max_velocity ("Max Velocity", Float) = 0.25
+        hue_speed ("Hue Speed", Float) = 10
     }
     SubShader
     {
@@ -19,13 +20,14 @@
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal//ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
-        #include "Packages/jp.kosen-ac.uni-lbm/RUntime/Effector/Shaders/particle_data.hlsl"
+        #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
-        StructuredBuffer<particle_data> particles;
+        StructuredBuffer<lbm_particle_data> particles;
 
         float size;
         float min_velocity;
         float max_velocity;
+        float hue_speed;
         ENDHLSL
 
         Pass
@@ -52,11 +54,11 @@
             v2g vert(uint id: SV_VertexID)
             {
                 v2g o;
-                particle_data p = particles[id];
-                o.vertex = float4(p.pos, 1);
-                o.prev_vertex = float4(p.prev_pos, 1);
+                lbm_particle_data p = particles[id];
+                o.vertex = float4(p.pos_lifetime.xyz, 1);
+                o.prev_vertex = float4(p.prev_pos_vel.xyz, 1);
                 o.uv = float2(0, 0);
-                o.color = p.col;
+                o.color = float4(hsv_2_rgb(float3(saturate(p.prev_pos_vel.w * hue_speed), 1, 1)), 1);
                 return o;
             }
 
@@ -73,11 +75,11 @@
                 bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
 
                 g2f o;
-                o.vertex = TransformObjectToHClip(prev_pos.xyz);
+                o.vertex = TransformObjectToHClip(pos.xyz);
                 o.color = col;
                 out_stream.Append(o);
 
-                o.vertex = is_out_of_velocity ? o.vertex : TransformObjectToHClip((prev_pos + dir).xyz);
+                o.vertex = TransformObjectToHClip(prev_pos.xyz);
                 o.color = col;
                 out_stream.Append(o);
 

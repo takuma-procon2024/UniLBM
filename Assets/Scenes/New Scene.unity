@@ -240,7 +240,7 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!1 &1222064624
+--- !u!1 &1439217235
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -248,36 +248,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1222064626}
-  - component: {fileID: 1222064625}
+  - component: {fileID: 1439217237}
+  - component: {fileID: 1439217236}
   m_Layer: 0
-  m_Name: CpuSolver
+  m_Name: Simulator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1222064625
+--- !u!114 &1439217236
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1222064624}
+  m_GameObject: {fileID: 1439217235}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f6b0a3583384669845409a053e6e751, type: 3}
+  m_Script: {fileID: 11500000, guid: 2802d6ee262f48d98f9018ccb770e110, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellSize: 20
-  tau: 0.6
---- !u!4 &1222064626
+  lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
+  cellResolution: 128
+  tau: 1.2
+  particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
+  particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
+  oneSideParticleNum: 100
+  particleSpeed: 0.3
+  maxLifetime: 10
+--- !u!4 &1439217237
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1222064624}
+  m_GameObject: {fileID: 1439217235}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -384,4 +390,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1549605811}
   - {fileID: 1049455707}
-  - {fileID: 1222064626}
+  - {fileID: 1439217237}

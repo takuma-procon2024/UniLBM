@@ -1,8 +1,9 @@
 {
     "name": "jp.kosen-ac.uni-lbm",
-    "rootNamespace": "",
+    "rootNamespace": "UniLbm",
     "references": [
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:324caed91501a9c47a04ebfd87b68794"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
