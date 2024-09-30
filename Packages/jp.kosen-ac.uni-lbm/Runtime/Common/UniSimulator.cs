@@ -9,7 +9,7 @@ namespace UniLbm.Common
     /// </summary>
     public class UniSimulator : MonoBehaviour
     {
-        private D3Q19LbmSolver _lbmSolver;
+        private ILbmSolver _lbmSolver;
         private LbmParticle _particle;
 
         private void Initialize()

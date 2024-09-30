@@ -10,7 +10,7 @@ namespace UniLbm.Lbm
     /// <summary>
     ///     D3Q19 LBM ソルバー
     /// </summary>
-    public class D3Q19LbmSolver : IDisposable, ILbmSolver
+    public class D3Q19LbmSolver : ILbmSolver
     {
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
 
