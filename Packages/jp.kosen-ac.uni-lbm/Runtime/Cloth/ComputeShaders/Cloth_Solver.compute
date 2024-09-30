@@ -17,7 +17,7 @@ RWTexture2D<float4> pos_curr_buffer_out;
 // 法線データ (書き込み用)
 RWTexture2D<float4> normal_buffer_out;
 // 外部入力速度データ (読み込み用)
-Texture2D velocity_buffer;
+Texture2D external_force_buffer;
 
 // 布の解像度
 int2 cloth_resolution;
@@ -102,7 +102,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     // パーティクルにかかる力、初期値として重力を代入
     float3 force = gravity;
     // 外部入力速度を加算
-    float3 external_velocity = velocity_buffer[id].xyz * velocity_scale;
+    float3 external_velocity = external_force_buffer[id].xyz * velocity_scale;
     external_velocity = clamp(external_velocity, -100000, 100000);
     force += external_velocity;
 
