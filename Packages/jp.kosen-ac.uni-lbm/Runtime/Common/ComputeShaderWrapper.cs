@@ -46,7 +46,8 @@ namespace UniLbm.Common
 #endif
 
             var threadGroups = new int3(math.ceil(new float3(threadSize) / threadGroupSize));
-
+            threadGroups = math.max(1, threadGroups);
+            
             _shader.Dispatch(_kernelMap[kernel], threadGroups.x, threadGroups.y, threadGroups.z);
         }
 

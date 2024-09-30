@@ -73,6 +73,7 @@
 
                 float dir_length = Length2(dir.xyz);
                 bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
+                // if (is_out_of_velocity) return;
 
                 g2f o;
                 o.vertex = TransformObjectToHClip(pos.xyz);

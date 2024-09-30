@@ -54,7 +54,7 @@ namespace UniLbm.Lbm
 
         public void Update(float deltaTime)
         {
-            _shader.SetFloat(Uniforms.delta_time, deltaTime);
+            _shader.SetFloat(Uniforms.delta_time, 1 / 60f);
             _shader.Dispatch(Kernels.update_particle, (uint)_oneSideParticleNum);
 
             Graphics.RenderPrimitives(_renderParams, MeshTopology.Points, _particleNum);

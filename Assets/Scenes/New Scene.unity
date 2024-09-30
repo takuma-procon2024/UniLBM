@@ -275,7 +275,7 @@ MonoBehaviour:
   particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
   particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
   oneSideParticleNum: 100
-  particleSpeed: 0.3
+  particleSpeed: 300
   maxLifetime: 10
 --- !u!4 &1439217237
 Transform:

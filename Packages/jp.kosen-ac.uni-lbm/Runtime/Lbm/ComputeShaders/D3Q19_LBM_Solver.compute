@@ -70,9 +70,9 @@ void initialize(in uint3 id: SV_DispatchThreadID)
     for (int i = 0; i < Q; i++)
         f0[idx * Q + i] = f_base * w[i];
 
-    field[idx] = any(id == 0 || id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
-    // external_force[idx] = all(id == cell_res / 2) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
-    external_force[idx] = float3(0.1f, 0, 0);
+    vel_dens[idx] = float4(0, 0, 0, f_base);
+    field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
+    external_force[idx] = all(id == cell_res / 2) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
 }
 
 //==============================================================================
@@ -99,7 +99,7 @@ void collision(in uint3 id: SV_DispatchThreadID)
             float a = dot(ei[i], u);
             float b = 3.f * a + 4.5f * a * a - 1.5f * u2;
             float c = lo * (1 + b);
-
+    
             f0[idx * Q + i] -= (f0[idx * Q + i] - c * w[i]) / tau;
         }
     else
@@ -125,7 +125,7 @@ void advection(in uint3 id: SV_DispatchThreadID)
     for (i = 0; i < Q; i++)
     {
         int3 neighbor = int3(id) - ei[i];
-        bool is_out_of_range = any(neighbor < 0 || neighbor >= (int)cell_res);
+        bool is_out_of_range = any(neighbor < 0) || any(neighbor >= (int)cell_res);
         f1[idx * Q + i] = is_out_of_range
                               ? w[i] * f_base
                               : f0[get_index(neighbor, cell_res) * Q + i];

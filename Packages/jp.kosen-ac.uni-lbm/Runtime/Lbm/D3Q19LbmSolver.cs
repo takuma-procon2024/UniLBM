@@ -45,7 +45,7 @@ namespace UniLbm.Lbm
         /// </summary>
         public void Update()
         {
-            // DispatchSimulate();
+            DispatchSimulate();
 
             // f0とf1をスワップ
             (_f0Buffer, _f1Buffer) = (_f1Buffer, _f0Buffer);
@@ -81,7 +81,7 @@ namespace UniLbm.Lbm
 
         public void SetData(in Data data)
         {
-            _shader.SetInt(Uniforms.cell_res, CellRes);
+            _shader.SetInt(Uniforms.cell_res_int, CellRes);
             _shader.SetFloat(Uniforms.tau, data.Tau);
         }
 
@@ -113,7 +113,7 @@ namespace UniLbm.Lbm
             external_force,
             vel_dens,
             tau,
-            cell_res
+            cell_res_int
         }
 
         public readonly struct Data
