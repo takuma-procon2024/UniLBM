@@ -80,6 +80,11 @@ namespace UniLbm.Common
         {
             _shader.SetInt(_uniformMap[uniform], value);
         }
+        
+        public void SetInts(TUniform uniform, params int[] values)
+        {
+            _shader.SetInts(_uniformMap[uniform], values);
+        }
 
         public void SetFloat(TUniform uniform, float value)
         {

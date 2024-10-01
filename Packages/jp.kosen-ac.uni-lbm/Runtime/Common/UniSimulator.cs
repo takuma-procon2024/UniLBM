@@ -1,5 +1,7 @@
 ﻿using TriInspector;
+using UniLbm.Cloth;
 using UniLbm.Lbm;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace UniLbm.Common
@@ -9,6 +11,7 @@ namespace UniLbm.Common
     /// </summary>
     public class UniSimulator : MonoBehaviour
     {
+        private ClothSolver _clothSolver;
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
         private LbmParticle _particle;
@@ -26,6 +29,8 @@ namespace UniLbm.Common
                     MaxLifetime = maxLifetime
                 });
             _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
+            _clothSolver = new ClothSolver(clothShader, new int2(clothResolution), GetClothData());
+            ClothRenderer.Initialize(clothMaterial, gameObject, _clothSolver);
         }
 
         private void Simulate()
@@ -35,7 +40,27 @@ namespace UniLbm.Common
             _lbmSolver.Update();
             _particle.Update(1 / 60f);
             _obstacles.Update();
+            _clothSolver.Update();
         }
+
+        #region Util
+
+        private ClothSolver.Data GetClothData()
+        {
+            return new ClothSolver.Data
+            {
+                RestLength = restLength,
+                Stiffness = stiffness,
+                Damping = damping,
+                Mass = mass,
+                Gravity = gravity,
+                VelocityScale = velocityScale,
+                DeltaTime = deltaTime,
+                VerletIteration = verletIteration
+            };
+        }
+
+        #endregion
 
         #region Unity Callback
 
@@ -55,6 +80,13 @@ namespace UniLbm.Common
             _particle.Dispose();
         }
 
+#if DEBUG
+        private void OnGUI()
+        {
+            if (isClothDebug) _clothSolver.DrawSimulationBufferOnGui();
+        }
+#endif
+
         #endregion
 
         #region Serialize Field
@@ -70,6 +102,19 @@ namespace UniLbm.Common
         [SerializeField] private float maxLifetime = 10f;
 
         [Title("Obstacles")] [SerializeField] private Material obstacleMaterial;
+
+        [Title("Cloth")] [SerializeField] private ComputeShader clothShader;
+        [SerializeField] private Material clothMaterial;
+        [SerializeField] private uint2 clothResolution = new(128, 128);
+        [SerializeField] private float deltaTime = 1 / 60f;
+        [Range(1, 16)] [SerializeField] private int verletIteration = 4;
+        [SerializeField] private float restLength = 0.02f;
+        [SerializeField] private float stiffness = 10000f;
+        [SerializeField] private float damping = 0.996f;
+        [SerializeField] private float mass = 1.0f;
+        [SerializeField] private float3 gravity = new(0, -9.81f, 0);
+        [SerializeField] private float velocityScale = 1.0f;
+        [SerializeField] private bool isClothDebug;
 
         #endregion
     }

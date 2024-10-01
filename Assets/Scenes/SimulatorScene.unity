@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
-  cellResolution: 88
+  cellResolution: 64
   tau: 1.2
   particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
   particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
@@ -278,6 +278,23 @@ MonoBehaviour:
   particleSpeed: 300
   maxLifetime: 10
   obstacleMaterial: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
+  clothShader: {fileID: 7200000, guid: 1ee8ef398f6f276438a2ab30c44e502d, type: 3}
+  clothMaterial: {fileID: 2100000, guid: a387145f1ec9d5242abb3147455d7c16, type: 2}
+  clothResolution:
+    x: 128
+    y: 128
+  deltaTime: 0.016666668
+  verletIteration: 16
+  restLength: 0.02
+  stiffness: 200000
+  damping: 0.96
+  mass: 1
+  gravity:
+    x: 0
+    y: -9.81
+    z: 2
+  velocityScale: 1
+  isClothDebug: 1
 --- !u!4 &1439217237
 Transform:
   m_ObjectHideFlags: 0
