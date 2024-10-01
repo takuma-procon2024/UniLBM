@@ -12,9 +12,6 @@ namespace UniLbm.Lbm
     /// </summary>
     public class LbmParticle : IDisposable
     {
-        private static readonly int sizePropId = Shader.PropertyToID("size");
-        private static readonly int particlesPropId = Shader.PropertyToID("particles");
-
         private readonly int _dispatchSize;
         private readonly ILbmSolver _lbmSolver;
         private readonly int _particleNum, _oneSideParticleNum;
@@ -25,6 +22,7 @@ namespace UniLbm.Lbm
             in Data data)
         {
             _shader = new ComputeShaderWrapper<Kernels, Uniforms>(shader);
+            var material = new MaterialWrapper<Props>(mat);
             _lbmSolver = lbmSolver;
             _oneSideParticleNum = (int)oneSideParticleNum;
             _particleNum = (int)(oneSideParticleNum * oneSideParticleNum * oneSideParticleNum);
@@ -33,7 +31,7 @@ namespace UniLbm.Lbm
             SetBuffers();
             SetData(in data);
 
-            var matSize = mat.GetFloat(sizePropId);
+            var matSize = material.GetFloat(Props.size);
             _renderParams = new RenderParams(mat)
             {
                 worldBounds = new Bounds
@@ -42,7 +40,7 @@ namespace UniLbm.Lbm
                     max = new Vector3(matSize, matSize, matSize)
                 }
             };
-            mat.SetBuffer(particlesPropId, _particlesBuffer);
+            material.SetBuffer(Props.particles, _particlesBuffer);
 
             _shader.Dispatch(Kernels.init_particle, (uint)_oneSideParticleNum);
         }
@@ -104,6 +102,13 @@ namespace UniLbm.Lbm
             max_lifetime,
             field,
             vel_dens,
+            particles
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private enum Props
+        {
+            size,
             particles
         }
 

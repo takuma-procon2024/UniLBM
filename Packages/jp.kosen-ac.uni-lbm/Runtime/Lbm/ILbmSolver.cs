@@ -18,5 +18,10 @@ namespace UniLbm.Lbm
         ///     シミュレーションの更新
         /// </summary>
         public void Update();
+
+        /// <summary>
+        ///     フィールド速度をリセット
+        /// </summary>
+        public void ResetFieldVelocity();
     }
 }

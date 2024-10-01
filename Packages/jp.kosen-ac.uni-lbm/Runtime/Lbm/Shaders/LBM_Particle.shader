@@ -6,6 +6,7 @@
         min_velocity ("Min Velocity", Float) = 0.00001
         max_velocity ("Max Velocity", Float) = 0.25
         hue_speed ("Hue Speed", Float) = 10
+        particle_length ("Particle Length", Float) = 0.1
     }
     SubShader
     {
@@ -68,11 +69,10 @@
                 // 全ての頂点で共通の値を計算しておく
                 float4 pos = input[0].vertex * size;
                 float4 prev_pos = input[0].prev_vertex * size;
-                float4 dir = pos - prev_pos;
                 float4 col = input[0].color;
 
-                float dir_length = Length2(dir.xyz);
-                bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
+                // float dir_length = Length2(dir.xyz);
+                // bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
                 // if (is_out_of_velocity) return;
 
                 g2f o;

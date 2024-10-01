@@ -10,8 +10,8 @@ namespace UniLbm.Common
     public class UniSimulator : MonoBehaviour
     {
         private ILbmSolver _lbmSolver;
-        private LbmParticle _particle;
         private LbmObstacles _obstacles;
+        private LbmParticle _particle;
 
         private void Initialize()
         {
@@ -30,6 +30,8 @@ namespace UniLbm.Common
 
         private void Simulate()
         {
+            // TODO: リセットのタイミングは実験しながら考える
+            _lbmSolver.ResetFieldVelocity();
             _lbmSolver.Update();
             _particle.Update(1 / 60f);
             _obstacles.Update();
@@ -66,9 +68,8 @@ namespace UniLbm.Common
         [SerializeField] private uint oneSideParticleNum = 100;
         [SerializeField] private float particleSpeed = 0.1f;
         [SerializeField] private float maxLifetime = 10f;
-        
-        [Title("Obstacles")]
-        [SerializeField] private Material obstacleMaterial;
+
+        [Title("Obstacles")] [SerializeField] private Material obstacleMaterial;
 
         #endregion
     }

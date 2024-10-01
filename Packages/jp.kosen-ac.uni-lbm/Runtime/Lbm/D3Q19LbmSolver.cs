@@ -33,6 +33,7 @@ namespace UniLbm.Lbm
             FieldBuffer?.Dispose();
             _externalForceBuffer?.Dispose();
             VelDensBuffer?.Dispose();
+            FieldVelocityBuffer?.Dispose();
         }
 
         public GraphicsBuffer VelDensBuffer { get; private set; }
@@ -41,9 +42,6 @@ namespace UniLbm.Lbm
 
         public int CellRes { get; }
 
-        /// <summary>
-        ///     シミュレーションを更新
-        /// </summary>
         public void Update()
         {
             DispatchSimulate();
@@ -52,6 +50,11 @@ namespace UniLbm.Lbm
             (_f0Buffer, _f1Buffer) = (_f1Buffer, _f0Buffer);
             _shader.SetBuffer(new[] { Kernels.collision, Kernels.advection }, Uniforms.f0, _f0Buffer);
             _shader.SetBuffer(new[] { Kernels.collision, Kernels.advection }, Uniforms.f1, _f1Buffer);
+        }
+
+        public void ResetFieldVelocity()
+        {
+            DispatchResetVelocity();
         }
 
         #region ComputeShader
@@ -81,6 +84,7 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(allKernels, Uniforms.external_force, _externalForceBuffer);
             _shader.SetBuffer(allKernels, Uniforms.vel_dens, VelDensBuffer);
             _shader.SetBuffer(Kernels.advection, Uniforms.field_velocity, FieldVelocityBuffer);
+            _shader.SetBuffer(Kernels.reset_velocity, Uniforms.field_velocity, FieldVelocityBuffer);
         }
 
         public void SetData(in Data data)
@@ -100,12 +104,18 @@ namespace UniLbm.Lbm
             _shader.Dispatch(Kernels.advection, (uint)CellRes);
         }
 
+        private void DispatchResetVelocity()
+        {
+            _shader.Dispatch(Kernels.reset_velocity, (uint)CellRes);
+        }
+
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private enum Kernels
         {
             initialize,
             collision,
-            advection
+            advection,
+            reset_velocity
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -1,9 +1,12 @@
 ﻿#pragma kernel initialize
 #pragma kernel collision
 #pragma kernel advection
+#pragma kernel reset_velocity
 
 #define THREADS_NUM 4
 #define COLLISION_DOT 0.1f // 境界と衝突したことにする速度の内積
+
+#define INV_SQRT_2 0.70710678118654752440084436210485f
 
 #define Q 19
 
@@ -19,6 +22,17 @@ static const int3 ei[Q] = {
     int3(-1, +0, +1), int3(+1, +0, -1), int3(+1, -1, +0), int3(-1, +1, +0), //  8 - 11
     int3(-1, -1, +0), int3(+1, +1, +0), int3(+0, -1, +1), int3(+0, +1, -1), // 12 - 15
     int3(+0, -1, -1), int3(+0, +1, +1), int3(+0, +0, +0) // 16 - 18
+};
+// 各方向への単位速度ベクトル
+static const float3 norm_ei[Q] = {
+    float3(+1, +0, +0), float3(-1, +0, +0), float3(+0, +0, +1), float3(+0, +0, -1), //  0 -  3
+    float3(+0, -1, +0), float3(+0, +1, +0), float3(+INV_SQRT_2, +0, +INV_SQRT_2), float3(-INV_SQRT_2, +0, -INV_SQRT_2),
+    //  4 -  7
+    float3(-INV_SQRT_2, +0, +INV_SQRT_2), float3(+INV_SQRT_2, +0, -INV_SQRT_2), float3(+INV_SQRT_2, -INV_SQRT_2, +0),
+    float3(-INV_SQRT_2, +INV_SQRT_2, +0), //  8 - 11
+    float3(-INV_SQRT_2, -INV_SQRT_2, +0), float3(+INV_SQRT_2, +INV_SQRT_2, +0), float3(+0, -INV_SQRT_2, +INV_SQRT_2),
+    float3(+0, +INV_SQRT_2, -INV_SQRT_2), // 12 - 15
+    float3(+0, -INV_SQRT_2, -INV_SQRT_2), float3(+0, +INV_SQRT_2, +INV_SQRT_2), float3(+0, +0, +0) // 16 - 18
 };
 static const float s = 1.f / 18.f; // 隣接方向への重み
 static const float l = 1.f / 36.f; // 対角方向への重み
@@ -138,8 +152,9 @@ void advection(in uint3 id: SV_DispatchThreadID)
                               ? w[i] * f_base
                               : f0[neighbor_idx * Q + i];
 
+        // 境界で反射した際に速度を保存
         float3 vel = vel_dens[idx].xyz;
-        float dir = dot(normalize(neighbor - int3(id)), normalize(vel));
+        float dir = dot(normalize(vel), -norm_ei[i]);
         if (field[neighbor_idx] != FLUID_TYPE && abs(1 - dir) < COLLISION_DOT)
             field_velocity[neighbor_idx] = vel;
     }
@@ -172,4 +187,16 @@ void advection(in uint3 id: SV_DispatchThreadID)
 
     // 粒子の速度と密度を更新
     vel_dens[idx] = float4(new_u, new_lo);
+}
+
+//==============================================================================
+// 境界に保存した速度をリセット
+//==============================================================================
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
+void reset_velocity(in uint3 id: SV_DispatchThreadID)
+{
+    uint cell_res = cell_res_int;
+    uint idx = get_index(id, cell_res);
+
+    field_velocity[idx] = 0;
 }
