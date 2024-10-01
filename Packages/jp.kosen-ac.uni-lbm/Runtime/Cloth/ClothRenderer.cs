@@ -13,8 +13,15 @@ namespace UniLbm.Cloth
         {
             var mat = new MaterialWrapper<Props>(material);
 
-            var meshRenderer = go.AddComponent<MeshRenderer>();
-            var meshFilter = go.AddComponent<MeshFilter>();
+            var childGo = new GameObject("Cloth Renderer")
+            {
+                transform =
+                {
+                    parent = go.transform
+                }
+            };
+            var meshRenderer = childGo.AddComponent<MeshRenderer>();
+            var meshFilter = childGo.AddComponent<MeshFilter>();
 
             meshRenderer.material = material;
             mat.SetTexture(Props._position_tex, solver.PositionBuffer);
