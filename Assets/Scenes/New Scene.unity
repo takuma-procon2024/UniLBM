@@ -277,6 +277,7 @@ MonoBehaviour:
   oneSideParticleNum: 100
   particleSpeed: 300
   maxLifetime: 10
+  obstacleMaterial: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
 --- !u!4 &1439217237
 Transform:
   m_ObjectHideFlags: 0

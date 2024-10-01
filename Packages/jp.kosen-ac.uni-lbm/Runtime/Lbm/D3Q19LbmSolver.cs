@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using UniLbm.Common;
 using Unity.Mathematics;
@@ -24,6 +23,8 @@ namespace UniLbm.Lbm
             SetData(in data);
             DispatchInit();
         }
+
+        public GraphicsBuffer FieldVelocityBuffer { get; private set; }
 
         public void Dispose()
         {
@@ -64,6 +65,8 @@ namespace UniLbm.Lbm
             _f0Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt * Q, sizeof(float));
             _f1Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt * Q, sizeof(float));
             FieldBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, sizeof(uint));
+            FieldVelocityBuffer =
+                new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float3>());
             _externalForceBuffer =
                 new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float3>());
             VelDensBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float4>());
@@ -77,6 +80,7 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(allKernels, Uniforms.field, FieldBuffer);
             _shader.SetBuffer(allKernels, Uniforms.external_force, _externalForceBuffer);
             _shader.SetBuffer(allKernels, Uniforms.vel_dens, VelDensBuffer);
+            _shader.SetBuffer(Kernels.advection, Uniforms.field_velocity, FieldVelocityBuffer);
         }
 
         public void SetData(in Data data)
@@ -110,6 +114,7 @@ namespace UniLbm.Lbm
             f0,
             f1,
             field,
+            field_velocity,
             external_force,
             vel_dens,
             tau,

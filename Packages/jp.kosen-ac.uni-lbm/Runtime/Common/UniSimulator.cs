@@ -11,6 +11,7 @@ namespace UniLbm.Common
     {
         private ILbmSolver _lbmSolver;
         private LbmParticle _particle;
+        private LbmObstacles _obstacles;
 
         private void Initialize()
         {
@@ -24,12 +25,14 @@ namespace UniLbm.Common
                     ParticleSpeed = particleSpeed,
                     MaxLifetime = maxLifetime
                 });
+            _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
         private void Simulate()
         {
             _lbmSolver.Update();
-            _particle.Update(Time.deltaTime);
+            _particle.Update(1 / 60f);
+            _obstacles.Update();
         }
 
         #region Unity Callback
@@ -63,6 +66,9 @@ namespace UniLbm.Common
         [SerializeField] private uint oneSideParticleNum = 100;
         [SerializeField] private float particleSpeed = 0.1f;
         [SerializeField] private float maxLifetime = 10f;
+        
+        [Title("Obstacles")]
+        [SerializeField] private Material obstacleMaterial;
 
         #endregion
     }

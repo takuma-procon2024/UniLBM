@@ -9,15 +9,6 @@
       },
       "hash": "67ee3d8adaf6f3faf50da8dc33b57ec7964f98bb"
     },
-    "com.singularitygroup.hotreload": {
-      "version": "file:com.singularitygroup.hotreload",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0"
-      }
-    },
     "com.unity.addressables": {
       "version": "1.21.21",
       "depth": 2,
