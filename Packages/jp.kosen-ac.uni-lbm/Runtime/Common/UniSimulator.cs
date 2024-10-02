@@ -14,6 +14,7 @@ namespace UniLbm.Common
         private ClothLbmIntegrator _clothLbm;
 
         private ClothSolver _clothSolver;
+        private CpuFieldTest _cpuFieldTest;
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
         private LbmParticle _particle;
@@ -38,6 +39,7 @@ namespace UniLbm.Common
                 LbmCellSize = clothLbmCellSize,
                 Transform = clothRenderGo.transform.localToWorldMatrix
             });
+            _cpuFieldTest = new CpuFieldTest(clothRenderGo.transform, _clothSolver, _lbmSolver);
         }
 
         private void Simulate()
@@ -46,7 +48,7 @@ namespace UniLbm.Common
 
             // TODO: リセットのタイミングは実験しながら考える
             _lbmSolver.ResetFieldVelocity();
-            _clothSolver.Update();
+            // _clothSolver.Update();
             _clothLbm.Update();
 
             _lbmSolver.Update();
@@ -74,15 +76,10 @@ namespace UniLbm.Common
         private ClothLbmIntegrator.Data GetClothLbmData()
         {
             var childTrans = clothRenderGo.transform;
-            var trs = float4x4.TRS(
-                childTrans.position,
-                childTrans.rotation,
-                childTrans.localScale
-            );
             return new ClothLbmIntegrator.Data
             {
                 LbmCellSize = clothLbmCellSize,
-                Transform = trs
+                Transform = childTrans.localToWorldMatrix
             };
         }
 
@@ -110,6 +107,12 @@ namespace UniLbm.Common
         private void OnGUI()
         {
             if (isClothDebug) _clothSolver.DrawSimulationBufferOnGui();
+            _cpuFieldTest.OnGUI();
+        }
+
+        private void OnDrawGizmos()
+        {
+            _cpuFieldTest?.OnDrawGizmos();
         }
 #endif
 
@@ -147,6 +150,8 @@ namespace UniLbm.Common
 
         [SerializeField] private GameObject clothRenderGo;
         [SerializeField] private float clothLbmCellSize = 1;
+        [SerializeField] private Vector3 clothOffset;
+        [SerializeField] private Vector3 clothScale = Vector3.one;
 
         #endregion
     }

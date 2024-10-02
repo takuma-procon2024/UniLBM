@@ -30,15 +30,13 @@ void main(in uint2 id: SV_DispatchThreadID)
     if (any(id >= (uint2)cloth_res - 1))
         return;
 
-    float3 pos00 = pos_buffer[id + uint2(0, 0)].xyz;
-    float3 pos01 = pos_buffer[id + uint2(0, 1)].xyz;
-    float3 pos10 = pos_buffer[id + uint2(1, 0)].xyz;
-    float3 pos11 = pos_buffer[id + uint2(1, 1)].xyz;
+    float3 pos00 = mul(transform, pos_buffer[id + uint2(0, 0)]).xyz;
+    float3 pos01 = mul(transform, pos_buffer[id + uint2(0, 1)]).xyz;
+    float3 pos10 = mul(transform, pos_buffer[id + uint2(1, 0)]).xyz;
+    float3 pos11 = mul(transform, pos_buffer[id + uint2(1, 1)]).xyz;
 
     float3 min_pos = min(min(pos00, pos01), min(pos10, pos11));
     float3 max_pos = max(max(pos00, pos01), max(pos10, pos11));
-    min_pos = mul(transform, float4(min_pos, 1)).xyz;
-    max_pos = mul(transform, float4(max_pos, 1)).xyz;
 
     for (float x = min_pos.x; x <= max_pos.x; x += lbm_cell_size)
         for (float y = min_pos.y; y <= max_pos.y; y += lbm_cell_size)
@@ -49,7 +47,7 @@ void main(in uint2 id: SV_DispatchThreadID)
                 if (any(xyz < 0) || any(xyz >= lbm_res))
                     continue;
 
-                uint3 lbm_id = uint3(x / lbm_cell_size, y / lbm_cell_size, z / lbm_cell_size);
+                uint3 lbm_id = uint3(ceil(xyz / lbm_cell_size));
                 uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
 
                 field_buffer[field_id] = CLOTH_BOUNDARY_TYPE;

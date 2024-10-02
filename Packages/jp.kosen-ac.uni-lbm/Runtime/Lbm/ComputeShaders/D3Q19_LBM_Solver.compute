@@ -141,22 +141,31 @@ void advection(in uint3 id: SV_DispatchThreadID)
     // ID
     uint idx = get_index(id, cell_res);
 
+    bool is_bounce = false;
+    uint bounce_idx = 0;
+    float bounce_dir = 1;
+    float3 vel = vel_dens[idx].xyz;
+
     // 各方向からの併進してくる量
     [unroll]
     for (i = 0; i < Q; i++)
     {
         int3 neighbor = int3(id) - ei[i];
         uint neighbor_idx = get_index(neighbor, cell_res);
-        bool is_out_of_range = any(neighbor < 0) || any(neighbor >= (int)cell_res);
-        f1[idx * Q + i] = is_out_of_range
+
+        bool is_boundary = field[neighbor_idx] != FLUID_TYPE;
+        // bool is_out_of_range = any(neighbor < 0 || neighbor >= (int)cell_res);
+        f1[idx * Q + i] = is_boundary
                               ? w[i] * f_base
                               : f0[neighbor_idx * Q + i];
-
         // 境界で反射した際に速度を保存
-        float3 vel = vel_dens[idx].xyz;
-        float dir = dot(normalize(vel), -norm_ei[i]);
-        if (field[neighbor_idx] != FLUID_TYPE && abs(1 - dir) < COLLISION_DOT)
-            field_velocity[neighbor_idx] = vel;
+        float dir = abs(1 - dot(normalize(vel), -norm_ei[i]));
+        if (is_boundary && bounce_dir > dir && dir < COLLISION_DOT)
+        {
+            is_bounce = true;
+            bounce_idx = neighbor_idx;
+            bounce_dir = dir;
+        }
     }
 
     // 現時刻の密度・速度ベクトルの産出
@@ -181,10 +190,15 @@ void advection(in uint3 id: SV_DispatchThreadID)
     }
     else
     {
-        new_u = vel_dens[idx].xyz;
-        new_lo = vel_dens[idx].w;
+        // new_u = vel_dens[idx].xyz;
+        // new_lo = vel_dens[idx].w;
+        new_u = 0;
+        new_lo = f_base;
     }
 
+    if (is_bounce)
+        field_velocity[bounce_idx] = vel;
+    
     // 粒子の速度と密度を更新
     vel_dens[idx] = float4(new_u, new_lo);
 }

@@ -266,7 +266,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -301,19 +301,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
-  cellResolution: 64
+  cellResolution: 128
   tau: 1.2
   particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
   particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
   oneSideParticleNum: 100
-  particleSpeed: 300
+  particleSpeed: 600
   maxLifetime: 10
   obstacleMaterial: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
   clothShader: {fileID: 7200000, guid: 1ee8ef398f6f276438a2ab30c44e502d, type: 3}
   clothMaterial: {fileID: 2100000, guid: a387145f1ec9d5242abb3147455d7c16, type: 2}
   clothResolution:
-    x: 64
-    y: 64
+    x: 128
+    y: 128
   deltaTime: 0.016666668
   verletIteration: 16
   restLength: 0.02
@@ -329,6 +329,8 @@ MonoBehaviour:
   clothLbmShader: {fileID: 7200000, guid: f203045f03954b2cbe6039115ef0fe70, type: 3}
   clothRenderGo: {fileID: 1231735959}
   clothLbmCellSize: 1
+  clothOffset: {x: -11.9, y: -12.65, z: -3.5}
+  clothScale: {x: 0.62, y: 0.62, z: 0.62}
 --- !u!4 &1439217237
 Transform:
   m_ObjectHideFlags: 0

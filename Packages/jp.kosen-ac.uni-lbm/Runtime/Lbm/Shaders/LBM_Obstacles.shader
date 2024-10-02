@@ -87,7 +87,7 @@
                 {
                     g2f o;
                     uint3 vertex = vertices[i];
-                    float3 pos = (input[0].vertex.xyz + vertex) * size / cell_res;
+                    float3 pos = (input[0].vertex.xyz + vertex) * (size / cell_res);
                     float3 vel = field_velocity[pid] * velocity_scale;
                     vel = saturate(vel);
                     float3 vel_length = saturate(length2(vel));
