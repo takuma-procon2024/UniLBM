@@ -9,19 +9,18 @@ namespace UniLbm.Cloth
 {
     public static class ClothRenderer
     {
+        /// <summary>
+        ///   布のレンダラーを初期化する
+        /// </summary>
+        /// <param name="material">布の描画に使用するマテリアル</param>
+        /// <param name="go">親のゲームオブジェクト</param>
+        /// <param name="solver">布Solver</param>
         public static void Initialize(Material material, GameObject go, ClothSolver solver)
         {
             var mat = new MaterialWrapper<Props>(material);
 
-            var childGo = new GameObject("Cloth Renderer")
-            {
-                transform =
-                {
-                    parent = go.transform
-                }
-            };
-            var meshRenderer = childGo.AddComponent<MeshRenderer>();
-            var meshFilter = childGo.AddComponent<MeshFilter>();
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            var meshFilter = go.AddComponent<MeshFilter>();
 
             meshRenderer.material = material;
             mat.SetTexture(Props._position_tex, solver.PositionBuffer);
@@ -86,9 +85,10 @@ namespace UniLbm.Cloth
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             mesh.SetIndices(triangles, MeshTopology.Triangles, 0);
+            mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
 
             mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
+            // mesh.RecalculateBounds();
             mesh.MarkDynamic();
             mesh.name = $"Grid_{gridSize.x}x{gridSize.y}";
 

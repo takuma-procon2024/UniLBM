@@ -1,5 +1,5 @@
 ﻿#define FLUID_TYPE 0
-#define BOUNDARY_TYPE 1
+#define CLOTH_BOUNDARY_TYPE 1
 #define OUTFLOW_BOUNDARY_TYPE 2
 
 struct lbm_particle_data

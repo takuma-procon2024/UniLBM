@@ -1,7 +1,7 @@
 ﻿#pragma kernel initialize
 #pragma kernel collision
 #pragma kernel advection
-#pragma kernel reset_velocity
+#pragma kernel reset_field
 
 #define THREADS_NUM 4
 #define COLLISION_DOT 0.1f // 境界と衝突したことにする速度の内積
@@ -190,13 +190,14 @@ void advection(in uint3 id: SV_DispatchThreadID)
 }
 
 //==============================================================================
-// 境界に保存した速度をリセット
+// フィールドデータを初期状態にする
 //==============================================================================
 [numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
-void reset_velocity(in uint3 id: SV_DispatchThreadID)
+void reset_field(in uint3 id: SV_DispatchThreadID)
 {
     uint cell_res = cell_res_int;
     uint idx = get_index(id, cell_res);
 
     field_velocity[idx] = 0;
+    field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
 }

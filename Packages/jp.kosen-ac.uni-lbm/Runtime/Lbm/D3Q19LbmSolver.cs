@@ -77,14 +77,18 @@ namespace UniLbm.Lbm
 
         private void SetBuffers()
         {
-            var allKernels = new[] { Kernels.initialize, Kernels.collision, Kernels.advection };
-            _shader.SetBuffer(allKernels, Uniforms.f0, _f0Buffer);
-            _shader.SetBuffer(allKernels, Uniforms.f1, _f1Buffer);
+            var lbmKernels = new[] { Kernels.initialize, Kernels.collision, Kernels.advection };
+            var allKernels = new[] { Kernels.initialize, Kernels.collision, Kernels.advection, Kernels.reset_field };
+            var advectionFieldKernels = new[] { Kernels.advection, Kernels.reset_field };
+
             _shader.SetBuffer(allKernels, Uniforms.field, FieldBuffer);
-            _shader.SetBuffer(allKernels, Uniforms.external_force, _externalForceBuffer);
-            _shader.SetBuffer(allKernels, Uniforms.vel_dens, VelDensBuffer);
-            _shader.SetBuffer(Kernels.advection, Uniforms.field_velocity, FieldVelocityBuffer);
-            _shader.SetBuffer(Kernels.reset_velocity, Uniforms.field_velocity, FieldVelocityBuffer);
+
+            _shader.SetBuffer(lbmKernels, Uniforms.f0, _f0Buffer);
+            _shader.SetBuffer(lbmKernels, Uniforms.f1, _f1Buffer);
+            _shader.SetBuffer(lbmKernels, Uniforms.external_force, _externalForceBuffer);
+            _shader.SetBuffer(lbmKernels, Uniforms.vel_dens, VelDensBuffer);
+
+            _shader.SetBuffer(advectionFieldKernels, Uniforms.field_velocity, FieldVelocityBuffer);
         }
 
         public void SetData(in Data data)
@@ -106,7 +110,7 @@ namespace UniLbm.Lbm
 
         private void DispatchResetVelocity()
         {
-            _shader.Dispatch(Kernels.reset_velocity, (uint)CellRes);
+            _shader.Dispatch(Kernels.reset_field, (uint)CellRes);
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -115,7 +119,7 @@ namespace UniLbm.Lbm
             initialize,
             collision,
             advection,
-            reset_velocity
+            reset_field
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]

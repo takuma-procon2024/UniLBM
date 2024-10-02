@@ -91,6 +91,11 @@ namespace UniLbm.Common
             _shader.SetFloat(_uniformMap[uniform], value);
         }
         
+        public void SetMatrix(TUniform uniform, in float4x4 matrix)
+        {
+            _shader.SetMatrix(_uniformMap[uniform], matrix);
+        }
+        
         public static RenderTexture CreateRT3D(in int3 res, RenderTextureFormat format, FilterMode filterMode)
         {
             var rt = new RenderTexture(res.x, res.y, 0, format)

@@ -11,6 +11,8 @@ namespace UniLbm.Common
     /// </summary>
     public class UniSimulator : MonoBehaviour
     {
+        private ClothLbmIntegrator _clothLbm;
+
         private ClothSolver _clothSolver;
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
@@ -30,17 +32,26 @@ namespace UniLbm.Common
                 });
             _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
             _clothSolver = new ClothSolver(clothShader, new int2(clothResolution), GetClothData());
-            ClothRenderer.Initialize(clothMaterial, gameObject, _clothSolver);
+            ClothRenderer.Initialize(clothMaterial, clothRenderGo, _clothSolver);
+            _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, new ClothLbmIntegrator.Data
+            {
+                LbmCellSize = clothLbmCellSize,
+                Transform = clothRenderGo.transform.localToWorldMatrix
+            });
         }
 
         private void Simulate()
         {
+            _clothLbm.SetData(GetClothLbmData());
+
             // TODO: リセットのタイミングは実験しながら考える
             _lbmSolver.ResetFieldVelocity();
+            _clothSolver.Update();
+            _clothLbm.Update();
+
             _lbmSolver.Update();
             _particle.Update(1 / 60f);
             _obstacles.Update();
-            _clothSolver.Update();
         }
 
         #region Util
@@ -57,6 +68,21 @@ namespace UniLbm.Common
                 VelocityScale = velocityScale,
                 DeltaTime = deltaTime,
                 VerletIteration = verletIteration
+            };
+        }
+
+        private ClothLbmIntegrator.Data GetClothLbmData()
+        {
+            var childTrans = clothRenderGo.transform;
+            var trs = float4x4.TRS(
+                childTrans.position,
+                childTrans.rotation,
+                childTrans.localScale
+            );
+            return new ClothLbmIntegrator.Data
+            {
+                LbmCellSize = clothLbmCellSize,
+                Transform = trs
             };
         }
 
@@ -115,6 +141,12 @@ namespace UniLbm.Common
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
         [SerializeField] private float velocityScale = 1.0f;
         [SerializeField] private bool isClothDebug;
+
+        [Title("Cloth LBM Integration")] [SerializeField]
+        private ComputeShader clothLbmShader;
+
+        [SerializeField] private GameObject clothRenderGo;
+        [SerializeField] private float clothLbmCellSize = 1;
 
         #endregion
     }
