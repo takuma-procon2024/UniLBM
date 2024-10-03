@@ -309,6 +309,7 @@ MonoBehaviour:
   particleSpeed: 600
   maxLifetime: 10
   obstacleMaterial: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
+  isDrawObstacles: 1
   clothShader: {fileID: 7200000, guid: 1ee8ef398f6f276438a2ab30c44e502d, type: 3}
   clothMaterial: {fileID: 2100000, guid: a387145f1ec9d5242abb3147455d7c16, type: 2}
   clothResolution:
@@ -325,6 +326,7 @@ MonoBehaviour:
     y: -9.81
     z: 0
   velocityScale: 10000000
+  clothMaxVelocity: 500
   isClothDebug: 1
   clothLbmShader: {fileID: 7200000, guid: f203045f03954b2cbe6039115ef0fe70, type: 3}
   clothRenderGo: {fileID: 1231735959}

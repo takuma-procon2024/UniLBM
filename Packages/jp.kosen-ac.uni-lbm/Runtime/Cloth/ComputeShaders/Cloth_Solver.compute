@@ -37,6 +37,8 @@ float damp;
 float inv_mass;
 // 外部入力速度の倍率
 float velocity_scale;
+// 外部入力速度の最大値(絶対値)
+float max_velocity;
 
 // タイムステップ
 float dt;
@@ -103,7 +105,7 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     float3 force = gravity;
     // 外部入力速度を加算
     float3 external_velocity = external_force_buffer[id].xyz * velocity_scale;
-    external_velocity = clamp(external_velocity, -100000, 100000);
+    external_velocity = clamp(external_velocity, -max_velocity, max_velocity);
     force += external_velocity;
 
     // 布の上辺は位置を固定するため計算を省く

@@ -43,16 +43,16 @@ namespace UniLbm.Common
         private void Simulate()
         {
             _clothLbm.SetData(GetClothLbmData());
-            
+
             // IMPORTANT: ここの順番大事!!
             _lbmSolver.ResetField();
             _clothLbm.Reset();
-            
+
             _clothLbm.Update();
             _lbmSolver.Update();
             _clothSolver.Update();
             _particle.Update(1 / 60f);
-            // _obstacles.Update();
+            if (isDrawObstacles) _obstacles.Update();
         }
 
         #region Util
@@ -67,6 +67,7 @@ namespace UniLbm.Common
                 Mass = mass,
                 Gravity = gravity,
                 VelocityScale = velocityScale,
+                MaxVelocity = clothMaxVelocity,
                 DeltaTime = deltaTime,
                 VerletIteration = verletIteration
             };
@@ -131,6 +132,7 @@ namespace UniLbm.Common
         [SerializeField] private float mass = 1.0f;
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
         [SerializeField] private float velocityScale = 1.0f;
+        [SerializeField] private float clothMaxVelocity = 1000;
         [SerializeField] private bool isClothDebug;
 
         [Title("Cloth LBM Integration")] [SerializeField]
