@@ -29,6 +29,7 @@
         float min_velocity;
         float max_velocity;
         float hue_speed;
+        float particle_length;
         ENDHLSL
 
         Pass
@@ -43,7 +44,7 @@
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 float4 color : COLOR;
-                float4 prev_vertex : TEXCOORD1;
+                float4 prev_and_vel : TEXCOORD1;
             };
 
             struct g2f
@@ -57,7 +58,7 @@
                 v2g o;
                 lbm_particle_data p = particles[id];
                 o.vertex = float4(p.pos_lifetime.xyz, 1);
-                o.prev_vertex = float4(p.prev_pos_vel.xyz, 1);
+                o.prev_and_vel = p.prev_pos_vel;
                 o.uv = float2(0, 0);
                 o.color = float4(hsv_2_rgb(float3(saturate(p.prev_pos_vel.w * hue_speed), 1, 1)), 1);
                 return o;
@@ -67,20 +68,24 @@
             void geom(point v2g input[1], inout LineStream<g2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
-                float4 pos = input[0].vertex * size;
-                float4 prev_pos = input[0].prev_vertex * size;
+                float4 pos = input[0].vertex;
+                float4 prev_pos = input[0].prev_and_vel;
                 float4 col = input[0].color;
 
-                // float dir_length = Length2(dir.xyz);
-                // bool is_out_of_velocity = dir_length <= min_velocity || dir_length >= max_velocity;
-                // if (is_out_of_velocity) return;
+                // パーティクルの長さ調整
+                float3 dir = pos.xyz - prev_pos.xyz;
+                prev_pos.xyz -= dir * particle_length;
+                
+                bool is_out_of_velocity = prev_pos.w <= min_velocity || prev_pos.w >= max_velocity;
+                [flatten]
+                if (is_out_of_velocity) return;
 
                 g2f o;
-                o.vertex = TransformObjectToHClip(pos.xyz);
+                o.vertex = TransformObjectToHClip(pos.xyz * size);
                 o.color = col;
                 out_stream.Append(o);
 
-                o.vertex = TransformObjectToHClip(prev_pos.xyz);
+                o.vertex = TransformObjectToHClip(prev_pos.xyz * size);
                 o.color = col;
                 out_stream.Append(o);
 
