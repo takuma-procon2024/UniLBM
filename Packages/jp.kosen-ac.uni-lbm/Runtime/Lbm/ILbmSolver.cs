@@ -22,6 +22,6 @@ namespace UniLbm.Lbm
         /// <summary>
         ///     フィールド速度をリセット
         /// </summary>
-        public void ResetFieldVelocity();
+        public void ResetField();
     }
 }

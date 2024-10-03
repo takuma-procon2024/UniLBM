@@ -67,8 +67,10 @@ RWStructuredBuffer<float> f0;
 RWStructuredBuffer<float> f1;
 // フィールド
 RWStructuredBuffer<uint> field;
-// 境界で跳ね返った時の、速度を保存しておく
+// 境界反射速度保存用バッファ
 RWStructuredBuffer<float3> field_velocity;
+// 布の外部速度入力用テクスチャ
+RWTexture2D<float4> cloth_force_tex;
 // 粒子内の流速・密度
 RWStructuredBuffer<float4> vel_dens;
 // 外部入力速度
@@ -89,7 +91,7 @@ void initialize(in uint3 id: SV_DispatchThreadID)
 
     vel_dens[idx] = float4(0, 0, 0, f_base);
     field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
-    external_force[idx] = all(id == uint3(32, 50, 32)) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
+    external_force[idx] = all(id == uint3(32, 32, 32)) ? float3(0, 0, -0.02f) : float3(0, 0, 0);
 }
 
 //==============================================================================
@@ -141,10 +143,12 @@ void advection(in uint3 id: SV_DispatchThreadID)
     // ID
     uint idx = get_index(id, cell_res);
 
-    bool is_bounce = false;
+    bool is_bounce_cloth = false;
+    bool is_bounce_boundary = false;
     uint bounce_idx = 0;
+    uint2 bounce_cloth_id = 0;
     float bounce_dir = 1;
-    float3 vel = vel_dens[idx].xyz;
+    float3 bounce_vel = vel_dens[idx].xyz;
 
     // 各方向からの併進してくる量
     [unroll]
@@ -153,16 +157,25 @@ void advection(in uint3 id: SV_DispatchThreadID)
         int3 neighbor = int3(id) - ei[i];
         uint neighbor_idx = get_index(neighbor, cell_res);
 
-        bool is_boundary = field[neighbor_idx] != FLUID_TYPE;
-        // bool is_out_of_range = any(neighbor < 0 || neighbor >= (int)cell_res);
+        uint field_val = field[neighbor_idx];
+        bool is_boundary = field_val != FLUID_TYPE;
         f1[idx * Q + i] = is_boundary
                               ? w[i] * f_base
                               : f0[neighbor_idx * Q + i];
         // 境界で反射した際に速度を保存
-        float dir = abs(1 - dot(normalize(vel), -norm_ei[i]));
+        float dir = abs(1 - dot(normalize(bounce_vel), -norm_ei[i]));
+        [flatten]
         if (is_boundary && bounce_dir > dir && dir < COLLISION_DOT)
         {
-            is_bounce = true;
+            [flatten]
+            if (is_cloth_boundary(field_val))
+            {
+                is_bounce_cloth = true;
+                bounce_cloth_id.x = (field_val & 0x3FFF8000) >> 15;
+                bounce_cloth_id.y = field_val & 0x00007FFF;
+            }
+
+            is_bounce_boundary = true;
             bounce_idx = neighbor_idx;
             bounce_dir = dir;
         }
@@ -196,9 +209,11 @@ void advection(in uint3 id: SV_DispatchThreadID)
         new_lo = f_base;
     }
 
-    if (is_bounce)
-        field_velocity[bounce_idx] = vel;
-    
+    if (is_bounce_boundary)
+        field_velocity[bounce_idx] = bounce_vel;
+    if (is_bounce_cloth)
+        cloth_force_tex[bounce_cloth_id] = float4(bounce_vel, 0);
+
     // 粒子の速度と密度を更新
     vel_dens[idx] = float4(new_u, new_lo);
 }

@@ -12,16 +12,15 @@ namespace UniLbm.Common
     public class UniSimulator : MonoBehaviour
     {
         private ClothLbmIntegrator _clothLbm;
-
         private ClothSolver _clothSolver;
-        private CpuFieldTest _cpuFieldTest;
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
         private LbmParticle _particle;
 
         private void Initialize()
         {
-            _lbmSolver = new D3Q19LbmSolver(lbmShader, cellResolution, new D3Q19LbmSolver.Data
+            _clothSolver = new ClothSolver(clothShader, new int2(clothResolution), GetClothData());
+            _lbmSolver = new D3Q19LbmSolver(lbmShader, _clothSolver, cellResolution, new D3Q19LbmSolver.Data
             {
                 Tau = tau
             });
@@ -31,29 +30,29 @@ namespace UniLbm.Common
                     ParticleSpeed = particleSpeed,
                     MaxLifetime = maxLifetime
                 });
-            _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
-            _clothSolver = new ClothSolver(clothShader, new int2(clothResolution), GetClothData());
             ClothRenderer.Initialize(clothMaterial, clothRenderGo, _clothSolver);
             _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, new ClothLbmIntegrator.Data
             {
                 LbmCellSize = clothLbmCellSize,
                 Transform = clothRenderGo.transform.localToWorldMatrix
             });
-            _cpuFieldTest = new CpuFieldTest(clothRenderGo.transform, _clothSolver, _lbmSolver);
+
+            if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
         private void Simulate()
         {
             _clothLbm.SetData(GetClothLbmData());
-
-            // TODO: リセットのタイミングは実験しながら考える
-            _lbmSolver.ResetFieldVelocity();
-            // _clothSolver.Update();
+            
+            // IMPORTANT: ここの順番大事!!
+            _lbmSolver.ResetField();
+            _clothLbm.Reset();
+            
             _clothLbm.Update();
-
             _lbmSolver.Update();
+            _clothSolver.Update();
             _particle.Update(1 / 60f);
-            _obstacles.Update();
+            // _obstacles.Update();
         }
 
         #region Util
@@ -101,20 +100,8 @@ namespace UniLbm.Common
         {
             _lbmSolver.Dispose();
             _particle.Dispose();
+            _clothSolver.Dispose();
         }
-
-#if DEBUG
-        private void OnGUI()
-        {
-            if (isClothDebug) _clothSolver.DrawSimulationBufferOnGui();
-            _cpuFieldTest.OnGUI();
-        }
-
-        private void OnDrawGizmos()
-        {
-            _cpuFieldTest?.OnDrawGizmos();
-        }
-#endif
 
         #endregion
 
@@ -131,6 +118,7 @@ namespace UniLbm.Common
         [SerializeField] private float maxLifetime = 10f;
 
         [Title("Obstacles")] [SerializeField] private Material obstacleMaterial;
+        [SerializeField] private bool isDrawObstacles = true;
 
         [Title("Cloth")] [SerializeField] private ComputeShader clothShader;
         [SerializeField] private Material clothMaterial;
@@ -150,8 +138,6 @@ namespace UniLbm.Common
 
         [SerializeField] private GameObject clothRenderGo;
         [SerializeField] private float clothLbmCellSize = 1;
-        [SerializeField] private Vector3 clothOffset;
-        [SerializeField] private Vector3 clothScale = Vector3.one;
 
         #endregion
     }

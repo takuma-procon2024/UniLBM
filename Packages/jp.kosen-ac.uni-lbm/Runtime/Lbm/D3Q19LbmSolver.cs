@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using UniLbm.Cloth;
 using UniLbm.Common;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,12 +12,14 @@ namespace UniLbm.Lbm
     /// </summary>
     public class D3Q19LbmSolver : ILbmSolver
     {
+        private readonly ClothSolver _clothSolver;
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
 
-        public D3Q19LbmSolver(ComputeShader shader, uint cellRes, in Data data)
+        public D3Q19LbmSolver(ComputeShader shader, ClothSolver clothSolver, uint cellRes, in Data data)
         {
             _shader = new ComputeShaderWrapper<Kernels, Uniforms>(shader);
             CellRes = (int)cellRes;
+            _clothSolver = clothSolver;
 
             InitBuffers();
             SetBuffers();
@@ -52,7 +55,7 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(new[] { Kernels.collision, Kernels.advection }, Uniforms.f1, _f1Buffer);
         }
 
-        public void ResetFieldVelocity()
+        public void ResetField()
         {
             DispatchResetVelocity();
         }
@@ -89,6 +92,8 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(lbmKernels, Uniforms.vel_dens, VelDensBuffer);
 
             _shader.SetBuffer(advectionFieldKernels, Uniforms.field_velocity, FieldVelocityBuffer);
+
+            _shader.SetTexture(Kernels.advection, Uniforms.cloth_force_tex, _clothSolver.ExternalForceBuffer);
         }
 
         public void SetData(in Data data)
@@ -129,6 +134,7 @@ namespace UniLbm.Lbm
             f1,
             field,
             field_velocity,
+            cloth_force_tex,
             external_force,
             vel_dens,
             tau,

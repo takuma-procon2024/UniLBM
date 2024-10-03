@@ -265,7 +265,7 @@ Transform:
   m_GameObject: {fileID: 1231735959}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 30.92, y: 29.1, z: 16.86}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -301,7 +301,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
-  cellResolution: 128
+  cellResolution: 64
   tau: 1.2
   particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
   particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
@@ -323,14 +323,12 @@ MonoBehaviour:
   gravity:
     x: 0
     y: -9.81
-    z: 2
-  velocityScale: 1
+    z: 0
+  velocityScale: 10000000
   isClothDebug: 1
   clothLbmShader: {fileID: 7200000, guid: f203045f03954b2cbe6039115ef0fe70, type: 3}
   clothRenderGo: {fileID: 1231735959}
   clothLbmCellSize: 1
-  clothOffset: {x: -11.9, y: -12.65, z: -3.5}
-  clothScale: {x: 0.62, y: 0.62, z: 0.62}
 --- !u!4 &1439217237
 Transform:
   m_ObjectHideFlags: 0

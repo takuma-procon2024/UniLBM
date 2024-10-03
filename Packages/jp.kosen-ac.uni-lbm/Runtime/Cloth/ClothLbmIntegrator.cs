@@ -31,12 +31,19 @@ namespace UniLbm.Cloth
             _shader.Dispatch(Kernels.main, new uint3(new uint2(clothRes), 1));
         }
 
+        public void Reset()
+        {
+            var clothRes = _clothSolver.ClothResolution;
+            _shader.Dispatch(Kernels.reset, new uint3(new uint2(clothRes), 1));
+        }
+
         #region ComputeShader
 
         private void SetBuffers()
         {
             _shader.SetTexture(Kernels.main, Uniforms.pos_buffer, _clothSolver.PositionBuffer);
             _shader.SetBuffer(Kernels.main, Uniforms.field_buffer, _lbmSolver.FieldBuffer);
+            _shader.SetTexture(Kernels.reset, Uniforms.external_force_buffer, _clothSolver.ExternalForceBuffer);
         }
 
         public void SetData(in Data data, bool isInit = false)
@@ -55,7 +62,8 @@ namespace UniLbm.Cloth
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private enum Kernels
         {
-            main
+            main,
+            reset
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -63,6 +71,7 @@ namespace UniLbm.Cloth
         {
             pos_buffer,
             field_buffer,
+            external_force_buffer,
             cloth_res,
             lbm_res,
             lbm_cell_size,

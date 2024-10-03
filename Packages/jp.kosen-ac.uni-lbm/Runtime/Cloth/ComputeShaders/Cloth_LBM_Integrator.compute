@@ -1,8 +1,7 @@
 ﻿#pragma kernel main
+#pragma kernel reset
 
 #define NUM_THREADS 2
-
-#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 
 //==============================================================================
 // Uniforms
@@ -11,6 +10,8 @@
 Texture2D pos_buffer;
 // フィールドデータ
 RWStructuredBuffer<uint> field_buffer;
+// 外部入力速度データ
+RWTexture2D<float4> external_force_buffer;
 // 布の解像度
 int2 cloth_res;
 // LBMの解像度
@@ -50,6 +51,20 @@ void main(in uint2 id: SV_DispatchThreadID)
                 uint3 lbm_id = uint3(ceil(xyz / lbm_cell_size));
                 uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
 
-                field_buffer[field_id] = CLOTH_BOUNDARY_TYPE;
+                // 布境界であることと、布上の位置をフィールドに格納
+                // MSB は布境界であることを示すフラグ用 (1 なら布境界)
+                // 0x3FFF8000 は x 座標を格納しているビットマスク
+                // 0x00007FFF は y 座標を格納しているビットマスク
+                uint boundary_value = 0x80000000 | id.x << 15 & 0x3FFF8000 | id.y & 0x00007FFF;
+                field_buffer[field_id] = boundary_value;
             }
+}
+
+//==============================================================================
+// 布外部入力速度リセットカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void reset(in uint2 id: SV_DispatchThreadID)
+{
+    external_force_buffer[id] = 0;
 }
