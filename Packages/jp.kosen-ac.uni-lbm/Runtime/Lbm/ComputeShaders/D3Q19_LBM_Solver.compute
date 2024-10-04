@@ -1,10 +1,12 @@
 ﻿#pragma kernel initialize
 #pragma kernel collision
 #pragma kernel advection
+#pragma kernel reset_field
 
-#define THREADS_X 4
-#define THREADS_Y 4
-#define THREADS_Z 4
+#define THREADS_NUM 4
+#define COLLISION_DOT 0.1f // 境界と衝突したことにする速度の内積
+
+#define INV_SQRT_2 0.70710678118654752440084436210485f
 
 #define Q 19
 
@@ -21,9 +23,21 @@ static const int3 ei[Q] = {
     int3(-1, -1, +0), int3(+1, +1, +0), int3(+0, -1, +1), int3(+0, +1, -1), // 12 - 15
     int3(+0, -1, -1), int3(+0, +1, +1), int3(+0, +0, +0) // 16 - 18
 };
+// 各方向への単位速度ベクトル
+static const float3 norm_ei[Q] = {
+    float3(+1, +0, +0), float3(-1, +0, +0), float3(+0, +0, +1), float3(+0, +0, -1), //  0 -  3
+    float3(+0, -1, +0), float3(+0, +1, +0), float3(+INV_SQRT_2, +0, +INV_SQRT_2), float3(-INV_SQRT_2, +0, -INV_SQRT_2),
+    //  4 -  7
+    float3(-INV_SQRT_2, +0, +INV_SQRT_2), float3(+INV_SQRT_2, +0, -INV_SQRT_2), float3(+INV_SQRT_2, -INV_SQRT_2, +0),
+    float3(-INV_SQRT_2, +INV_SQRT_2, +0), //  8 - 11
+    float3(-INV_SQRT_2, -INV_SQRT_2, +0), float3(+INV_SQRT_2, +INV_SQRT_2, +0), float3(+0, -INV_SQRT_2, +INV_SQRT_2),
+    float3(+0, +INV_SQRT_2, -INV_SQRT_2), // 12 - 15
+    float3(+0, -INV_SQRT_2, -INV_SQRT_2), float3(+0, +INV_SQRT_2, +INV_SQRT_2), float3(+0, +0, +0) // 16 - 18
+};
 static const float s = 1.f / 18.f; // 隣接方向への重み
 static const float l = 1.f / 36.f; // 対角方向への重み
 static const float z = 1.f / 3.f; // 中心点での重み
+static const float f_base = 10.5f;
 // 各方向での重み
 static const float w[Q] = {
     s, s, s, s,
@@ -44,8 +58,8 @@ static const uint inv[Q] = {
 //==============================================================================
 // uniform 変数
 //==============================================================================
-// 1辺当たりシミュレーションセルサイズ
-uint cell_size;
+// 1辺当たりシミュレーションセル解像度
+int cell_res_int;
 // 粘性係数
 float tau;
 // 周囲19格子への流出量
@@ -53,61 +67,53 @@ RWStructuredBuffer<float> f0;
 RWStructuredBuffer<float> f1;
 // フィールド
 RWStructuredBuffer<uint> field;
-// 粒子内の流速
-RWStructuredBuffer<float3> velocity;
-// 粒子の密度
-RWStructuredBuffer<float> density;
+// 境界反射速度保存用バッファ
+RWStructuredBuffer<float3> field_velocity;
+// 布の外部速度入力用テクスチャ
+RWTexture2D<float4> cloth_force_tex;
+// 粒子内の流速・密度
+RWStructuredBuffer<float4> vel_dens;
 // 外部入力速度
-RWStructuredBuffer<float3> source_velocity;
+RWStructuredBuffer<float3> external_force;
 
 //==============================================================================
 // 格子ボルツマン法 (LBM: D3Q19) [STEP0: 初期化]
 //==============================================================================
-[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
 void initialize(in uint3 id: SV_DispatchThreadID)
 {
-    if (any(id >= cell_size)) return;
-
-    uint idx = get_index(id, cell_size);
-
-    const float f_base = 10.5f;
+    uint cell_res = cell_res_int;
+    uint idx = get_index(id, cell_res);
 
     [unroll]
     for (int i = 0; i < Q; i++)
         f0[idx * Q + i] = f_base * w[i];
-    velocity[idx] = float3(0, 0, 0);
-    density[idx] = f_base;
 
-    if (any(id == 0) || any(id == cell_size - 1))
-        field[idx] = OUTFLOW_BOUNDARY_TYPE;
-    else
-        field[idx] = FLUID_TYPE;
-
-    if (id.x == cell_size / 2 && id.y == cell_size / 2 && id.z == cell_size / 2)
-        source_velocity[idx] = float3(0, 0.02f, 0);
-    else
-        source_velocity[idx] = float3(0, 0, 0);
+    vel_dens[idx] = float4(0, 0, 0, f_base);
+    field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
+    external_force[idx] = all(id == uint3(32, 32, 32)) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
 }
 
 //==============================================================================
 // 格子ボルツマン法 (LBM: D3Q19) [STEP1: 衝突]
 //==============================================================================
-[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
 void collision(in uint3 id: SV_DispatchThreadID)
 {
-    if (any(id >= cell_size)) return;
-
+    uint cell_res = cell_res_int;
     int i;
 
     // ID
-    uint idx = get_index(id, cell_size);
+    uint idx = get_index(id, cell_res);
 
     // 各方向への流出量を計算
-    float3 u = velocity[idx];
-    float lo = density[idx];
+    float3 u = vel_dens[idx].xyz;
+    float lo = vel_dens[idx].w;
     float u2 = dot(u, u);
 
     if (field[idx] == FLUID_TYPE)
+    {
+        [unroll]
         for (i = 0; i < Q; i++)
         {
             float a = dot(ei[i], u);
@@ -116,37 +122,62 @@ void collision(in uint3 id: SV_DispatchThreadID)
 
             f0[idx * Q + i] -= (f0[idx * Q + i] - c * w[i]) / tau;
         }
+    }
     else
+    {
+        [unroll]
         for (i = 0; i < Q; i++)
             f0[idx * Q + i] = f0[idx * Q + inv[i]];
+    }
 }
 
 //==============================================================================
 // 格子ボルツマン法 (LBM: D3Q19) [STEP2: 併進]
 //==============================================================================
-[numthreads(THREADS_X, THREADS_Y, THREADS_Z)]
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
 void advection(in uint3 id: SV_DispatchThreadID)
 {
-    if (any(id >= cell_size)) return;
-
+    uint cell_res = cell_res_int;
     int i;
 
     // ID
-    uint idx = get_index(id, cell_size);
+    uint idx = get_index(id, cell_res);
+
+    bool is_bounce_cloth = false;
+    bool is_bounce_boundary = false;
+    uint bounce_idx = 0;
+    uint2 bounce_cloth_id = 0;
+    float bounce_dir = 1;
+    float3 bounce_vel = vel_dens[idx].xyz;
 
     // 各方向からの併進してくる量
+    [unroll]
     for (i = 0; i < Q; i++)
     {
         int3 neighbor = int3(id) - ei[i];
-        if (any(neighbor < 0) || any(neighbor >= (int)cell_size))
+        uint neighbor_idx = get_index(neighbor, cell_res);
+
+        uint field_val = field[neighbor_idx];
+        bool is_boundary = field_val != FLUID_TYPE;
+        f1[idx * Q + i] = is_boundary
+                              ? w[i] * f_base
+                              : f0[neighbor_idx * Q + i];
+        // 境界で反射した際に速度を保存
+        float dir = abs(1 - dot(normalize(bounce_vel), -norm_ei[i]));
+        [flatten]
+        if (is_boundary && bounce_dir > dir && dir < COLLISION_DOT)
         {
-            f1[idx * Q + i] = w[i] * 10.5f;
-            // density[idx] = 10.5f;
-            // velocity[idx] = float3(0, 0, 0);
-        }
-        else
-        {
-            f1[idx * Q + i] = f0[get_index(neighbor, cell_size) * Q + i];
+            [flatten]
+            if (is_cloth_boundary(field_val))
+            {
+                is_bounce_cloth = true;
+                bounce_cloth_id.x = (field_val & 0x3FFF8000) >> 15;
+                bounce_cloth_id.y = field_val & 0x00007FFF;
+            }
+
+            is_bounce_boundary = true;
+            bounce_idx = neighbor_idx;
+            bounce_dir = dir;
         }
     }
 
@@ -154,25 +185,48 @@ void advection(in uint3 id: SV_DispatchThreadID)
     float new_lo = 0.f;
     float3 new_u = 0.f;
 
+    [flatten]
     if (field[idx] == FLUID_TYPE)
     {
+        [unroll]
         for (i = 0; i < Q; i++)
         {
             new_lo += f1[idx * Q + i];
             new_u += f1[idx * Q + i] * ei[i];
         }
-        if (new_lo > 0) new_u /= new_lo;
+        [flatten]
+        if (new_lo > 0)
+            new_u /= new_lo;
 
         // 入力速度を反映
-        new_u += source_velocity[idx];
+        new_u += external_force[idx];
     }
     else
     {
-        new_u = velocity[idx];
-        new_lo = density[idx];
+        // new_u = vel_dens[idx].xyz;
+        // new_lo = vel_dens[idx].w;
+        new_u = 0;
+        new_lo = f_base;
     }
 
+    if (is_bounce_boundary)
+        field_velocity[bounce_idx] = bounce_vel;
+    if (is_bounce_cloth)
+        cloth_force_tex[bounce_cloth_id] = float4(bounce_vel, 0);
+
     // 粒子の速度と密度を更新
-    velocity[idx] = new_u;
-    density[idx] = new_lo;
+    vel_dens[idx] = float4(new_u, new_lo);
+}
+
+//==============================================================================
+// フィールドデータを初期状態にする
+//==============================================================================
+[numthreads(THREADS_NUM, THREADS_NUM, THREADS_NUM)]
+void reset_field(in uint3 id: SV_DispatchThreadID)
+{
+    uint cell_res = cell_res_int;
+    uint idx = get_index(id, cell_res);
+
+    field_velocity[idx] = 0;
+    field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
 }

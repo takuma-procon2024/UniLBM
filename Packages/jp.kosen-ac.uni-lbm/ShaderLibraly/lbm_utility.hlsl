@@ -1,6 +1,18 @@
 ﻿#define FLUID_TYPE 0
-#define BOUNDARY_TYPE 1
 #define OUTFLOW_BOUNDARY_TYPE 2
+
+bool is_cloth_boundary(in uint field_val)
+{
+    return (field_val & 0x80000000) != 0;
+}
+
+struct lbm_particle_data
+{
+    // XYZ: Position, W: Lifetime
+    float4 pos_lifetime;
+    // XYZ: Prev Position, W: VelLength
+    float4 prev_pos_vel;
+};
 
 uint get_index(uint3 index, uint3 size)
 {

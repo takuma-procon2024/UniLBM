@@ -1,33 +1,37 @@
-﻿using Unity.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+using UniLbm.Common;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Cloth
+namespace UniLbm.Cloth
 {
-    public class ClothRenderer : MonoBehaviour
+    public static class ClothRenderer
     {
-        private static readonly int PositionTexPropId = Shader.PropertyToID("_position_tex");
-        private static readonly int NormalTexPropId = Shader.PropertyToID("_normal_tex");
-        private static readonly int ExternalForceTexPropId = Shader.PropertyToID("_external_force_tex");
-
-        [SerializeField] private Material material;
-
-        public void InitializeClothRenderer(ClothSimulationBehaviour simulation)
+        /// <summary>
+        ///   布のレンダラーを初期化する
+        /// </summary>
+        /// <param name="material">布の描画に使用するマテリアル</param>
+        /// <param name="go">親のゲームオブジェクト</param>
+        /// <param name="solver">布Solver</param>
+        public static void Initialize(Material material, GameObject go, ClothSolver solver)
         {
-            var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            var meshFilter = gameObject.AddComponent<MeshFilter>();
+            var mat = new MaterialWrapper<Props>(material);
+
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            var meshFilter = go.AddComponent<MeshFilter>();
 
             meshRenderer.material = material;
-            material.SetTexture(PositionTexPropId, simulation.PositionBuffer);
-            material.SetTexture(NormalTexPropId, simulation.NormalBuffer);
-            material.SetTexture(ExternalForceTexPropId, simulation.InputForceBuffer);
+            mat.SetTexture(Props._position_tex, solver.PositionBuffer);
+            mat.SetTexture(Props._normal_tex, solver.NormalBuffer);
+            mat.SetTexture(Props._external_force_tex, solver.ExternalForceBuffer);
 
             meshFilter.mesh = new Mesh();
-            GenerateMesh(meshFilter.mesh, meshRenderer, simulation);
+            GenerateMesh(meshFilter.mesh, meshRenderer, solver);
         }
 
-        private static void GenerateMesh(Mesh mesh, MeshRenderer renderer, ClothSimulationBehaviour simulation)
+        private static void GenerateMesh(Mesh mesh, MeshRenderer renderer, ClothSolver simulation)
         {
             var clothRes = simulation.ClothResolution;
             var gridSize = clothRes - 1;
@@ -37,8 +41,8 @@ namespace Cloth
 
             var tileSize = 1f / new float2(gridSize);
 
-            var vertCnt = (int)(clothRes.x * clothRes.y * 4);
-            var trianglesCnt = (int)(clothRes.x * clothRes.y * 6);
+            var vertCnt = clothRes.x * clothRes.y * 4;
+            var trianglesCnt = clothRes.x * clothRes.y * 6;
 
             var vertices = new NativeArray<float3>(vertCnt, Allocator.Temp);
             var triangles = new NativeArray<uint>(trianglesCnt, Allocator.Temp);
@@ -81,7 +85,6 @@ namespace Cloth
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             mesh.SetIndices(triangles, MeshTopology.Triangles, 0);
-
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
 
             mesh.RecalculateNormals();
@@ -94,5 +97,17 @@ namespace Cloth
             normals.Dispose();
             uvs.Dispose();
         }
+
+        #region Material
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private enum Props
+        {
+            _position_tex,
+            _normal_tex,
+            _external_force_tex
+        }
+
+        #endregion
     }
 }

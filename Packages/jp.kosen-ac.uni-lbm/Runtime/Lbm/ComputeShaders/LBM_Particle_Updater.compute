@@ -1,0 +1,78 @@
+﻿#pragma kernel init_particle
+#pragma kernel update_particle
+
+#define THREAD_NUM 4
+
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
+
+//==============================================================================
+// Uniforms
+//==============================================================================
+// デルタタイム
+float delta_time;
+// パーティクルの移動速度
+float particle_speed;
+// セル解像度
+int cell_res;
+// 一辺のパーティクル数
+int one_side_particle_num;
+// 最大ライフタイム
+float max_lifetime;
+
+// LBMフィールド
+StructuredBuffer<uint> field;
+// LBMセルの速度・密度
+StructuredBuffer<float4> vel_dens;
+// パーティクルのデータ
+RWStructuredBuffer<lbm_particle_data> particles;
+
+//==============================================================================
+// ユーティリティ関数
+//==============================================================================
+float3 get_init_pos(float3 id)
+{
+    float3 rand = frac(random3(id));
+    return frac(id / one_side_particle_num + rand * 0.01f);
+}
+
+//==============================================================================
+// 初期化カーネル
+//==============================================================================
+[numthreads(THREAD_NUM, THREAD_NUM, THREAD_NUM)]
+void init_particle(in uint3 id : SV_DispatchThreadID)
+{
+    uint p_idx = get_index(id, one_side_particle_num);
+
+    float3 pos = get_init_pos(id);
+    particles[p_idx].pos_lifetime = float4(pos, 0);
+    particles[p_idx].prev_pos_vel = float4(pos, 0);
+}
+
+//==============================================================================
+// パーティクルアップデートカーネル
+//==============================================================================
+[numthreads(THREAD_NUM, THREAD_NUM, THREAD_NUM)]
+void update_particle(in uint3 id : SV_DispatchThreadID)
+{
+    uint p_idx = get_index(id, one_side_particle_num);
+
+    float3 p_pos = particles[p_idx].pos_lifetime.xyz;
+    float p_lifetime = particles[p_idx].pos_lifetime.w;
+
+    [flatten]
+    if (p_lifetime > max_lifetime)
+    {
+        p_pos = get_init_pos(id);
+        p_lifetime = 0;
+    }
+
+    uint cell_idx = get_index(uint3(p_pos * cell_res), cell_res);
+
+    float3 velocity = vel_dens[cell_idx].xyz;
+    p_pos += velocity * (delta_time * particle_speed);
+    p_pos = frac(p_pos);
+    float3 prev = p_pos - velocity * (delta_time * particle_speed);
+
+    particles[p_idx].pos_lifetime = float4(p_pos, p_lifetime + delta_time);
+    particles[p_idx].prev_pos_vel = float4(prev, length(velocity));
+}

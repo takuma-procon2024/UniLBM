@@ -1,7 +1,7 @@
 ﻿#pragma kernel init
 #pragma kernel simulation
 
-#define NUM_THREADS 2
+#define NUM_THREADS 4
 
 //==============================================================================
 // Uniforms
@@ -17,7 +17,7 @@ RWTexture2D<float4> pos_curr_buffer_out;
 // 法線データ (書き込み用)
 RWTexture2D<float4> normal_buffer_out;
 // 外部入力速度データ (読み込み用)
-Texture2D velocity_buffer;
+Texture2D external_force_buffer;
 
 // 布の解像度
 int2 cloth_resolution;
@@ -37,6 +37,8 @@ float damp;
 float inv_mass;
 // 外部入力速度の倍率
 float velocity_scale;
+// 外部入力速度の最大値(絶対値)
+float max_velocity;
 
 // タイムステップ
 float dt;
@@ -102,8 +104,8 @@ void simulation(in uint2 id: SV_DispatchThreadID)
     // パーティクルにかかる力、初期値として重力を代入
     float3 force = gravity;
     // 外部入力速度を加算
-    float3 external_velocity = velocity_buffer[id].xyz * velocity_scale;
-    external_velocity = clamp(external_velocity, -100000, 100000);
+    float3 external_velocity = external_force_buffer[id].xyz * velocity_scale;
+    external_velocity = clamp(external_velocity, -max_velocity, max_velocity);
     force += external_velocity;
 
     // 布の上辺は位置を固定するため計算を省く

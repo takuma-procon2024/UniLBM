@@ -1,0 +1,70 @@
+﻿#pragma kernel main
+#pragma kernel reset
+
+#define NUM_THREADS 2
+
+//==============================================================================
+// Uniforms
+//==============================================================================
+// 位置データ
+Texture2D pos_buffer;
+// フィールドデータ
+RWStructuredBuffer<uint> field_buffer;
+// 外部入力速度データ
+RWTexture2D<float4> external_force_buffer;
+// 布の解像度
+int2 cloth_res;
+// LBMの解像度
+int lbm_res;
+// LBMのセルの大きさ
+float lbm_cell_size;
+// 変換行列
+float4x4 transform;
+
+//==============================================================================
+// メインカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void main(in uint2 id: SV_DispatchThreadID)
+{
+    [flatten]
+    if (any(id >= (uint2)cloth_res - 1))
+        return;
+
+    float3 pos00 = mul(transform, pos_buffer[id + uint2(0, 0)]).xyz;
+    float3 pos01 = mul(transform, pos_buffer[id + uint2(0, 1)]).xyz;
+    float3 pos10 = mul(transform, pos_buffer[id + uint2(1, 0)]).xyz;
+    float3 pos11 = mul(transform, pos_buffer[id + uint2(1, 1)]).xyz;
+
+    float3 min_pos = min(min(pos00, pos01), min(pos10, pos11));
+    float3 max_pos = max(max(pos00, pos01), max(pos10, pos11));
+
+    for (float x = min_pos.x; x <= max_pos.x; x += lbm_cell_size)
+        for (float y = min_pos.y; y <= max_pos.y; y += lbm_cell_size)
+            for (float z = min_pos.z; z <= max_pos.z; z += lbm_cell_size)
+            {
+                int3 xyz = int3(x, y, z);
+                [flatten]
+                if (any(xyz < 0) || any(xyz >= lbm_res))
+                    continue;
+
+                uint3 lbm_id = uint3(ceil(xyz / lbm_cell_size));
+                uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
+
+                // 布境界であることと、布上の位置をフィールドに格納
+                // MSB は布境界であることを示すフラグ用 (1 なら布境界)
+                // 0x3FFF8000 は x 座標を格納しているビットマスク
+                // 0x00007FFF は y 座標を格納しているビットマスク
+                uint boundary_value = 0x80000000 | id.x << 15 & 0x3FFF8000 | id.y & 0x00007FFF;
+                field_buffer[field_id] = boundary_value;
+            }
+}
+
+//==============================================================================
+// 布外部入力速度リセットカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void reset(in uint2 id: SV_DispatchThreadID)
+{
+    external_force_buffer[id] = 0;
+}
