@@ -126,8 +126,8 @@ Material:
     - _ZWrite: 1
     - hue_speed: 200
     - max_velocity: 0.01
-    - min_velocity: 0.00001
-    - particle_length: 1
+    - min_velocity: 0.00003
+    - particle_length: 0.1
     - size: 64
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

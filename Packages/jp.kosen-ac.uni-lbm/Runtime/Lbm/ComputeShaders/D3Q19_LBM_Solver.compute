@@ -91,7 +91,7 @@ void initialize(in uint3 id: SV_DispatchThreadID)
 
     vel_dens[idx] = float4(0, 0, 0, f_base);
     field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
-    external_force[idx] = all(id == uint3(32, 32, 32)) ? float3(0, 0.02f, 0) : float3(0, 0, 0);
+    external_force[idx] = all(id == uint3(32, 32, 32)) ? float3(0, 0, -0.02f) : float3(0, 0, 0);
 }
 
 //==============================================================================
