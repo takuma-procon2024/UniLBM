@@ -8,6 +8,7 @@ namespace UniLbm.Lbm
         public GraphicsBuffer VelDensBuffer { get; }
         public GraphicsBuffer FieldBuffer { get; }
         public GraphicsBuffer FieldVelocityBuffer { get; }
+        public GraphicsBuffer ExternalForceBuffer { get; }
 
         /// <summary>
         ///     シミュレーション解像度

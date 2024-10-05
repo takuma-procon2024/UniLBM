@@ -34,7 +34,7 @@ namespace UniLbm.Lbm
             _f0Buffer?.Dispose();
             _f1Buffer?.Dispose();
             FieldBuffer?.Dispose();
-            _externalForceBuffer?.Dispose();
+            ExternalForceBuffer?.Dispose();
             VelDensBuffer?.Dispose();
             FieldVelocityBuffer?.Dispose();
         }
@@ -42,6 +42,7 @@ namespace UniLbm.Lbm
         public GraphicsBuffer VelDensBuffer { get; private set; }
 
         public GraphicsBuffer FieldBuffer { get; private set; }
+        public GraphicsBuffer ExternalForceBuffer { get; private set; }
 
         public int CellRes { get; }
 
@@ -63,7 +64,7 @@ namespace UniLbm.Lbm
         #region ComputeShader
 
         private const int Q = 19;
-        private GraphicsBuffer _f0Buffer, _f1Buffer, _externalForceBuffer;
+        private GraphicsBuffer _f0Buffer, _f1Buffer;
 
         private void InitBuffers()
         {
@@ -73,7 +74,7 @@ namespace UniLbm.Lbm
             FieldBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, sizeof(uint));
             FieldVelocityBuffer =
                 new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float3>());
-            _externalForceBuffer =
+            ExternalForceBuffer =
                 new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float3>());
             VelDensBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, cellCnt, Marshal.SizeOf<float4>());
         }
@@ -88,7 +89,7 @@ namespace UniLbm.Lbm
 
             _shader.SetBuffer(lbmKernels, Uniforms.f0, _f0Buffer);
             _shader.SetBuffer(lbmKernels, Uniforms.f1, _f1Buffer);
-            _shader.SetBuffer(lbmKernels, Uniforms.external_force, _externalForceBuffer);
+            _shader.SetBuffer(lbmKernels, Uniforms.external_force, ExternalForceBuffer);
             _shader.SetBuffer(lbmKernels, Uniforms.vel_dens, VelDensBuffer);
 
             _shader.SetBuffer(advectionFieldKernels, Uniforms.field_velocity, FieldVelocityBuffer);
