@@ -6,30 +6,27 @@ using UniLbm.Lbm.Behaviours;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace UniLbm.Lbm
 {
     /// <summary>
     ///     力源の管理を行うクラス
     /// </summary>
-    /// <remarks>
-    ///     コンストラクタを呼んだ時点で、シーン上に存在している`LbmForceSource`
-    ///     を収集してくるためコンストラクタを呼ぶタイミングに気を付ける
-    /// </remarks>
     public class LbmForceSourceManager : IDisposable
     {
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
-        private readonly LbmForceSource[] _sources = Object.FindObjectsByType<LbmForceSource>(FindObjectsSortMode.None);
+        private readonly ILbmForceSource[] _sources;
 
-        public LbmForceSourceManager(ComputeShader shader, ILbmSolver lbmSolver, LbmParticle particle)
+        public LbmForceSourceManager(ComputeShader shader, ILbmSolver lbmSolver, LbmParticle particle,
+            GameObject forceSourceRoot)
         {
+            _sources = forceSourceRoot.GetComponentsInChildren<ILbmForceSource>();
             if (_sources.Length == 0)
             {
                 Debug.LogWarning("LbmForceSourceが見つかりませんでした");
                 return;
             }
-            
+
             _shader = new ComputeShaderWrapper<Kernels, Uniforms>(shader);
 
             InitBuffers();
@@ -51,8 +48,7 @@ namespace UniLbm.Lbm
             for (var i = 0; i < _sources.Length; i++)
             {
                 var source = _sources[i];
-                var srcTrs = source.transform;
-                data[i] = new SourceData(source.Force, srcTrs.position, source.CellSize);
+                data[i] = new SourceData(source.Force, source.Position, source.CellSize);
             }
 
             _sourcesBuffer.SetData(data);

@@ -374,6 +374,7 @@ MonoBehaviour:
   clothRenderGo: {fileID: 1923966160}
   clothLbmCellSize: 1
   forceSourceShader: {fileID: 7200000, guid: 2a2cdc3c12d0498c8fa70f80ca5b2a62, type: 3}
+  forceSourceRoot: {fileID: 1781057277}
 --- !u!4 &962691104
 Transform:
   m_ObjectHideFlags: 0
