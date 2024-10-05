@@ -8,6 +8,10 @@ namespace UniLbm.Lbm.Behaviours
     /// </summary>
     public class LbmForceSource : MonoBehaviour
     {
-        [SerializeField] private float3 force = float3.zero;
+        [SerializeField] private float forcePower = 1.0f;
+        [SerializeField] private uint3 cellSize = 1;
+
+        public float3 Force => transform.forward * forcePower;
+        public uint3 CellSize => cellSize;
     }
 }

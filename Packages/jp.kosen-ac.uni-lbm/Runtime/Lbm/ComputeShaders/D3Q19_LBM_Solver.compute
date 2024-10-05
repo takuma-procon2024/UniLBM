@@ -229,4 +229,5 @@ void reset_field(in uint3 id: SV_DispatchThreadID)
 
     field_velocity[idx] = 0;
     field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
+    external_force[idx] = 0;
 }

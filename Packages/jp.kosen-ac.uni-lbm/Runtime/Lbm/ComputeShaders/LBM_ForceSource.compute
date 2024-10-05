@@ -1,0 +1,49 @@
+﻿#pragma kernel set_powers
+
+#define NUM_THREADS 4
+
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
+
+//==============================================================================
+// 構造体等定義
+//==============================================================================
+struct source_data
+{
+    float3 power;
+    float3 position;
+    uint3 cell_size;
+};
+
+//==============================================================================
+// Uniform変数
+//==============================================================================
+// ファンの情報を格納したバッファ
+StructuredBuffer<source_data> sources_buffer;
+// LBMに与える外力
+RWStructuredBuffer<float3> lbm_external_force;
+// LBMの解像度
+int lbm_res;
+// sources_bufferの要素数
+int source_count;
+// LBMバウンダリーの大きさ
+int lbm_boundary_size;
+
+//==============================================================================
+// 外力をセットするカーネル
+//==============================================================================
+[numthreads(NUM_THREADS, 1, 1)]
+void set_powers(uint id: SV_DispatchThreadID)
+{
+    if (id >= (uint)source_count)
+        return;
+    
+    source_data source = sources_buffer[id];
+    
+    float cell_scale = 1.f / lbm_boundary_size * lbm_res;
+    int3 cell_id = int3(round(source.position * cell_scale));
+    if (any(cell_id < 0) || any(cell_id >= lbm_res))
+        return;
+
+    uint cell_idx = get_index(cell_id, lbm_res);
+    lbm_external_force[cell_idx] = source.power;
+}

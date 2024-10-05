@@ -89,7 +89,7 @@ namespace UniLbm.Lbm
 
             _shader.SetBuffer(lbmKernels, Uniforms.f0, _f0Buffer);
             _shader.SetBuffer(lbmKernels, Uniforms.f1, _f1Buffer);
-            _shader.SetBuffer(lbmKernels, Uniforms.external_force, ExternalForceBuffer);
+            _shader.SetBuffer(allKernels, Uniforms.external_force, ExternalForceBuffer);
             _shader.SetBuffer(lbmKernels, Uniforms.vel_dens, VelDensBuffer);
 
             _shader.SetBuffer(advectionFieldKernels, Uniforms.field_velocity, FieldVelocityBuffer);
