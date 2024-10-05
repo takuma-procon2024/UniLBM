@@ -18,6 +18,11 @@ namespace UniLbm.Lbm
         private readonly RenderParams _renderParams;
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
 
+        /// <summary>
+        ///     パーティクルをレンダリングするためのバウンディングボックスのサイズ
+        /// </summary>
+        public readonly float Bounds;
+
         public LbmParticle(ComputeShader shader, ILbmSolver lbmSolver, Material mat, uint oneSideParticleNum,
             in Data data)
         {
@@ -31,13 +36,13 @@ namespace UniLbm.Lbm
             SetBuffers();
             SetData(in data);
 
-            var matSize = material.GetFloat(Props.size);
+            Bounds = material.GetFloat(Props.size);
             _renderParams = new RenderParams(mat)
             {
                 worldBounds = new Bounds
                 {
                     min = Vector3.zero,
-                    max = new Vector3(matSize, matSize, matSize)
+                    max = new Vector3(Bounds, Bounds, Bounds)
                 }
             };
             material.SetBuffer(Props.particles, _particlesBuffer);

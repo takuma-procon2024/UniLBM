@@ -16,6 +16,8 @@ RWTexture2D<float4> external_force_buffer;
 int2 cloth_res;
 // LBMの解像度
 int lbm_res;
+// LBMバウンダリーの大きさ
+int lbm_boundary_size;
 // LBMのセルの大きさ
 float lbm_cell_size;
 // 変換行列

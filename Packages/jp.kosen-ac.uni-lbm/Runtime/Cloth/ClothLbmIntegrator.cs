@@ -12,14 +12,17 @@ namespace UniLbm.Cloth
     public class ClothLbmIntegrator
     {
         private readonly ClothSolver _clothSolver;
+        private readonly LbmParticle _lbmParticle;
         private readonly ILbmSolver _lbmSolver;
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
 
-        public ClothLbmIntegrator(ComputeShader shader, ClothSolver clothSolver, ILbmSolver lbmSolver, in Data data)
+        public ClothLbmIntegrator(ComputeShader shader, ClothSolver clothSolver, ILbmSolver lbmSolver,
+            LbmParticle lbmParticle, in Data data)
         {
             _shader = new ComputeShaderWrapper<Kernels, Uniforms>(shader);
             _clothSolver = clothSolver;
             _lbmSolver = lbmSolver;
+            _lbmParticle = lbmParticle;
 
             SetBuffers();
             SetData(in data, true);
@@ -53,6 +56,7 @@ namespace UniLbm.Cloth
                 var clothRes = _clothSolver.ClothResolution;
                 _shader.SetInts(Uniforms.cloth_res, clothRes.x, clothRes.y);
                 _shader.SetInt(Uniforms.lbm_res, _lbmSolver.CellRes);
+                _shader.SetFloat(Uniforms.lbm_res, _lbmSolver.CellRes);
             }
 
             _shader.SetFloat(Uniforms.lbm_cell_size, data.LbmCellSize);
@@ -74,6 +78,7 @@ namespace UniLbm.Cloth
             external_force_buffer,
             cloth_res,
             lbm_res,
+            lbm_boundary_size,
             lbm_cell_size,
             transform
         }

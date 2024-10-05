@@ -31,11 +31,12 @@ namespace UniLbm.Common
                     MaxLifetime = maxLifetime
                 });
             ClothRenderer.Initialize(clothMaterial, clothRenderGo, _clothSolver);
-            _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, new ClothLbmIntegrator.Data
-            {
-                LbmCellSize = clothLbmCellSize,
-                Transform = clothRenderGo.transform.localToWorldMatrix
-            });
+            _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, _particle,
+                new ClothLbmIntegrator.Data
+                {
+                    LbmCellSize = clothLbmCellSize,
+                    Transform = clothRenderGo.transform.localToWorldMatrix
+                });
 
             if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
