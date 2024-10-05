@@ -21,7 +21,7 @@ namespace UniLbm.Lbm
         /// <summary>
         ///     パーティクルをレンダリングするためのバウンディングボックスのサイズ
         /// </summary>
-        public readonly float Bounds;
+        public readonly int Bounds;
 
         public LbmParticle(ComputeShader shader, ILbmSolver lbmSolver, Material mat, uint oneSideParticleNum,
             in Data data)
@@ -36,7 +36,7 @@ namespace UniLbm.Lbm
             SetBuffers();
             SetData(in data);
 
-            Bounds = material.GetFloat(Props.size);
+            Bounds = (int)material.GetFloat(Props.size);
             _renderParams = new RenderParams(mat)
             {
                 worldBounds = new Bounds

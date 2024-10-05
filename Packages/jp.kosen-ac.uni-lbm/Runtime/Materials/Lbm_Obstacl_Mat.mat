@@ -111,7 +111,7 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - size: 64
+    - size: 128
     - velocity_scale: 100000
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

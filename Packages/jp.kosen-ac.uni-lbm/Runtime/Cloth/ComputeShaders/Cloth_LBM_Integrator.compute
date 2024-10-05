@@ -33,10 +33,11 @@ void main(in uint2 id: SV_DispatchThreadID)
     if (any(id >= (uint2)cloth_res - 1))
         return;
 
-    float3 pos00 = mul(transform, pos_buffer[id + uint2(0, 0)]).xyz;
-    float3 pos01 = mul(transform, pos_buffer[id + uint2(0, 1)]).xyz;
-    float3 pos10 = mul(transform, pos_buffer[id + uint2(1, 0)]).xyz;
-    float3 pos11 = mul(transform, pos_buffer[id + uint2(1, 1)]).xyz;
+    float cell_scale = 1.f / lbm_boundary_size * lbm_res;
+    float3 pos00 = mul(transform, pos_buffer[id + uint2(0, 0)] * cell_scale).xyz;
+    float3 pos01 = mul(transform, pos_buffer[id + uint2(0, 1)] * cell_scale).xyz;
+    float3 pos10 = mul(transform, pos_buffer[id + uint2(1, 0)] * cell_scale).xyz;
+    float3 pos11 = mul(transform, pos_buffer[id + uint2(1, 1)] * cell_scale).xyz;
 
     float3 min_pos = min(min(pos00, pos01), min(pos10, pos11));
     float3 max_pos = max(max(pos00, pos01), max(pos10, pos11));
@@ -50,7 +51,7 @@ void main(in uint2 id: SV_DispatchThreadID)
                 if (any(xyz < 0) || any(xyz >= lbm_res))
                     continue;
 
-                uint3 lbm_id = uint3(ceil(xyz / lbm_cell_size));
+                uint3 lbm_id = uint3(round(xyz / lbm_cell_size));
                 uint field_id = lbm_id.z * lbm_res * lbm_res + lbm_id.y * lbm_res + lbm_id.x;
 
                 // 布境界であることと、布上の位置をフィールドに格納

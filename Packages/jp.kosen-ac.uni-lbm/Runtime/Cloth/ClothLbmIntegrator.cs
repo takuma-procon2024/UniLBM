@@ -56,9 +56,9 @@ namespace UniLbm.Cloth
                 var clothRes = _clothSolver.ClothResolution;
                 _shader.SetInts(Uniforms.cloth_res, clothRes.x, clothRes.y);
                 _shader.SetInt(Uniforms.lbm_res, _lbmSolver.CellRes);
-                _shader.SetFloat(Uniforms.lbm_res, _lbmSolver.CellRes);
+                _shader.SetInt(Uniforms.lbm_boundary_size, _lbmParticle.Bounds);
             }
-
+            
             _shader.SetFloat(Uniforms.lbm_cell_size, data.LbmCellSize);
             _shader.SetMatrix(Uniforms.transform, data.Transform);
         }
