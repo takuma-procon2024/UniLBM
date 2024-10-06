@@ -44,7 +44,8 @@ void init_particle(in uint3 id : SV_DispatchThreadID)
     uint p_idx = get_index(id, one_side_particle_num);
 
     float3 pos = get_init_pos(id);
-    particles[p_idx].pos_lifetime = float4(pos, 0);
+    float lifetime = random1(pos.xy + pos.z) * 2;
+    particles[p_idx].pos_lifetime = float4(pos, lifetime);
     particles[p_idx].prev_pos_vel = float4(pos, 0);
 }
 
@@ -63,7 +64,7 @@ void update_particle(in uint3 id : SV_DispatchThreadID)
     if (p_lifetime > max_lifetime)
     {
         p_pos = get_init_pos(id);
-        p_lifetime = 0;
+        p_lifetime = random1(p_pos.xy + p_pos.z) * 2;
     }
 
     uint cell_idx = get_index(uint3(p_pos * cell_res), cell_res);

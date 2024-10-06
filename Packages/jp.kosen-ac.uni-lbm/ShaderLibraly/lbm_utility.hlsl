@@ -26,6 +26,11 @@ float3 hsv_2_rgb(float3 hsv)
     return hsv.z * lerp(k.xxx, clamp(p - k.xxx, 0.0, 1.0), hsv.y);
 }
 
+float random1(float2 co)
+{
+    return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
+}
+
 float3 random3(float3 s)
 {
     return frac(

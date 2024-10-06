@@ -38,8 +38,10 @@ namespace UniLbm.Common
                     LbmCellSize = clothLbmCellSize,
                     Transform = clothRenderGo.transform.localToWorldMatrix
                 });
-            _forceSourceManager = new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
 
+            if (isEnableForceSource)
+                _forceSourceManager =
+                    new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
             if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
@@ -52,7 +54,7 @@ namespace UniLbm.Common
             _clothLbm.Reset();
 
             _clothLbm.Update();
-            _forceSourceManager.Update();
+            if (isEnableForceSource) _forceSourceManager.Update();
             _lbmSolver.Update();
             _clothSolver.Update();
             _particle.Update(1 / 60f);
@@ -150,6 +152,7 @@ namespace UniLbm.Common
         private ComputeShader forceSourceShader;
 
         [SerializeField] private GameObject forceSourceRoot;
+        [SerializeField] private bool isEnableForceSource;
 
         #endregion
     }
