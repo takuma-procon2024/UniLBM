@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
 
-namespace UniLbm.Lbm.Behaviours
+namespace UniLbm.Lbm.Extension
 {
     /// <summary>
     ///     LBMの力源を表すコンポーネントの簡易実装

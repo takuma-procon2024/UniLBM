@@ -1,4 +1,4 @@
-﻿using UniLbm.Lbm.Behaviours;
+﻿using UniLbm.Lbm.Extension;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -20,7 +20,7 @@ namespace UniLbm.Uni
         private void Update()
         {
             var forceLen = math.length(_forceSource.Force);
-            transform.rotation *= Quaternion.AngleAxis(rotateSpeed * forceLen, transform.forward);
+            transform.rotation *= Quaternion.AngleAxis(rotateSpeed * forceLen, Vector3.forward);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace UniLbm.Lbm.Behaviours
+namespace UniLbm.Lbm.Extension
 {
     /// <summary>
     ///     LBMの力源を表すコンポーネントのインターフェース

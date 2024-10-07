@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using UniLbm.Common;
-using UniLbm.Lbm.Behaviours;
+using UniLbm.Lbm.Extension;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
