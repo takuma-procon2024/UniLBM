@@ -17,6 +17,7 @@ namespace UniLbm.Common
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
         private LbmParticle _particle;
+        private TofSensorManager _tofSensorManager;
 
         private void Initialize()
         {
@@ -42,6 +43,7 @@ namespace UniLbm.Common
             if (isEnableForceSource)
                 _forceSourceManager =
                     new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
+            if (isEnableTofSensor) _tofSensorManager = new TofSensorManager(lbmShader, tofSensorRoot);
             if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
@@ -108,7 +110,7 @@ namespace UniLbm.Common
             _lbmSolver.Dispose();
             _particle.Dispose();
             _clothSolver.Dispose();
-            _forceSourceManager.Dispose();
+            _forceSourceManager?.Dispose();
         }
 
         #endregion
@@ -153,6 +155,9 @@ namespace UniLbm.Common
 
         [SerializeField] private GameObject forceSourceRoot;
         [SerializeField] private bool isEnableForceSource;
+
+        [Title("ToF Sensor")] [SerializeField] private bool isEnableTofSensor;
+        [SerializeField] private GameObject tofSensorRoot;
 
         #endregion
     }
