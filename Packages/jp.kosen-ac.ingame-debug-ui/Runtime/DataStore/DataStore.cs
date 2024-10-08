@@ -58,7 +58,7 @@ namespace DataStore
                 floatFields = _floatFields.Select(v => new FloatField { name = v.Key, value = v.Value }).ToList(),
                 intFields = _intFields.Select(v => new IntField { name = v.Key, value = v.Value }).ToList(),
                 stringFields = _stringFields.Select(v => new StringField { name = v.Key, value = v.Value }).ToList(),
-                boolFields = _boolFields.Select(v => new BoolField { name = v.Key, value = v.Value }).ToList(),
+                boolFields = _boolFields.Select(v => new BoolField { name = v.Key, value = v.Value }).ToList()
             };
             set
             {
@@ -97,6 +97,26 @@ namespace DataStore
         public bool TryGetData(string name, out bool data)
         {
             return _boolFields.TryGetValue(name, out data);
+        }
+
+        public void SetData(string name, float data)
+        {
+            _floatFields[name] = data;
+        }
+
+        public void SetData(string name, int data)
+        {
+            _intFields[name] = data;
+        }
+
+        public void SetData(string name, string data)
+        {
+            _stringFields[name] = data;
+        }
+
+        public void SetData(string name, bool data)
+        {
+            _boolFields[name] = data;
         }
 
         #endregion

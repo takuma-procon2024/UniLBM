@@ -1,5 +1,10 @@
 {
-    "floatFields": [],
+    "floatFields": [
+        {
+            "name": "Float Field",
+            "value": 0.23499999940395356
+        }
+    ],
     "intFields": [],
     "stringFields": [],
     "boolFields": []

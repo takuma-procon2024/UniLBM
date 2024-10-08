@@ -463,7 +463,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00093695207}
+  m_AnchoredPosition: {x: 0, y: -0.00015665582}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &5118275768108727762
@@ -635,7 +635,13 @@ MonoBehaviour:
   activePos:
     x: 10
     y: 0
-  floatFieldPrefab: {fileID: 0}
-  intFieldPrefab: {fileID: 0}
-  boolFieldPrefab: {fileID: 0}
-  stringFieldPrefab: {fileID: 0}
+  content: {fileID: 6215129756875273640}
+  floatFieldPrefab: {fileID: 8694375251560993518, guid: 515662ae6d3d84544b66c64f7157fee7,
+    type: 3}
+  intFieldPrefab: {fileID: -6799127397597051315, guid: f9880fdffa918f945930d3e44b597748,
+    type: 3}
+  boolFieldPrefab: {fileID: -671547282214410221, guid: 05935648dce1b0f42953ea1f118f1ea9,
+    type: 3}
+  stringFieldPrefab: {fileID: -8441404548835840504, guid: 6474ab888fb93dd41a122d3070d91840,
+    type: 3}
+  sliderFieldPrefab: {fileID: 0}
