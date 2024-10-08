@@ -59,7 +59,6 @@ namespace DataStore
                 intFields = _intFields.Select(v => new IntField { name = v.Key, value = v.Value }).ToList(),
                 stringFields = _stringFields.Select(v => new StringField { name = v.Key, value = v.Value }).ToList(),
                 boolFields = _boolFields.Select(v => new BoolField { name = v.Key, value = v.Value }).ToList(),
-                vectorFields = _vectorFields.Select(v => new VectorField { name = v.Key, value = v.Value }).ToList()
             };
             set
             {
@@ -67,13 +66,11 @@ namespace DataStore
                 _intFields.Clear();
                 _stringFields.Clear();
                 _boolFields.Clear();
-                _vectorFields.Clear();
                 if (value == null) return;
                 foreach (var field in value.floatFields) _floatFields[field.name] = field.value;
                 foreach (var field in value.intFields) _intFields[field.name] = field.value;
                 foreach (var field in value.stringFields) _stringFields[field.name] = field.value;
                 foreach (var field in value.boolFields) _boolFields[field.name] = field.value;
-                foreach (var field in value.vectorFields) _vectorFields[field.name] = field.value;
             }
         }
 
@@ -81,7 +78,6 @@ namespace DataStore
         private readonly Dictionary<string, float> _floatFields = new();
         private readonly Dictionary<string, int> _intFields = new();
         private readonly Dictionary<string, string> _stringFields = new();
-        private readonly Dictionary<string, Vector4> _vectorFields = new();
 
         public bool TryGetData(string name, out float data)
         {
@@ -101,11 +97,6 @@ namespace DataStore
         public bool TryGetData(string name, out bool data)
         {
             return _boolFields.TryGetValue(name, out data);
-        }
-
-        public bool TryGetData(string name, out Vector4 data)
-        {
-            return _vectorFields.TryGetValue(name, out data);
         }
 
         #endregion

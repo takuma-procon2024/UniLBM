@@ -6,10 +6,18 @@ namespace UI
 {
     public class MainWindow : MonoBehaviour
     {
-        [SerializeField] private string dataFilePath = "data.json";
+        [Header("Settings")] [SerializeField] private string dataFilePath = "data.json";
+
         [SerializeField] private KeyCode toggleKey = KeyCode.F1;
         [SerializeField] private float2 defaultPos = 0;
         [SerializeField] private float2 activePos = 0;
+
+        [Space] [Header("Resources")] [SerializeField]
+        private GameObject floatFieldPrefab;
+
+        [SerializeField] private GameObject intFieldPrefab;
+        [SerializeField] private GameObject boolFieldPrefab;
+        [SerializeField] private GameObject stringFieldPrefab;
         private bool _isOpen;
         private MotionHandle _motionHandle;
         private RectTransform _rectTransform;
@@ -51,5 +59,13 @@ namespace UI
         {
             return Input.GetKeyDown(toggleKey);
         }
+
+        #region UI Builder Methods
+
+        public void AddFloatField()
+        {
+        }
+
+        #endregion
     }
 }
