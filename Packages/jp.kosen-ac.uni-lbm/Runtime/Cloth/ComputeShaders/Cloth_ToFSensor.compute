@@ -43,18 +43,24 @@ void write_tof_data(uint3 id: SV_DispatchThreadID)
     tof_buffer.GetDimensions(sensor_cnt, _);
     cloth_pos_buffer.GetDimensions(cloth_width, cloth_height);
 
+    [flatten]
     if (id.x >= cloth_width || id.y >= cloth_height || id.z >= sensor_cnt)
         return;
 
     tof_data sensor = tof_buffer[id.z];
+    [flatten]
+    if (sensor.distance < 0.0f)
+        return;
+    
     float4 cloth_pos = cloth_pos_buffer[id.xy];
     float4 trans_cloth_pos = mul(cloth_transform, cloth_pos);
 
     float pos_diff_sq = length_sq(trans_cloth_pos.xy - sensor.position);
-    if (pos_diff_sq < tof_radius * tof_radius)
+    float dist_diff = sensor.distance - cloth_pos.z;
+    
+    if (pos_diff_sq < tof_radius * tof_radius && abs(dist_diff) > 0.1f)
     {
-        float dist_diff = sensor.distance - cloth_pos.z;
         float tof_force = dist_diff * saturate((tof_radius * tof_radius - pos_diff_sq) / tof_radius);
-        cloth_external_buffer[id.xy] = float4(0, 0, 0.0001f, 0);
+        cloth_external_buffer[id.xy] += float4(0, 0, tof_force, 0);
     }
 }
