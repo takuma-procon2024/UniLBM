@@ -1,6 +1,6 @@
 ﻿using Unity.Mathematics;
 
-namespace UniLbm.Lbm.Extension
+namespace UniLbm.Cloth.Extension
 {
     /// <summary>
     ///     ToFセンサのデータを反映するためのインターフェース

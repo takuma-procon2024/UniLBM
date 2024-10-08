@@ -1,0 +1,60 @@
+﻿#pragma kernel write_tof_data
+
+#pragma enable_d3d12_debug_symbols
+
+#define NUM_THREADS 8
+
+#include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
+
+//==============================================================================
+// 構造体等定義
+//==============================================================================
+struct tof_data
+{
+    float distance;
+    float2 position;
+};
+
+//==============================================================================
+// Uniform 変数
+//==============================================================================
+// ToFセンサの情報を格納したバッファ
+StructuredBuffer<tof_data> tof_buffer;
+// 布座標バッファ
+Texture2D cloth_pos_buffer;
+// 布外部速度バッファ
+RWTexture2D<float4> cloth_external_buffer;
+// ToFデータ書き込み時の円の半径
+float tof_radius;
+// 布の座標変換行列
+float4x4 cloth_transform;
+
+//==============================================================================
+// ToFデータ書き込み用カーネル
+//==============================================================================
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
+void write_tof_data(uint3 id: SV_DispatchThreadID)
+{
+    //! id.xy は布の位置を示す
+    //! id.z はToFセンサのインデックスを示す
+
+    uint sensor_cnt, _;
+    uint cloth_width, cloth_height;
+    tof_buffer.GetDimensions(sensor_cnt, _);
+    cloth_pos_buffer.GetDimensions(cloth_width, cloth_height);
+
+    if (id.x >= cloth_width || id.y >= cloth_height || id.z >= sensor_cnt)
+        return;
+
+    tof_data sensor = tof_buffer[id.z];
+    float4 cloth_pos = cloth_pos_buffer[id.xy];
+    float4 trans_cloth_pos = mul(cloth_transform, cloth_pos);
+
+    float pos_diff_sq = length_sq(trans_cloth_pos.xy - sensor.position);
+    if (pos_diff_sq < tof_radius * tof_radius)
+    {
+        float dist_diff = sensor.distance - cloth_pos.z;
+        float tof_force = dist_diff * saturate((tof_radius * tof_radius - pos_diff_sq) / tof_radius);
+        cloth_external_buffer[id.xy] = float4(0, 0, 0.0001f, 0);
+    }
+}

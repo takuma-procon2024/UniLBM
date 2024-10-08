@@ -3,7 +3,7 @@
 #pragma kernel advection
 #pragma kernel reset_field
 
-#define THREADS_NUM 4
+#define THREADS_NUM 8
 #define COLLISION_DOT 0.1f // 境界と衝突したことにする速度の内積
 
 #define INV_SQRT_2 0.70710678118654752440084436210485f

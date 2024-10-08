@@ -1,7 +1,7 @@
 ﻿#pragma kernel init_particle
 #pragma kernel update_particle
 
-#define THREAD_NUM 4
+#define THREAD_NUM 8
 
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 

@@ -90,7 +90,7 @@
                     float3 pos = (input[0].vertex.xyz + vertex) * (size / cell_res);
                     float3 vel = field_velocity[pid] * velocity_scale;
                     vel = saturate(vel);
-                    float3 vel_length = saturate(length2(vel));
+                    float3 vel_length = saturate(length_sq(vel));
 
                     o.vertex = TransformObjectToHClip(pos);
                     o.color = float4(vel_length, 1);

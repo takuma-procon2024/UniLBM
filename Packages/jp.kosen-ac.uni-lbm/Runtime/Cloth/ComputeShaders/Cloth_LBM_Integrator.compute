@@ -1,7 +1,7 @@
 ﻿#pragma kernel main
 #pragma kernel reset
 
-#define NUM_THREADS 2
+#define NUM_THREADS 4
 
 //==============================================================================
 // Uniforms

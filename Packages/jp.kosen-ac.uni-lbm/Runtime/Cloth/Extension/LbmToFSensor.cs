@@ -1,7 +1,8 @@
-﻿using Unity.Mathematics;
+﻿using UniLbm.Lbm.Extension;
+using Unity.Mathematics;
 using UnityEngine;
 
-namespace UniLbm.Lbm.Extension
+namespace UniLbm.Cloth.Extension
 {
     public class LbmToFSensor : MonoBehaviour, ILbmToFSensor
     {

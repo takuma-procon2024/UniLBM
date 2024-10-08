@@ -75,7 +75,7 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(Kernels.set_powers, Uniforms.sources_buffer, _sourcesBuffer);
         }
 
-        private void SetData(ILbmSolver lbmSolver, LbmParticle particle)
+        public void SetData(ILbmSolver lbmSolver, LbmParticle particle)
         {
             _shader.SetInt(Uniforms.lbm_res, lbmSolver.CellRes);
             _shader.SetInt(Uniforms.source_count, _sources.Length);

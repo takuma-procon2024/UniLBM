@@ -1,6 +1,6 @@
 ﻿#pragma kernel set_powers
 
-#define NUM_THREADS 4
+#define NUM_THREADS 8
 
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
 

@@ -13,11 +13,11 @@ namespace UniLbm.Common
     {
         private ClothLbmIntegrator _clothLbm;
         private ClothSolver _clothSolver;
+        private ClothTofSensorManager _clothTofSensorManager;
         private LbmForceSourceManager _forceSourceManager;
         private ILbmSolver _lbmSolver;
         private LbmObstacles _obstacles;
         private LbmParticle _particle;
-        private TofSensorManager _tofSensorManager;
 
         private void Initialize()
         {
@@ -43,13 +43,20 @@ namespace UniLbm.Common
             if (isEnableForceSource)
                 _forceSourceManager =
                     new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
-            if (isEnableTofSensor) _tofSensorManager = new TofSensorManager(lbmShader, tofSensorRoot);
+            if (isEnableTofSensor)
+                _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
+                    new ClothTofSensorManager.Data
+                    {
+                        TofRadius = tofRadius,
+                        ClothTransform = clothRenderGo.transform.localToWorldMatrix
+                    });
             if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
         private void Simulate()
         {
             _clothLbm.SetData(GetClothLbmData());
+            if (isEnableForceSource) _clothTofSensorManager.SetData(GetClothTofSensorData());
 
             // IMPORTANT: ここの順番大事!!
             _lbmSolver.ResetField();
@@ -57,6 +64,7 @@ namespace UniLbm.Common
 
             _clothLbm.Update();
             if (isEnableForceSource) _forceSourceManager.Update();
+            if (isEnableTofSensor) _clothTofSensorManager.Update();
             _lbmSolver.Update();
             _clothSolver.Update();
             _particle.Update(1 / 60f);
@@ -91,6 +99,16 @@ namespace UniLbm.Common
             };
         }
 
+        private ClothTofSensorManager.Data GetClothTofSensorData()
+        {
+            var childTrans = clothRenderGo.transform;
+            return new ClothTofSensorManager.Data
+            {
+                TofRadius = tofRadius,
+                ClothTransform = childTrans.localToWorldMatrix
+            };
+        }
+
         #endregion
 
         #region Unity Callback
@@ -111,6 +129,7 @@ namespace UniLbm.Common
             _particle.Dispose();
             _clothSolver.Dispose();
             _forceSourceManager?.Dispose();
+            _clothTofSensorManager?.Dispose();
         }
 
         #endregion
@@ -156,8 +175,10 @@ namespace UniLbm.Common
         [SerializeField] private GameObject forceSourceRoot;
         [SerializeField] private bool isEnableForceSource;
 
-        [Title("ToF Sensor")] [SerializeField] private bool isEnableTofSensor;
+        [Title("ToF Sensor")] [SerializeField] private ComputeShader tofSensorShader;
         [SerializeField] private GameObject tofSensorRoot;
+        [SerializeField] private float tofRadius = 2f;
+        [SerializeField] private bool isEnableTofSensor;
 
         #endregion
     }

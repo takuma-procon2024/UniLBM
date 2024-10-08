@@ -42,7 +42,12 @@ float3 random3(float3 s)
     );
 }
 
-float length2(in float3 v)
+float length_sq(in float3 v)
+{
+    return dot(v, v);
+}
+
+float length_sq(in float2 v)
 {
     return dot(v, v);
 }
