@@ -7,8 +7,58 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: 6d3f59ba62d1b9249bc1c3de82e580cb, type: 2}
+      name: Material.001
+    second: {fileID: 2100000, guid: 1df02892c5441934aa70ca11de68e4a5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.AzureKinect
+    second: {fileID: 2100000, guid: 81edc7af85af47142a8a13f886135630, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Display
+    second: {fileID: 2100000, guid: d1c61ea0f516db541930973e7c60b7a3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Fan
+    second: {fileID: 2100000, guid: 1156d44754256da4882a5000d6331375, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.FanBox
+    second: {fileID: 2100000, guid: c6d71bf900122c4409379ae62d77d817, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.MetalRack
+    second: {fileID: 2100000, guid: c3ac22e697d69024aaed2ec46101df4e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Pole
+    second: {fileID: 2100000, guid: 37857678c89814049a99d1bf0763a668, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Projector
+    second: {fileID: 2100000, guid: 376158c90f369ca439870f5cb5d51502, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Roof
+    second: {fileID: 2100000, guid: 04b073b328393ba4f819f59d0aecbee2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.Speaker
+    second: {fileID: 2100000, guid: d282c3d36bb2d8e4bbc4328d1690aab4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.WoodBoard
+    second: {fileID: 2100000, guid: 7f9c85b284bf39a4ea9373c113858cc5, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -17,53 +67,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.001"
-    second: {fileID: 2100000, guid: 8907cad8c7660124eb0942e6263a192a, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.002"
-    second: {fileID: 2100000, guid: f6b27dd2bbfc3fe42925b9abaffa4074, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.003"
-    second: {fileID: 2100000, guid: b6c443e3a3ddde54f964dce85e5b21e3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.005"
-    second: {fileID: 2100000, guid: a4ecfd9ad240f6c4da8cc49893b12c7f, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.006"
-    second: {fileID: 2100000, guid: 811658797c4e71f44bf9b9600d27f766, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.007"
-    second: {fileID: 2100000, guid: 1b35c4353fdfdcd4e867e69f2df71894, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.009"
-    second: {fileID: 2100000, guid: 1e33681f51c728d44b0ce12e0c36ae98, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.012"
-    second: {fileID: 2100000, guid: f1d8f4e4930bb794c8144a4a17695a86, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: "\u30DE\u30C6\u30EA\u30A2\u30EB.013"
     second: {fileID: 2100000, guid: b8a30856bb622ba44ad22cdda34482ae, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.014"
-    second: {fileID: 2100000, guid: b518dde482106a4489c7e1604ea6c218, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -138,7 +143,7 @@ ModelImporter:
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
   referencedClips: []
-  importAnimation: 1
+  importAnimation: 0
   humanDescription:
     serializedVersion: 3
     human: []
@@ -153,11 +158,11 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 0
+    hasExtraRoot: 1
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1

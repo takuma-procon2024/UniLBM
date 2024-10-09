@@ -2331,8 +2331,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 132403217}
   rotateSpeed: 3
-  distance: 50
-  maxDistance: 80
+  scrollSpeed: 5
+  defaultDistance: 100
+  minDistance: 10
+  maxDistance: 120
+  defaultY: 10
+  defaultX: 180
 --- !u!1 &1546674324
 GameObject:
   m_ObjectHideFlags: 0
@@ -3076,7 +3080,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 203683f7bfd434044bef21c7ce6916d8,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 203683f7bfd434044bef21c7ce6916d8,
         type: 3}
@@ -3381,6 +3385,11 @@ PrefabInstance:
     - target: {fileID: 1954762414937503888, guid: 203683f7bfd434044bef21c7ce6916d8,
         type: 3}
       propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2175932369779343079, guid: 203683f7bfd434044bef21c7ce6916d8,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2175932369779343079, guid: 203683f7bfd434044bef21c7ce6916d8,
@@ -4317,7 +4326,7 @@ Transform:
   m_GameObject: {fileID: 1923966160}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50, y: 46, z: 37}
+  m_LocalPosition: {x: 50, y: 46, z: 57}
   m_LocalScale: {x: 35, y: 35, z: 35}
   m_ConstrainProportionsScale: 0
   m_Children: []
