@@ -127,7 +127,8 @@ Material:
     - hue_speed: 650
     - max_velocity: 0.006
     - min_velocity: 0.00001
-    - particle_length: 1
+    - particle_length: 0.001
+    - particle_width: 0.001
     - size: 100
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

@@ -6,6 +6,7 @@
         min_velocity ("Min Velocity", Float) = 0.00001
         max_velocity ("Max Velocity", Float) = 0.25
         hue_speed ("Hue Speed", Float) = 10
+        particle_width ("Particle Width", Float) = 0.1
         particle_length ("Particle Length", Float) = 0.1
     }
     SubShader
@@ -30,6 +31,7 @@
         float max_velocity;
         float hue_speed;
         float particle_length;
+        float particle_width;
         ENDHLSL
 
         Pass
@@ -64,8 +66,8 @@
                 return o;
             }
 
-            [maxvertexcount(2)]
-            void geom(point v2g input[1], inout LineStream<g2f> out_stream)
+            [maxvertexcount(4)]
+            void geom(point v2g input[1], inout TriangleStream<g2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
                 float4 pos = input[0].vertex;
@@ -75,19 +77,33 @@
                 // パーティクルの長さ調整
                 float3 dir = pos.xyz - prev_pos.xyz;
                 prev_pos.xyz -= dir * particle_length;
-                
+
+                // 速度が範囲外の場合は描画しない
                 bool is_out_of_velocity = prev_pos.w <= min_velocity || prev_pos.w >= max_velocity;
                 [flatten]
-                if (is_out_of_velocity) return;
+                if (is_out_of_velocity)
+                    return;
+
+                // 四角形になるように頂点を生成
+                float4x4 billboard_matrix = UNITY_MATRIX_V;
+                billboard_matrix._m03 = billboard_matrix._m13 = billboard_matrix._m23 = billboard_matrix._m33 = 0;
 
                 g2f o;
-                o.vertex = TransformObjectToHClip(pos.xyz * size);
                 o.color = col;
-                out_stream.Append(o);
+                [unroll]
+                for (uint x = 0; x < 2; x++)
+                    [unroll]
+                    for (uint y = 0; y < 2; y++)
+                    {
+                        float2 uv = float2(x, y);
+                        float2 s = float2(particle_width, particle_length);
+                        o.vertex = mul(float4(uv * 2 - 1, 0, 1) * s, billboard_matrix);
+                        o.vertex += y <= 1 ? pos : prev_pos;
 
-                o.vertex = TransformObjectToHClip(prev_pos.xyz * size);
-                o.color = col;
-                out_stream.Append(o);
+                        o.vertex = TransformObjectToHClip(o.vertex.xyz * size);
+
+                        out_stream.Append(o);
+                    }
 
                 out_stream.RestartStrip();
             }
