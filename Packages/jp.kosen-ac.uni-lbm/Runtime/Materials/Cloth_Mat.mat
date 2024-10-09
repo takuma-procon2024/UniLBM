@@ -104,6 +104,7 @@ Material:
     - _Metalic: 0.1
     - _Metallic: 0
     - _NormalLength: 1
+    - _NormalScale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -118,6 +119,8 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - external_force_mul: 100000
+    - normal_scale: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
