@@ -10,7 +10,7 @@ namespace DataStore
     {
         private readonly string _dataFilePath;
 
-        public DataStore(string dataFilePath, Data defaultData = default)
+        public DataStore(string dataFilePath)
         {
             _dataFilePath = dataFilePath;
 
@@ -20,7 +20,7 @@ namespace DataStore
             }
             else
             {
-                Data = defaultData;
+                Data = new Data();
                 Save();
             }
         }

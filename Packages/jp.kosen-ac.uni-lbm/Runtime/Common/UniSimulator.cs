@@ -83,6 +83,7 @@ namespace UniLbm.Common
         private InGameDebugWindow inGameDebugWindow;
 
         [SerializeField] private bool isEnableInGameDebug;
+        public bool IsEnableInGameDebug => isEnableInGameDebug;
 
         private void AddFieldToInGameDebugUI()
         {

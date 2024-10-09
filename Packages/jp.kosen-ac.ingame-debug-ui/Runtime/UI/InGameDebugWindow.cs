@@ -28,7 +28,7 @@ namespace UI
         private MotionHandle _motionHandle;
         private RectTransform _rectTransform;
 
-        private void Start()
+        private void Awake()
         {
             var path = Application.dataPath + "/" + dataFilePath;
             _dataStore = new DataStore.DataStore(path);
