@@ -55,7 +55,7 @@ namespace UniLbm.Lbm
             data.Dispose();
 
             // ComputeShaderを実行
-            var dispatchCount = (uint)(math.ceil(_sources.Length / 4f) * 4);
+            var dispatchCount = (uint)(math.ceil(_sources.Length / 8f) * 8);
             _shader.Dispatch(Kernels.set_powers, new uint3(dispatchCount, 1, 1));
         }
 
