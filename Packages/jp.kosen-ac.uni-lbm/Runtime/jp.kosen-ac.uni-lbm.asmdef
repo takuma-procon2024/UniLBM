@@ -3,7 +3,8 @@
     "rootNamespace": "UniLbm",
     "references": [
         "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:324caed91501a9c47a04ebfd87b68794"
+        "GUID:324caed91501a9c47a04ebfd87b68794",
+        "GUID:2a3432c0677d244498e0af6b63a9b24e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

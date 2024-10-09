@@ -1,4 +1,5 @@
 ﻿using TriInspector;
+using UI;
 using UniLbm.Cloth;
 using UniLbm.Lbm;
 using Unity.Mathematics;
@@ -40,22 +41,27 @@ namespace UniLbm.Common
                     Transform = clothRenderGo.transform.localToWorldMatrix
                 });
 
-            if (isEnableForceSource)
-                _forceSourceManager =
-                    new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
-            if (isEnableTofSensor)
-                _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
-                    new ClothTofSensorManager.Data
-                    {
-                        TofRadius = tofRadius,
-                        ClothTransform = clothRenderGo.transform.localToWorldMatrix
-                    });
-            if (isDrawObstacles) _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
+
+            _forceSourceManager =
+                new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
+
+            _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
+                new ClothTofSensorManager.Data
+                {
+                    TofRadius = tofRadius,
+                    ClothTransform = clothRenderGo.transform.localToWorldMatrix
+                });
+            _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
         private void Simulate()
         {
             _clothLbm.SetData(GetClothLbmData());
+            _particle.SetData(new LbmParticle.Data
+            {
+                ParticleSpeed = particleSpeed,
+                MaxLifetime = maxLifetime
+            });
             if (isEnableForceSource) _clothTofSensorManager.SetData(GetClothTofSensorData());
 
             // IMPORTANT: ここの順番大事!!
@@ -70,6 +76,51 @@ namespace UniLbm.Common
             _particle.Update(1 / 60f);
             if (isDrawObstacles) _obstacles.Update();
         }
+
+        #region Ingame Debug
+
+        [Title("InGame Debug")] [SerializeField]
+        private InGameDebugWindow inGameDebugWindow;
+
+        [SerializeField] private bool isEnableInGameDebug;
+
+        private void AddFieldToInGameDebugUI()
+        {
+            if (!isEnableInGameDebug) return;
+
+            var win = inGameDebugWindow;
+
+            win.AddField("ParticleSpeed", particleSpeed);
+            win.AddField("MaxLifetime", maxLifetime);
+            win.AddField("DrawObstacle", isDrawObstacles);
+            win.AddField("ClothVelScale", velocityScale);
+            win.AddField("ClothMaxVel", clothMaxVelocity);
+            win.AddField("ForceSource", isEnableForceSource);
+            win.AddField("ToF Sensor", isEnableTofSensor);
+        }
+
+        private void ApplyInGameDataToGameObj()
+        {
+            if (!isEnableInGameDebug) return;
+            var win = inGameDebugWindow;
+
+            if (win.TryGetField("ParticleSpeed", out float pSped))
+                particleSpeed = pSped;
+            if (win.TryGetField("MaxLifetime", out float maxLife))
+                maxLifetime = maxLife;
+            if (win.TryGetField("DrawObstacle", out bool drawObstacle))
+                isDrawObstacles = drawObstacle;
+            if (win.TryGetField("ClothVelScale", out float velScale))
+                velocityScale = velScale;
+            if (win.TryGetField("ClothMaxVel", out float maxVel))
+                clothMaxVelocity = maxVel;
+            if (win.TryGetField("ForceSource", out bool forceSource))
+                isEnableForceSource = forceSource;
+            if (win.TryGetField("ToF Sensor", out bool tofSensor))
+                isEnableTofSensor = tofSensor;
+        }
+
+        #endregion
 
         #region Util
 
@@ -116,11 +167,13 @@ namespace UniLbm.Common
         private void Start()
         {
             Initialize();
+            AddFieldToInGameDebugUI();
         }
 
         private void Update()
         {
             Simulate();
+            ApplyInGameDataToGameObj();
         }
 
         private void OnDestroy()
@@ -161,7 +214,6 @@ namespace UniLbm.Common
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
         [SerializeField] private float velocityScale = 1.0f;
         [SerializeField] private float clothMaxVelocity = 1000;
-        [SerializeField] private bool isClothDebug;
 
         [Title("Cloth LBM Integration")] [SerializeField]
         private ComputeShader clothLbmShader;

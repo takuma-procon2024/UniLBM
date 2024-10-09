@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UI
 {
-    public class MainWindow : MonoBehaviour
+    public class InGameDebugWindow : MonoBehaviour
     {
         [Header("Settings")] [SerializeField] private string dataFilePath = "data.json";
 
@@ -35,8 +35,6 @@ namespace UI
             TryGetComponent(out _rectTransform);
 
             _rectTransform.anchoredPosition = defaultPos;
-
-            AddField("Float Field", 0.5f);
         }
 
         private void Update()

@@ -510,3 +510,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handle: {fileID: 2883440784765025343}
   background: {fileID: 701441199365662701}
+  label: {fileID: 8437312274803753370}
+  valueText: {fileID: 243996610516343468}

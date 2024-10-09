@@ -34,7 +34,7 @@ namespace UniLbm.Lbm
 
             InitBuffers((int)oneSideParticleNum);
             SetBuffers();
-            SetData(in data);
+            SetData(in data, true);
 
             Bounds = (int)material.GetFloat(Props.size);
             _renderParams = new RenderParams(mat)
@@ -82,12 +82,16 @@ namespace UniLbm.Lbm
             _shader.SetBuffer(Kernels.update_particle, Uniforms.field, _lbmSolver.FieldBuffer);
         }
 
-        private void SetData(in Data data)
+        public void SetData(in Data data, bool isInit = false)
         {
+            if (isInit)
+            {
+                _shader.SetInt(Uniforms.cell_res, _lbmSolver.CellRes);
+                _shader.SetInt(Uniforms.one_side_particle_num, _oneSideParticleNum);
+            }
+
             _shader.SetFloat(Uniforms.particle_speed, data.ParticleSpeed);
             _shader.SetFloat(Uniforms.max_lifetime, data.MaxLifetime);
-            _shader.SetInt(Uniforms.cell_res, _lbmSolver.CellRes);
-            _shader.SetInt(Uniforms.one_side_particle_num, _oneSideParticleNum);
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]

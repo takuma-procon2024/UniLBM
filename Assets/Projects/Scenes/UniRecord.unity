@@ -1113,6 +1113,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2802d6ee262f48d98f9018ccb770e110, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inGameDebugWindow: {fileID: 1327084706}
+  isEnableInGameDebug: 1
   lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
   cellResolution: 64
   tau: 1.2
@@ -1140,7 +1142,6 @@ MonoBehaviour:
     z: 0
   velocityScale: 2000000
   clothMaxVelocity: 500
-  isClothDebug: 1
   clothLbmShader: {fileID: 7200000, guid: f203045f03954b2cbe6039115ef0fe70, type: 3}
   clothRenderGo: {fileID: 1923966160}
   clothLbmCellSize: 1
@@ -1496,6 +1497,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateSpeed: 1000
+--- !u!114 &1327084706 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7648725584487822385, guid: 337a28724a3074a4a8c9b0914db88af0,
+    type: 3}
+  m_PrefabInstance: {fileID: 1597503812486792888}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d022636a6769edb4b8f1c902eca9d785, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1350213745 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -706201475248262510, guid: 203683f7bfd434044bef21c7ce6916d8,
@@ -4364,6 +4377,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 19021878693125961, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19021878693125961, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19021878693125961, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1316104655763139948, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -4372,6 +4400,11 @@ PrefabInstance:
     - target: {fileID: 1316104655763139948, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1316104655763139948, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5305099990556434840, guid: 337a28724a3074a4a8c9b0914db88af0,
@@ -4479,6 +4512,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGameDebugUI
       objectReference: {fileID: 0}
+    - target: {fileID: 6129950908055705924, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6215129756875273640, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_SizeDelta.y
@@ -4487,7 +4525,18 @@ PrefabInstance:
     - target: {fileID: 6215129756875273640, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00000011920929
+      value: 0.000009408221
+      objectReference: {fileID: 0}
+    - target: {fileID: 7648725584487822385, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: sliderFieldPrefab
+      value: 
+      objectReference: {fileID: -5526306634059038671, guid: 95b21deb14ee81a4ebd986fa92bb385d,
+        type: 3}
+    - target: {fileID: 8684853487062327210, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -320
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
