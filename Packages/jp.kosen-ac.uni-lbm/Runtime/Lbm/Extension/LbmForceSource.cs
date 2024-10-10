@@ -20,5 +20,10 @@ namespace UniLbm.Lbm.Extension
         public float3 Force => transform.forward * forcePower;
         public uint3 CellSize => cellSize;
         public float3 Position => transform.position;
+
+        public void SetForce(float force)
+        {
+            forcePower = force;
+        }
     }
 }

@@ -85,25 +85,38 @@
                     return;
 
                 // 四角形になるように頂点を生成
-                float4x4 billboard_matrix = UNITY_MATRIX_V;
-                billboard_matrix._m03 = billboard_matrix._m13 = billboard_matrix._m23 = billboard_matrix._m33 = 0;
+                float3 cam_dir = pos.xyz - _WorldSpaceCameraPos;
+                float3 right = normalize(cross(cam_dir, dir));
+
+                float width = lerp(particle_width * 0.5f, particle_width, saturate(prev_pos.w / max_velocity));
+                float3 p00 = pos.xyz + right * width;
+                float3 p01 = pos.xyz - right * width;
+                float3 p10 = prev_pos.xyz + right * width;
+                float3 p11 = prev_pos.xyz - right * width;
+
+                bool cam_dot = abs(dot(normalize(cam_dir), normalize(dir))) > 0.3;
+                float4x4 bill_board = UNITY_MATRIX_V;
+                bill_board._m03 = bill_board._m13 = bill_board._m23 = bill_board._m33 = 0;
+                float qw = width * 1.3f;
+                p00 = cam_dot ? pos + mul(bill_board, float4(qw, qw, 0, 0)).xyz : p00;
+                p01 = cam_dot ? pos + mul(bill_board, float4(qw, -qw, 0, 0)).xyz : p01;
+                p10 = cam_dot ? pos + mul(bill_board, float4(-qw, qw, 0, 0)).xyz : p10;
+                p11 = cam_dot ? pos + mul(bill_board, float4(-qw, -qw, 0, 0)).xyz : p11;
 
                 g2f o;
                 o.color = col;
-                [unroll]
-                for (uint x = 0; x < 2; x++)
-                    [unroll]
-                    for (uint y = 0; y < 2; y++)
-                    {
-                        float2 uv = float2(x, y);
-                        float2 s = float2(particle_width, particle_length);
-                        o.vertex = mul(float4(uv * 2 - 1, 0, 1) * s, billboard_matrix);
-                        o.vertex += y <= 1 ? pos : prev_pos;
 
-                        o.vertex = TransformObjectToHClip(o.vertex.xyz * size);
+                o.vertex = TransformObjectToHClip(p00 * size);
+                out_stream.Append(o);
 
-                        out_stream.Append(o);
-                    }
+                o.vertex = TransformObjectToHClip(p01 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p10 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p11 * size);
+                out_stream.Append(o);
 
                 out_stream.RestartStrip();
             }

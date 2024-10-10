@@ -32,6 +32,7 @@ namespace UniLbm.Common
             win.AddField("ParticleMaxVel", _particleMatWrapper.GetFloat(ParticleProp.max_velocity));
             win.AddField("ParticleHueSpeed", _particleMatWrapper.GetFloat(ParticleProp.hue_speed));
             win.AddField("ParticleLength", _particleMatWrapper.GetFloat(ParticleProp.particle_length));
+            win.AddField("ParticleWidth", _particleMatWrapper.GetFloat(ParticleProp.particle_width));
             win.AddField("ClothExtForceMul", _clothMatWrapper.GetFloat(ClothProp.external_force_mul));
             win.AddField("ClothNormalScale", _clothMatWrapper.GetFloat(ClothProp.normal_scale));
             win.AddField("ShowExternalForce", _clothMatWrapper.GetBool(ClothShowExternalForce));
@@ -52,6 +53,8 @@ namespace UniLbm.Common
                 _particleMatWrapper.SetFloat(ParticleProp.hue_speed, particleHueSpeed);
             if (win.TryGetField("ParticleLength", out float particleLength))
                 _particleMatWrapper.SetFloat(ParticleProp.particle_length, particleLength);
+            if (win.TryGetField("ParticleWidth", out float particleWidth))
+                _particleMatWrapper.SetFloat(ParticleProp.particle_width, particleWidth);
             if (win.TryGetField("ClothExtForceMul", out float clothExtForceMul))
                 _clothMatWrapper.SetFloat(ClothProp.external_force_mul, clothExtForceMul);
             if (win.TryGetField("ClothNormalScale", out float clothNormalScale))
@@ -74,7 +77,8 @@ namespace UniLbm.Common
             min_velocity,
             max_velocity,
             hue_speed,
-            particle_length
+            particle_length,
+            particle_width
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
