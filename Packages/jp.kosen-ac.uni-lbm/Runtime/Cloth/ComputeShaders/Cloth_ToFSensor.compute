@@ -1,7 +1,5 @@
 ﻿#pragma kernel write_tof_data
 
-#pragma enable_d3d12_debug_symbols
-
 #define NUM_THREADS 8
 
 #include "Packages/jp.kosen-ac.uni-lbm/ShaderLibraly/lbm_utility.hlsl"
@@ -9,6 +7,9 @@
 //==============================================================================
 // 構造体等定義
 //==============================================================================
+/**
+ * ToFセンサのデータ
+ */
 struct tof_data
 {
     float distance;
@@ -45,24 +46,31 @@ void write_tof_data(uint3 id: SV_DispatchThreadID)
     tof_buffer.GetDimensions(sensor_cnt, _);
     cloth_pos_buffer.GetDimensions(cloth_width, cloth_height);
 
+    // 範囲外の場合は処理しない
     [flatten]
     if (id.x >= cloth_width || id.y >= cloth_height || id.z >= sensor_cnt)
         return;
 
     tof_data sensor = tof_buffer[id.z];
+    // 距離が負の場合は処理しない (無視することでToFセンサによる影響を無効化)
     [flatten]
     if (sensor.distance < 0.0f)
         return;
-    
+
+    // 布の一点を自然な位置からどれだけずらすかを計算
     float distance = sensor.distance - tof_default_distance;
     float4 cloth_pos = cloth_pos_buffer[id.xy];
     float4 trans_cloth_pos = mul(cloth_transform, cloth_pos);
 
+    // ToFセンサの位置と布の位置の差の二乗
     float pos_diff_sq = length_sq(trans_cloth_pos.xy - sensor.position);
+    // ToFセンサの位置と布の位置の差の大きさ
     float dist_diff = distance - cloth_pos.z;
 
+    // ToFセンサの影響範囲内であれば外部力を与える
     if (pos_diff_sq < tof_radius * tof_radius && abs(dist_diff) > 0.1f)
     {
+        // 円状に外部力を与える際に、外側を弱くする
         float tof_force = dist_diff * saturate((tof_radius * tof_radius - pos_diff_sq) / tof_radius);
         cloth_external_buffer[id.xy] = float4(0, 0, tof_force, 0);
     }

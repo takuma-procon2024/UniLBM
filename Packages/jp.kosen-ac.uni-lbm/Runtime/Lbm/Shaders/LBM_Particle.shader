@@ -66,7 +66,7 @@
                 return o;
             }
 
-            [maxvertexcount(4)]
+            [maxvertexcount(8)]
             void geom(point v2g input[1], inout TriangleStream<g2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
@@ -94,18 +94,20 @@
                 float3 p10 = prev_pos.xyz + right * width;
                 float3 p11 = prev_pos.xyz - right * width;
 
-                bool cam_dot = abs(dot(normalize(cam_dir), normalize(dir))) > 0.2;
-                float4x4 bill_board = UNITY_MATRIX_V;
-                bill_board._m03 = bill_board._m13 = bill_board._m23 = bill_board._m33 = 0;
-                float qw = width * 1.3f;
-                p00 = cam_dot ? pos + mul(bill_board, float4(qw, qw, 0, 0)).xyz : p00;
-                p01 = cam_dot ? pos + mul(bill_board, float4(qw, -qw, 0, 0)).xyz : p01;
-                p10 = cam_dot ? pos + mul(bill_board, float4(-qw, qw, 0, 0)).xyz : p10;
-                p11 = cam_dot ? pos + mul(bill_board, float4(-qw, -qw, 0, 0)).xyz : p11;
+                // カメラとの角度によってビルボードを切り替える
+                // bool cam_dot = abs(dot(normalize(cam_dir), normalize(dir))) > 0.5f;
+                // float4x4 bill_board = UNITY_MATRIX_V;
+                // bill_board._m03 = bill_board._m13 = bill_board._m23 = bill_board._m33 = 0;
+                // float qw = width * 1.3f;
+                // p00 = cam_dot ? pos + mul(bill_board, float4(qw, qw, 0, 0)).xyz : p00;
+                // p01 = cam_dot ? pos + mul(bill_board, float4(qw, -qw, 0, 0)).xyz : p01;
+                // p10 = cam_dot ? pos + mul(bill_board, float4(-qw, qw, 0, 0)).xyz : p10;
+                // p11 = cam_dot ? pos + mul(bill_board, float4(-qw, -qw, 0, 0)).xyz : p11;
 
                 g2f o;
                 o.color = col;
 
+                // 表面
                 o.vertex = TransformObjectToHClip(p00 * size);
                 out_stream.Append(o);
 
@@ -116,6 +118,19 @@
                 out_stream.Append(o);
 
                 o.vertex = TransformObjectToHClip(p11 * size);
+                out_stream.Append(o);
+
+                // 裏面
+                o.vertex = TransformObjectToHClip(p11 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p01 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p00 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p10 * size);
                 out_stream.Append(o);
 
                 out_stream.RestartStrip();

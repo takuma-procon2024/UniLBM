@@ -1,4 +1,8 @@
-﻿Shader "Unlit/LBM_Obstacles"
+﻿/**
+* LBMの境界を描画するためのデバッグ用シェーダー
+*/
+
+Shader "Unlit/LBM_Obstacles"
 {
     Properties
     {

@@ -85,13 +85,15 @@ void initialize(in uint3 id: SV_DispatchThreadID)
     uint cell_res = cell_res_int;
     uint idx = get_index(id, cell_res);
 
+    // 各方向への重みを計算して格納
     [unroll]
     for (int i = 0; i < Q; i++)
         f0[idx * Q + i] = f_base * w[i];
 
+    // 初期速度・密度を設定
     vel_dens[idx] = float4(0, 0, 0, f_base);
     field[idx] = any(id == 0) || any(id == cell_res - 1) ? OUTFLOW_BOUNDARY_TYPE : FLUID_TYPE;
-    external_force[idx] = all(id == uint3(32, 32, 32)) ? float3(0, 0, -0.02f) : float3(0, 0, 0);
+    external_force[idx] = float3(0, 0, 0);
 }
 
 //==============================================================================
@@ -125,6 +127,7 @@ void collision(in uint3 id: SV_DispatchThreadID)
     }
     else
     {
+        // バウンスバック
         [unroll]
         for (i = 0; i < Q; i++)
             f0[idx * Q + i] = f0[idx * Q + inv[i]];
@@ -203,8 +206,6 @@ void advection(in uint3 id: SV_DispatchThreadID)
     }
     else
     {
-        // new_u = vel_dens[idx].xyz;
-        // new_lo = vel_dens[idx].w;
         new_u = 0;
         new_lo = f_base;
     }
