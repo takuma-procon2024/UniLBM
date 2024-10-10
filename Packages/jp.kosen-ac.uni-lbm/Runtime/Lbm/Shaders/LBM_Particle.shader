@@ -94,7 +94,7 @@
                 float3 p10 = prev_pos.xyz + right * width;
                 float3 p11 = prev_pos.xyz - right * width;
 
-                bool cam_dot = abs(dot(normalize(cam_dir), normalize(dir))) > 0.3;
+                bool cam_dot = abs(dot(normalize(cam_dir), normalize(dir))) > 0.2;
                 float4x4 bill_board = UNITY_MATRIX_V;
                 bill_board._m03 = bill_board._m13 = bill_board._m23 = bill_board._m33 = 0;
                 float qw = width * 1.3f;

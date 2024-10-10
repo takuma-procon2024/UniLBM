@@ -28,6 +28,8 @@ RWTexture2D<float4> cloth_external_buffer;
 float tof_radius;
 // 布の座標変換行列
 float4x4 cloth_transform;
+// tofセンサの自然距離 (通常時の距離)
+float tof_default_distance;
 
 //==============================================================================
 // ToFデータ書き込み用カーネル
@@ -52,15 +54,16 @@ void write_tof_data(uint3 id: SV_DispatchThreadID)
     if (sensor.distance < 0.0f)
         return;
     
+    float distance = sensor.distance - tof_default_distance;
     float4 cloth_pos = cloth_pos_buffer[id.xy];
     float4 trans_cloth_pos = mul(cloth_transform, cloth_pos);
 
     float pos_diff_sq = length_sq(trans_cloth_pos.xy - sensor.position);
-    float dist_diff = sensor.distance - cloth_pos.z;
-    
+    float dist_diff = distance - cloth_pos.z;
+
     if (pos_diff_sq < tof_radius * tof_radius && abs(dist_diff) > 0.1f)
     {
         float tof_force = dist_diff * saturate((tof_radius * tof_radius - pos_diff_sq) / tof_radius);
-        cloth_external_buffer[id.xy] += float4(0, 0, tof_force, 0);
+        cloth_external_buffer[id.xy] = float4(0, 0, tof_force, 0);
     }
 }

@@ -20,7 +20,7 @@ namespace UniLbm.Common
         {
             TryGetComponent(out _simulator);
 
-            if (!_simulator.isActiveAndEnabled) return;
+            if (!_simulator.IsEnableInGameDebug) return;
 
             _obstacleMatWrapper = new MaterialWrapper<ObstacleProp>(obstacleMat);
             _particleMatWrapper = new MaterialWrapper<ParticleProp>(particleMat);
@@ -40,7 +40,7 @@ namespace UniLbm.Common
 
         private void Update()
         {
-            if (!_simulator.isActiveAndEnabled) return;
+            if (!_simulator.IsEnableInGameDebug) return;
 
             var win = inGameDebugWindow;
             if (win.TryGetField("ObstacleVelScale", out float obstacleVelScale))

@@ -62,7 +62,7 @@ namespace UniLbm.Common
                 ParticleSpeed = particleSpeed,
                 MaxLifetime = maxLifetime
             });
-            if (isEnableForceSource) _clothTofSensorManager.SetData(GetClothTofSensorData());
+            if (isEnableTofSensor) _clothTofSensorManager.SetData(GetClothTofSensorData());
 
             // IMPORTANT: ここの順番大事!!
             _lbmSolver.ResetField();
@@ -98,6 +98,7 @@ namespace UniLbm.Common
             win.AddField("ClothMaxVel", clothMaxVelocity);
             win.AddField("ForceSource", isEnableForceSource);
             win.AddField("ToF Sensor", isEnableTofSensor);
+            win.AddField("ToFDefaultDistance", tofDefaultDistance);
         }
 
         private void ApplyInGameDataToGameObj()
@@ -105,8 +106,8 @@ namespace UniLbm.Common
             if (!isEnableInGameDebug) return;
             var win = inGameDebugWindow;
 
-            if (win.TryGetField("ParticleSpeed", out float pSped))
-                particleSpeed = pSped;
+            if (win.TryGetField("ParticleSpeed", out float pSpeed))
+                particleSpeed = pSpeed;
             if (win.TryGetField("MaxLifetime", out float maxLife))
                 maxLifetime = maxLife;
             if (win.TryGetField("DrawObstacle", out bool drawObstacle))
@@ -119,6 +120,8 @@ namespace UniLbm.Common
                 isEnableForceSource = forceSource;
             if (win.TryGetField("ToF Sensor", out bool tofSensor))
                 isEnableTofSensor = tofSensor;
+            if (win.TryGetField("ToFDefaultDistance", out float tofDist))
+                tofDefaultDistance = tofDist;
         }
 
         #endregion
@@ -157,7 +160,8 @@ namespace UniLbm.Common
             return new ClothTofSensorManager.Data
             {
                 TofRadius = tofRadius,
-                ClothTransform = childTrans.localToWorldMatrix
+                ClothTransform = childTrans.localToWorldMatrix,
+                TofDefaultDistance = tofDefaultDistance
             };
         }
 
@@ -231,6 +235,7 @@ namespace UniLbm.Common
         [Title("ToF Sensor")] [SerializeField] private ComputeShader tofSensorShader;
         [SerializeField] private GameObject tofSensorRoot;
         [SerializeField] private float tofRadius = 2f;
+        [SerializeField] private float tofDefaultDistance = 2f;
         [SerializeField] private bool isEnableTofSensor;
 
         #endregion
