@@ -27,6 +27,12 @@ namespace UI
             _dataStore = inGameDebugWindow.DataStore;
             LoadData(cam.position, proj, defaultFov, defaultAspect);
 
+            gameObject.SetActive(false);
+            inGameDebugWindow.AddField("OpenCorrectCamera", () =>
+            {
+                inGameDebugWindow.Close();
+                gameObject.SetActive(true);
+            });
             closeBtn.onClick.AddListener(CloseWindow);
         }
 
@@ -38,7 +44,7 @@ namespace UI
         private void LoadData(in float3 pos, in float4 proj, float defaultFov, float defaultAspect)
         {
             fovField.Range = new float2(1, 179);
-            
+
             camPosField.Value = _dataStore.TryGetData("CamPos", out float4 camX) ? camX : new float4(pos, 0);
             camProjField.Value = _dataStore.TryGetData("CamProj", out float4 camY) ? camY : proj;
             fovField.Value = _dataStore.TryGetData("Fov", out float fov) ? fov : defaultFov;
@@ -68,19 +74,19 @@ namespace UI
             get => camProjField.Value;
             set => camProjField.Value = value;
         }
-        
+
         public float Fov
         {
             get => fovField.Value;
             set => fovField.Value = value;
         }
-        
+
         public float Aspect
         {
             get => aspectField.Value;
             set => aspectField.Value = value;
         }
-        
+
         public bool UseFrustum
         {
             get => useFrustumField.Value;

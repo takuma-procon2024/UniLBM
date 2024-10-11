@@ -13,6 +13,7 @@ namespace UniLbm.Lbm
 
         private void Start()
         {
+            clothCorrectCameraUI.gameObject.SetActive(true);
             clothCorrectCameraUI.Initialize(correctCamera.transform, new float4(1, -1, 1, -1),
                 correctCamera.fieldOfView, correctCamera.aspect);
         }

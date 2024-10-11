@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UI.FieldUI;
 using Unity.Mathematics;
@@ -22,10 +23,11 @@ namespace UI
         [SerializeField] private BoolFieldUI boolFieldPrefab;
         [SerializeField] private StringFieldUI stringFieldPrefab;
         [SerializeField] private SliderFieldUI sliderFieldPrefab;
-        
-        public DataStore.DataStore DataStore { get; private set; }
+        [SerializeField] private ButtonFieldUI buttonFieldPrefab;
         private bool _isOpen;
         private RectTransform _rectTransform;
+
+        public DataStore.DataStore DataStore { get; private set; }
 
         private void Awake()
         {
@@ -52,8 +54,22 @@ namespace UI
             if (IsInMotion()) return;
             if (!IsPressOpenKey()) return;
 
-            MoveWindow(_isOpen ? activePos : defaultPos, _isOpen ? defaultPos : activePos, 0.3f);
-            _isOpen = !_isOpen;
+            if (_isOpen) Close();
+            else Open();
+        }
+
+        public void Open()
+        {
+            if (_isOpen) return;
+            MoveWindow(defaultPos, activePos, 0.3f);
+            _isOpen = true;
+        }
+
+        public void Close()
+        {
+            if (!_isOpen) return;
+            MoveWindow(activePos, defaultPos, 0.3f);
+            _isOpen = false;
         }
 
         private bool IsPressOpenKey()
@@ -223,6 +239,12 @@ namespace UI
         private readonly Dictionary<string, StringFieldUI> _stringFields = new();
         private readonly Dictionary<string, SliderFieldUI> _sliderFields = new();
 
+        public void AddField(string fieldName, in Action onClick)
+        {
+            var field = Instantiate(buttonFieldPrefab, content);
+            field.Label = fieldName;
+            field.OnClick += onClick;
+        }
 
         public void AddField(string fieldName, float value)
         {
