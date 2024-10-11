@@ -3,7 +3,7 @@ using TriInspector;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Projects.Scripts
+namespace UniLbm.Uni
 {
     public class TofPlacer : MonoBehaviour
     {

@@ -2,7 +2,7 @@
 using UniLbm.Lbm.Extension;
 using UnityEngine;
 
-namespace Projects.Scripts
+namespace UniLbm.Uni
 {
     public class FanTest : MonoBehaviour
     {
