@@ -27,7 +27,7 @@ namespace UniLbm.Cloth
             mat.SetTexture(Props._normal_tex, solver.NormalBuffer);
             mat.SetTexture(Props._external_force_tex, solver.ExternalForceBuffer);
 
-            meshFilter.mesh = new Mesh();
+            meshFilter.sharedMesh = new Mesh();
             GenerateMesh(meshFilter.mesh, meshRenderer, solver);
         }
 

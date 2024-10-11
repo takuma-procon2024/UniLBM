@@ -34,17 +34,16 @@ namespace UniLbm.Common
                     MaxLifetime = maxLifetime
                 });
             ClothRenderer.Initialize(clothMaterial, clothRenderGo, _clothSolver);
+            if (isEnableUnlitCloth)
+                UnlitClothRenderer.Initialize(unlitClothMaterial, unlitClothRenderGo, clothRenderGo, _clothSolver);
             _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, _particle,
                 new ClothLbmIntegrator.Data
                 {
                     LbmCellSize = clothLbmCellSize,
                     Transform = clothRenderGo.transform.localToWorldMatrix
                 });
-
-
             _forceSourceManager =
                 new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
-
             _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
                 new ClothTofSensorManager.Data
                 {
@@ -237,6 +236,10 @@ namespace UniLbm.Common
         [SerializeField] private float tofRadius = 2f;
         [SerializeField] private float tofDefaultDistance = 2f;
         [SerializeField] private bool isEnableTofSensor;
+        
+        [Title("Unlit Cloth")] [SerializeField] private bool isEnableUnlitCloth;
+        [SerializeField] private Material unlitClothMaterial;
+        [SerializeField] private GameObject unlitClothRenderGo;
 
         #endregion
     }
