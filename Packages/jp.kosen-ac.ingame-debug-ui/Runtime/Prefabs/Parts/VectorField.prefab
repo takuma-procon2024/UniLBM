@@ -889,7 +889,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7794658483343264423}
-  - component: {fileID: 1692944733216089623}
+  - component: {fileID: 7903738581083968270}
   m_Layer: 5
   m_Name: VectorField
   m_TagString: Untagged
@@ -918,7 +918,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1692944733216089623
+--- !u!114 &7903738581083968270
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -927,10 +927,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3114923946432044434}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bbaaa57c7a846a68b54c718c7a650ec, type: 3}
+  m_Script: {fileID: 11500000, guid: c7dc733e3f9845998037fb68d5d6874e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 3931539192165992069}
+  inputFields:
+  - {fileID: 3931539192165992069}
+  - {fileID: 8666547205658265737}
+  - {fileID: 7812384708281468849}
+  - {fileID: 466340016070309637}
   label: {fileID: 6032633603403765241}
 --- !u!1 &3449323390930233367
 GameObject:

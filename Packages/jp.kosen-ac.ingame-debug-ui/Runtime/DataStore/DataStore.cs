@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace DataStore
@@ -58,7 +59,8 @@ namespace DataStore
                 floatFields = _floatFields.Select(v => new FloatField { name = v.Key, value = v.Value }).ToList(),
                 intFields = _intFields.Select(v => new IntField { name = v.Key, value = v.Value }).ToList(),
                 stringFields = _stringFields.Select(v => new StringField { name = v.Key, value = v.Value }).ToList(),
-                boolFields = _boolFields.Select(v => new BoolField { name = v.Key, value = v.Value }).ToList()
+                boolFields = _boolFields.Select(v => new BoolField { name = v.Key, value = v.Value }).ToList(),
+                vectorFields = _vectorFields.Select(v => new VectorField { name = v.Key, value = v.Value }).ToList()
             };
             set
             {
@@ -71,6 +73,7 @@ namespace DataStore
                 foreach (var field in value.intFields) _intFields[field.name] = field.value;
                 foreach (var field in value.stringFields) _stringFields[field.name] = field.value;
                 foreach (var field in value.boolFields) _boolFields[field.name] = field.value;
+                foreach (var field in value.vectorFields) _vectorFields[field.name] = field.value;
             }
         }
 
@@ -78,6 +81,7 @@ namespace DataStore
         private readonly Dictionary<string, float> _floatFields = new();
         private readonly Dictionary<string, int> _intFields = new();
         private readonly Dictionary<string, string> _stringFields = new();
+        private readonly Dictionary<string, float4> _vectorFields = new();
 
         public bool TryGetData(string name, out float data)
         {
@@ -98,6 +102,11 @@ namespace DataStore
         {
             return _boolFields.TryGetValue(name, out data);
         }
+        
+        public bool TryGetData(string name, out float4 data)
+        {
+            return _vectorFields.TryGetValue(name, out data);
+        }
 
         public void SetData(string name, float data)
         {
@@ -117,6 +126,11 @@ namespace DataStore
         public void SetData(string name, bool data)
         {
             _boolFields[name] = data;
+        }
+        
+        public void SetData(string name, in float4 data)
+        {
+            _vectorFields[name] = data;
         }
 
         #endregion

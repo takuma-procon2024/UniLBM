@@ -1,5 +1,4 @@
-﻿using System;
-using UI.FieldUI;
+﻿using UI.FieldUI;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,23 +8,26 @@ namespace UI
     public class ClothCorrectCameraUI : MonoBehaviour
     {
         [SerializeField] private Button closeBtn;
-        [SerializeField] private FloatFieldUI camXField, camYField;
+        [SerializeField] private VectorFieldUI camPosField;
+        [SerializeField] private VectorFieldUI camProjField;
         [SerializeField] private SliderFieldUI fovField;
+        [SerializeField] private FloatFieldUI aspectField;
+        [SerializeField] private BoolFieldUI useFrustumField;
         [SerializeField] private InGameDebugWindow inGameDebugWindow;
 
         private DataStore.DataStore _dataStore;
 
-        private void Start()
-        {
-            _dataStore = inGameDebugWindow.DataStore;
-            LoadData();
-
-            closeBtn.onClick.AddListener(CloseWindow);
-        }
-
         private void Update()
         {
             SaveData();
+        }
+
+        public void Initialize(Transform cam, in float4 proj, float defaultFov, float defaultAspect)
+        {
+            _dataStore = inGameDebugWindow.DataStore;
+            LoadData(cam.position, proj, defaultFov, defaultAspect);
+
+            closeBtn.onClick.AddListener(CloseWindow);
         }
 
         private void CloseWindow()
@@ -33,40 +35,56 @@ namespace UI
             gameObject.SetActive(false);
         }
 
-        private void LoadData()
+        private void LoadData(in float3 pos, in float4 proj, float defaultFov, float defaultAspect)
         {
-            fovField.Range = new float2(5, 179);
+            fovField.Range = new float2(1, 179);
             
-            if (_dataStore.TryGetData("CamX", out float camX)) camXField.Value = camX;
-            if (_dataStore.TryGetData("CamY", out float camY)) camYField.Value = camY;
-            if (_dataStore.TryGetData("Fov", out float fov)) fovField.Value = fov;
+            camPosField.Value = _dataStore.TryGetData("CamPos", out float4 camX) ? camX : new float4(pos, 0);
+            camProjField.Value = _dataStore.TryGetData("CamProj", out float4 camY) ? camY : proj;
+            fovField.Value = _dataStore.TryGetData("Fov", out float fov) ? fov : defaultFov;
+            aspectField.Value = _dataStore.TryGetData("Aspect", out float aspect) ? aspect : defaultAspect;
+            useFrustumField.Value = _dataStore.TryGetData("UseFrustum", out bool useFrustum) && useFrustum;
         }
 
         private void SaveData()
         {
-            _dataStore.SetData("CamX", camXField.Value);
-            _dataStore.SetData("CamY", camYField.Value);
+            _dataStore.SetData("CamPos", camPosField.Value);
+            _dataStore.SetData("CamProj", camProjField.Value);
             _dataStore.SetData("Fov", fovField.Value);
+            _dataStore.SetData("Aspect", aspectField.Value);
+            _dataStore.SetData("UseFrustum", useFrustumField.Value);
         }
 
         #region Properties
 
-        public float CamX
+        public float4 CamPos
         {
-            get => camXField.Value;
-            set => camXField.Value = value;
+            get => camPosField.Value;
+            set => camPosField.Value = value;
         }
 
-        public float CamY
+        public float4 CamProj
         {
-            get => camYField.Value;
-            set => camYField.Value = value;
+            get => camProjField.Value;
+            set => camProjField.Value = value;
         }
-
+        
         public float Fov
         {
             get => fovField.Value;
             set => fovField.Value = value;
+        }
+        
+        public float Aspect
+        {
+            get => aspectField.Value;
+            set => aspectField.Value = value;
+        }
+        
+        public bool UseFrustum
+        {
+            get => useFrustumField.Value;
+            set => useFrustumField.Value = value;
         }
 
         #endregion

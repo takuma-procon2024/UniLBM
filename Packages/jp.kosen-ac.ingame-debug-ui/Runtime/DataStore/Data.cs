@@ -11,6 +11,7 @@ namespace DataStore
         public List<IntField> intFields = new();
         public List<StringField> stringFields = new();
         public List<BoolField> boolFields = new();
+        public List<VectorField> vectorFields = new();
     }
 
     [Serializable]

@@ -1,4 +1,5 @@
 ﻿using UI;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace UniLbm.Lbm
@@ -8,14 +9,40 @@ namespace UniLbm.Lbm
         [SerializeField] private Camera correctCamera;
         [SerializeField] private ClothCorrectCameraUI clothCorrectCameraUI;
 
+        private float4 _prevProjParam;
+
+        private void Start()
+        {
+            clothCorrectCameraUI.Initialize(correctCamera.transform, new float4(1, -1, 1, -1),
+                correctCamera.fieldOfView, correctCamera.aspect);
+        }
+
         private void Update()
         {
-            correctCamera.fieldOfView = clothCorrectCameraUI.Fov;
-            correctCamera.transform.position = new Vector3(
-                clothCorrectCameraUI.CamX,
-                clothCorrectCameraUI.CamY,
-                correctCamera.transform.position.z
-            );
+            correctCamera.transform.position = clothCorrectCameraUI.CamPos.xyz;
+            SetCameraProjectionMatrix();
+        }
+
+        private void SetCameraProjectionMatrix()
+        {
+            var projParam = clothCorrectCameraUI.CamProj;
+            if (projParam.x <= projParam.y || projParam.z <= projParam.w)
+            {
+                clothCorrectCameraUI.CamProj = _prevProjParam;
+                return;
+            }
+
+            var proj = clothCorrectCameraUI.UseFrustum
+                ? Matrix4x4.Frustum(
+                    projParam.w, projParam.z, projParam.y, projParam.x,
+                    correctCamera.nearClipPlane, correctCamera.farClipPlane
+                )
+                : Matrix4x4.Perspective(
+                    clothCorrectCameraUI.Fov, clothCorrectCameraUI.Aspect,
+                    correctCamera.nearClipPlane, correctCamera.farClipPlane
+                );
+            correctCamera.projectionMatrix = proj;
+            _prevProjParam = projParam;
         }
     }
 }
