@@ -63,7 +63,7 @@ namespace UI.FieldUI
             while (time < duration)
             {
                 time += Time.deltaTime;
-                var t = time / duration;
+                var t = math.saturate(time / duration);
                 var et = EaseInOutQuad(t);
                 handle.anchorMin = new Vector2(math.lerp(start, end, et), 0.5f);
                 handle.anchorMax = new Vector2(math.lerp(start, end, et), 0.5f);

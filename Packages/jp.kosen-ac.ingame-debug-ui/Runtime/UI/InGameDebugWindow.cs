@@ -22,15 +22,15 @@ namespace UI
         [SerializeField] private BoolFieldUI boolFieldPrefab;
         [SerializeField] private StringFieldUI stringFieldPrefab;
         [SerializeField] private SliderFieldUI sliderFieldPrefab;
-        private DataStore.DataStore _dataStore;
-
+        
+        public DataStore.DataStore DataStore { get; private set; }
         private bool _isOpen;
         private RectTransform _rectTransform;
 
         private void Awake()
         {
             var path = Application.dataPath + "/" + dataFilePath;
-            _dataStore = new DataStore.DataStore(path);
+            DataStore = new DataStore.DataStore(path);
             TryGetComponent(out _rectTransform);
 
             _rectTransform.anchoredPosition = defaultPos;
@@ -44,7 +44,7 @@ namespace UI
         private void OnDestroy()
         {
             ApplyValueToDataStore();
-            _dataStore.Dispose();
+            DataStore.Dispose();
         }
 
         private void OpenAndClose()
@@ -63,11 +63,11 @@ namespace UI
 
         private void ApplyValueToDataStore()
         {
-            foreach (var field in _floatFields) _dataStore.SetData(field.Key, field.Value.Value);
-            foreach (var field in _intFields) _dataStore.SetData(field.Key, field.Value.Value);
-            foreach (var field in _boolFields) _dataStore.SetData(field.Key, field.Value.Value);
-            foreach (var field in _stringFields) _dataStore.SetData(field.Key, field.Value.Value);
-            foreach (var field in _sliderFields) _dataStore.SetData(field.Key, field.Value);
+            foreach (var field in _floatFields) DataStore.SetData(field.Key, field.Value.Value);
+            foreach (var field in _intFields) DataStore.SetData(field.Key, field.Value.Value);
+            foreach (var field in _boolFields) DataStore.SetData(field.Key, field.Value.Value);
+            foreach (var field in _stringFields) DataStore.SetData(field.Key, field.Value.Value);
+            foreach (var field in _sliderFields) DataStore.SetData(field.Key, field.Value);
         }
 
         #region Util
@@ -97,7 +97,7 @@ namespace UI
             while (time < duration)
             {
                 time += Time.deltaTime;
-                var t = time / duration;
+                var t = math.saturate(time / duration);
                 _rectTransform.anchoredPosition = math.lerp(start, end, EaseInOutQuad(t));
                 yield return null;
             }
@@ -228,7 +228,7 @@ namespace UI
         {
             var field = Instantiate(floatFieldPrefab, content);
             field.Label = fieldName;
-            field.Value = _dataStore.TryGetData(fieldName, out float data) ? data : value;
+            field.Value = DataStore.TryGetData(fieldName, out float data) ? data : value;
 
             _floatFields.Add(fieldName, field);
         }
@@ -237,7 +237,7 @@ namespace UI
         {
             var field = Instantiate(intFieldPrefab, content);
             field.Label = fieldName;
-            field.Value = _dataStore.TryGetData(fieldName, out int data) ? data : value;
+            field.Value = DataStore.TryGetData(fieldName, out int data) ? data : value;
 
             _intFields.Add(fieldName, field);
         }
@@ -246,7 +246,7 @@ namespace UI
         {
             var field = Instantiate(boolFieldPrefab, content);
             field.Label = fieldName;
-            field.Value = _dataStore.TryGetData(fieldName, out bool data) ? data : value;
+            field.Value = DataStore.TryGetData(fieldName, out bool data) ? data : value;
 
             _boolFields.Add(fieldName, field);
         }
@@ -255,7 +255,7 @@ namespace UI
         {
             var field = Instantiate(stringFieldPrefab, content);
             field.Label = fieldName;
-            field.Value = _dataStore.TryGetData(fieldName, out string data) ? data : value;
+            field.Value = DataStore.TryGetData(fieldName, out string data) ? data : value;
 
             _stringFields.Add(fieldName, field);
         }
@@ -264,7 +264,7 @@ namespace UI
         {
             var field = Instantiate(sliderFieldPrefab, content);
             field.Label = fieldName;
-            field.Value = _dataStore.TryGetData(fieldName, out float data) ? data : value;
+            field.Value = DataStore.TryGetData(fieldName, out float data) ? data : value;
             field.Range = new float2(min, max);
 
             _sliderFields.Add(fieldName, field);

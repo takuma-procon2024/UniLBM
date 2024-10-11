@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,11 +31,12 @@ namespace UI.FieldUI
         public float Value
         {
             get => slider.value;
-            set
-            {
-                slider.value = value;
-                valueLabel.text = value.ToString("F2");
-            }
+            set => slider.value = value;
+        }
+
+        private void Update()
+        {
+            valueLabel.text = Value.ToString("F2");
         }
     }
 }
