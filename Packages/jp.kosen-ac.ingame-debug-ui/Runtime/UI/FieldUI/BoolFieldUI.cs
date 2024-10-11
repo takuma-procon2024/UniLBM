@@ -1,5 +1,6 @@
-﻿using LitMotion;
+﻿using System.Collections;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -29,14 +30,7 @@ namespace UI.FieldUI
             {
                 _value = value;
                 valueText.text = value ? "ON" : "OFF";
-                LMotion.Create(value ? 0f : 1f, value ? 1f : 0f, 0.1f)
-                    .WithEase(Ease.InOutQuad)
-                    .Bind(v =>
-                    {
-                        handle.anchorMin = new Vector2(v, 0.5f);
-                        handle.anchorMax = new Vector2(v, 0.5f);
-                        handle.pivot = new Vector2(v, 0.5f);
-                    });
+                StartCoroutine(MoveHandleCoroutine(Value ? 0f : 1f, Value ? 1f : 0f, 0.1f));
             }
         }
 
@@ -55,5 +49,29 @@ namespace UI.FieldUI
         {
             Value = !Value;
         }
+
+        #region Easing
+
+        private static float EaseInOutQuad(float x)
+        {
+            return x < 0.5f ? 2.0f * x * x : 1.0f - math.pow(-2.0f * x + 2.0f, 2.0f) / 2.0f;
+        }
+
+        private IEnumerator MoveHandleCoroutine(float start, float end, float duration)
+        {
+            var time = 0f;
+            while (time < duration)
+            {
+                time += Time.deltaTime;
+                var t = time / duration;
+                var et = EaseInOutQuad(t);
+                handle.anchorMin = new Vector2(math.lerp(start, end, et), 0.5f);
+                handle.anchorMax = new Vector2(math.lerp(start, end, et), 0.5f);
+                handle.pivot = new Vector2(math.lerp(start, end, et), 0.5f);
+                yield return null;
+            }
+        }
+
+        #endregion
     }
 }

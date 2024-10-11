@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.annulusgames.lit-motion": "https://github.com/AnnulusGames/LitMotion.git?path=src/LitMotion/Assets/LitMotion",
     "com.codewriter.triinspector": "https://github.com/codewriter-packages/Tri-Inspector.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ide.rider": "3.0.31",

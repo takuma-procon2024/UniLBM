@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using LitMotion;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UI.FieldUI;
 using Unity.Mathematics;
 using UnityEngine;
@@ -25,7 +25,6 @@ namespace UI
         private DataStore.DataStore _dataStore;
 
         private bool _isOpen;
-        private MotionHandle _motionHandle;
         private RectTransform _rectTransform;
 
         private void Awake()
@@ -50,13 +49,10 @@ namespace UI
 
         private void OpenAndClose()
         {
-            if (_motionHandle.IsActive()) return;
+            if (IsInMotion()) return;
             if (!IsPressOpenKey()) return;
 
-            _motionHandle =
-                LMotion.Create(_isOpen ? activePos : defaultPos, _isOpen ? defaultPos : activePos, 0.3f)
-                    .WithEase(Ease.InOutQuad)
-                    .Bind(v => _rectTransform.anchoredPosition = v);
+            MoveWindow(_isOpen ? activePos : defaultPos, _isOpen ? defaultPos : activePos, 0.3f);
             _isOpen = !_isOpen;
         }
 
@@ -73,6 +69,43 @@ namespace UI
             foreach (var field in _stringFields) _dataStore.SetData(field.Key, field.Value.Value);
             foreach (var field in _sliderFields) _dataStore.SetData(field.Key, field.Value);
         }
+
+        #region Util
+
+        private IEnumerator _moveWindowHandle;
+
+        private static float EaseInOutQuad(float x)
+        {
+            return x < 0.5f ? 2.0f * x * x : 1.0f - math.pow(-2.0f * x + 2.0f, 2.0f) / 2.0f;
+        }
+
+        private bool IsInMotion()
+        {
+            return _moveWindowHandle != null;
+        }
+
+        private void MoveWindow(in float2 start, in float2 end, float duration)
+        {
+            if (IsInMotion()) return;
+            _moveWindowHandle = MoveWindowCoroutine(start, end, duration);
+            StartCoroutine(_moveWindowHandle);
+        }
+
+        private IEnumerator MoveWindowCoroutine(float2 start, float2 end, float duration)
+        {
+            var time = 0f;
+            while (time < duration)
+            {
+                time += Time.deltaTime;
+                var t = time / duration;
+                _rectTransform.anchoredPosition = math.lerp(start, end, EaseInOutQuad(t));
+                yield return null;
+            }
+
+            _moveWindowHandle = null;
+        }
+
+        #endregion
 
         #region Get Field & Set Field
 
