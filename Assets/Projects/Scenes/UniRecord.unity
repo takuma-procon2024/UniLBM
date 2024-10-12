@@ -325,7 +325,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485627183}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: UnlitClothRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -803,12 +803,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 1
+  m_RenderShadows: 0
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: -1
+  m_RendererIndex: 1
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
@@ -2173,6 +2173,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1546228648}
+  - {fileID: 1444428478}
   - {fileID: 132403217}
   - {fileID: 962691104}
   - {fileID: 1923966161}
@@ -2182,4 +2183,3 @@ SceneRoots:
   - {fileID: 4589872267997209892}
   - {fileID: 1597503812486792888}
   - {fileID: 1371668738}
-  - {fileID: 1444428478}
