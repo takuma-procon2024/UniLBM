@@ -87,12 +87,12 @@ namespace UniLbm.Cloth
 
         public void SetData(in Data data)
         {
+            _distanceScale = data.DistanceScale;
+            
             _shader.SetFloat(Uniforms.tof_radius, data.TofRadius);
             _shader.SetMatrix(Uniforms.cloth_transform, data.ClothTransform);
             _shader.SetFloat(Uniforms.tof_default_distance, data.TofDefaultDistance * _distanceScale);
             _shader.SetFloat(Uniforms.force_scale, data.ForceScale);
-
-            _distanceScale = data.DistanceScale;
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
