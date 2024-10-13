@@ -90,6 +90,8 @@ namespace UniLbm.Common
             win.AddField("ForceSource", isEnableForceSource);
             win.AddField("ToF Sensor", isEnableTofSensor);
             win.AddField("ToFDefaultDistance", tofDefaultDistance);
+            win.AddField("TofForceScale", tofForceScale);
+            win.AddField("TofDistanceScale", tofDistanceScale);
         }
 
         private void ApplyInGameDataToGameObj()
@@ -113,6 +115,10 @@ namespace UniLbm.Common
                 isEnableTofSensor = tofSensor;
             if (win.TryGetField("ToFDefaultDistance", out float tofDist))
                 tofDefaultDistance = tofDist;
+            if (win.TryGetField("TofForceScale", out float tofFScale))
+                tofForceScale = tofFScale;
+            if (win.TryGetField("TofDistanceScale", out float tofDScale))
+                tofDistanceScale = tofDScale;
         }
 
         #endregion
