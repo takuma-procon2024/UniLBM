@@ -37,25 +37,17 @@ namespace UniLbm.Common
             if (isEnableUnlitCloth)
                 UnlitClothRenderer.Initialize(unlitClothMaterial, unlitClothRenderGo, clothRenderGo, _clothSolver);
             _clothLbm = new ClothLbmIntegrator(clothLbmShader, _clothSolver, _lbmSolver, _particle,
-                new ClothLbmIntegrator.Data
-                {
-                    LbmCellSize = clothLbmCellSize,
-                    Transform = clothRenderGo.transform.localToWorldMatrix
-                });
+                GetClothLbmIntegratorData());
             _forceSourceManager =
                 new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
             _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
-                new ClothTofSensorManager.Data
-                {
-                    TofRadius = tofRadius,
-                    ClothTransform = clothRenderGo.transform.localToWorldMatrix
-                });
+                GetClothTofSensorData());
             _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
         }
 
         private void Simulate()
         {
-            _clothLbm.SetData(GetClothLbmData());
+            _clothLbm.SetData(GetClothLbmIntegratorData());
             _particle.SetData(new LbmParticle.Data
             {
                 ParticleSpeed = particleSpeed,
@@ -143,7 +135,7 @@ namespace UniLbm.Common
             };
         }
 
-        private ClothLbmIntegrator.Data GetClothLbmData()
+        private ClothLbmIntegrator.Data GetClothLbmIntegratorData()
         {
             var childTrans = clothRenderGo.transform;
             return new ClothLbmIntegrator.Data
@@ -236,12 +228,14 @@ namespace UniLbm.Common
         [Title("ToF Sensor")] [SerializeField] private ComputeShader tofSensorShader;
         [SerializeField] private GameObject tofSensorRoot;
         [SerializeField] private float tofRadius = 2f;
-        [SerializeField] private float tofDefaultDistance = 2f;
+        [SerializeField] private float tofDefaultDistance = 20f;
         [SerializeField] private float tofForceScale = 1;
         [SerializeField] private float tofDistanceScale = 0.005f;
         [SerializeField] private bool isEnableTofSensor;
-        
-        [Title("Unlit Cloth")] [SerializeField] private bool isEnableUnlitCloth;
+
+        [Title("Unlit Cloth")] [SerializeField]
+        private bool isEnableUnlitCloth;
+
         [SerializeField] private Material unlitClothMaterial;
         [SerializeField] private GameObject unlitClothRenderGo;
 

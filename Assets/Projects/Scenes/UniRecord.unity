@@ -788,7 +788,7 @@ PrefabInstance:
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
       propertyPath: tofForceScale
-      value: 0.001
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
@@ -803,13 +803,18 @@ PrefabInstance:
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
       propertyPath: tofDistanceScale
-      value: 0.5
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
       propertyPath: inGameDebugWindow
       value: 
       objectReference: {fileID: 1327084706}
+    - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
+        type: 3}
+      propertyPath: tofDefaultDistance
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
       propertyPath: unlitClothRenderGo
@@ -903,6 +908,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7864007627071142844, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
+        type: 3}
+      propertyPath: distance
+      value: 17
+      objectReference: {fileID: 0}
     - target: {fileID: 8529959217652989375, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: m_LocalPosition.x

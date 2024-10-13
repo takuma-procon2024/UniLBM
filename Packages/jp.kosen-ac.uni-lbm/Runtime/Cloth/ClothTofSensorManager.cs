@@ -70,7 +70,7 @@ namespace UniLbm.Cloth
                 var sensor = _tofSensors[i];
                 tofData[i] = new ToFData
                 {
-                    distance = sensor.Distance * _distanceScale,
+                    distance = sensor.Distance < 0f ? -1 : sensor.Distance * _distanceScale,
                     position = new float2(sensor.Position.x, sensor.Position.y)
                 };
             }
