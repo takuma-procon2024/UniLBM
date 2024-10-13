@@ -42,6 +42,7 @@ namespace UI.FieldUI
 
         private void OnDestroy()
         {
+            if (_handler == null) return;
             _handler.OnClick -= OnClick;
         }
 

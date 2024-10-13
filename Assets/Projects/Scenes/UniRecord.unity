@@ -1495,6 +1495,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1316104655763139948, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1378800605472556946, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1768,7 +1773,7 @@ PrefabInstance:
     - target: {fileID: 6076848108505915606, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6210472284112296031, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
@@ -1803,7 +1808,7 @@ PrefabInstance:
     - target: {fileID: 6215129756875273640, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000002682209
+      value: -0.000027404078
       objectReference: {fileID: 0}
     - target: {fileID: 6258964030768312843, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
@@ -2025,7 +2030,7 @@ MonoBehaviour:
   - {fileID: 1898988646}
   - {fileID: 665786720}
   - {fileID: 367979563}
-  homographyMat: {fileID: 2100000, guid: 5803857c2fda5d34daf12b2f44a5c7ca, type: 2}
+  inGameDebugWindow: {fileID: 1327084706}
   screenHomographyMat: {fileID: 2100000, guid: 5803857c2fda5d34daf12b2f44a5c7ca, type: 2}
   targetScreen: 1
 --- !u!1001 &3139211551900642993

@@ -64,20 +64,5 @@
             }
             ENDHLSL
         }
-
-        Pass
-        {
-            // クリアパス
-
-            HLSLPROGRAM
-            #pragma vertex Vert
-            #pragma fragment frag
-
-            float4 frag(in Varyings IN) : SV_Target
-            {
-                return 0;
-            }
-            ENDHLSL
-        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UI.FieldUI;
+using UI.Homography;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,6 +28,7 @@ namespace UI
             _dataStore = inGameDebugWindow.DataStore;
             LoadData(cam.position, proj, defaultFov, defaultAspect);
 
+            GetComponentInChildren<HomographyImageUI>()?.Initialize();
             gameObject.SetActive(false);
             inGameDebugWindow.AddField("OpenCorrectCamera", () =>
             {
