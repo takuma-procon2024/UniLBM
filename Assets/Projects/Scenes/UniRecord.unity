@@ -1067,7 +1067,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 132403217}
   rotateSpeed: 3
+  touchMoveSpeed: 0.3
+  moveSpeed: 3
+  touchRotateSpeed: 0.5
   scrollSpeed: 5
+  touchScrollSpeed: 0.5
   defaultDistance: 100
   minDistance: 10
   maxDistance: 120
