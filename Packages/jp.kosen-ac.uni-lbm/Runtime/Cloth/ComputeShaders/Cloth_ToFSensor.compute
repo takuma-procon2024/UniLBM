@@ -31,6 +31,8 @@ float tof_radius;
 float4x4 cloth_transform;
 // tofセンサの自然距離 (通常時の距離)
 float tof_default_distance;
+// 与える力のスケール
+float force_scale;
 
 //==============================================================================
 // ToFデータ書き込み用カーネル
@@ -72,6 +74,6 @@ void write_tof_data(uint3 id: SV_DispatchThreadID)
     {
         // 円状に外部力を与える際に、外側を弱くする
         float tof_force = dist_diff * saturate((tof_radius * tof_radius - pos_diff_sq) / tof_radius);
-        cloth_external_buffer[id.xy] = float4(0, 0, tof_force, 0);
+        cloth_external_buffer[id.xy] = float4(0, 0, tof_force, 0) * force_scale;
     }
 }

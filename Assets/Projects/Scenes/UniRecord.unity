@@ -787,6 +787,11 @@ PrefabInstance:
       objectReference: {fileID: 1923966160}
     - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
         type: 3}
+      propertyPath: tofForceScale
+      value: 0.0001
+      objectReference: {fileID: 0}
+    - target: {fileID: 63072201466469373, guid: 41ff489319d0c9c4291190809c429cb5,
+        type: 3}
       propertyPath: tofSensorRoot
       value: 
       objectReference: {fileID: 365860066}

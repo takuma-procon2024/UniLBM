@@ -89,6 +89,7 @@ namespace UniLbm.Cloth
             _shader.SetFloat(Uniforms.tof_radius, data.TofRadius);
             _shader.SetMatrix(Uniforms.cloth_transform, data.ClothTransform);
             _shader.SetFloat(Uniforms.tof_default_distance, data.TofDefaultDistance);
+            _shader.SetFloat(Uniforms.force_scale, data.ForceScale);
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -105,7 +106,8 @@ namespace UniLbm.Cloth
             cloth_external_buffer,
             tof_radius,
             cloth_transform,
-            tof_default_distance
+            tof_default_distance,
+            force_scale
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -120,6 +122,7 @@ namespace UniLbm.Cloth
             public float TofRadius { get; init; }
             public float4x4 ClothTransform { get; init; }
             public float TofDefaultDistance { get; init; }
+            public float ForceScale { get; init; }
         }
 
         #endregion
