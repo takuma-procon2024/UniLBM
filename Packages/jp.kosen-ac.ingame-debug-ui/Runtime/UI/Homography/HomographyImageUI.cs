@@ -12,7 +12,7 @@ namespace UI.Homography
         private static readonly int InvMatrixPropId = Shader.PropertyToID("_HomographyInvMatrix");
 
         [SerializeField] private DraggableHandle[] handles;
-        [SerializeField] private Material homographyMat;
+        [SerializeField] private Material homographyMat, screenHomographyMat;
         [SerializeField] private int targetScreen;
 
         private DraggableHandle p00, p01, p10, p11;
@@ -38,8 +38,12 @@ namespace UI.Homography
                 p00.NormalizedPos, p01.NormalizedPos,
                 p10.NormalizedPos, p11.NormalizedPos
             );
+            var invMatrix = math.inverse(matrix);
+
             homographyMat.SetMatrix(MatrixPropId, matrix);
-            homographyMat.SetMatrix(InvMatrixPropId, math.inverse(matrix));
+            homographyMat.SetMatrix(InvMatrixPropId, invMatrix);
+            screenHomographyMat.SetMatrix(MatrixPropId, matrix);
+            screenHomographyMat.SetMatrix(InvMatrixPropId, invMatrix);
         }
     }
 }
