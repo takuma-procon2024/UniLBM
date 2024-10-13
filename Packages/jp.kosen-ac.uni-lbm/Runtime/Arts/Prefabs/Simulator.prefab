@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1797230859372298195
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7529733352763309244}
+  - component: {fileID: 63072201466469373}
+  - component: {fileID: 6672519754525405614}
+  - component: {fileID: 4448909266645898385}
+  m_Layer: 0
+  m_Name: Simulator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7529733352763309244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797230859372298195}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &63072201466469373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797230859372298195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2802d6ee262f48d98f9018ccb770e110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inGameDebugWindow: {fileID: 0}
+  isEnableInGameDebug: 1
+  lbmShader: {fileID: 7200000, guid: 3a5e1e5df7c744f2a3832fc4461f310d, type: 3}
+  cellResolution: 104
+  tau: 1.2
+  particleShader: {fileID: 7200000, guid: 24f2a41b3e79492c9745db0884e33a66, type: 3}
+  particleMaterial: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
+  oneSideParticleNum: 64
+  particleSpeed: 600
+  maxLifetime: 2
+  obstacleMaterial: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
+  isDrawObstacles: 0
+  clothShader: {fileID: 7200000, guid: 1ee8ef398f6f276438a2ab30c44e502d, type: 3}
+  clothMaterial: {fileID: 2100000, guid: a387145f1ec9d5242abb3147455d7c16, type: 2}
+  clothResolution:
+    x: 128
+    y: 120
+  deltaTime: 0.016666668
+  verletIteration: 16
+  restLength: 0.02
+  stiffness: 300000
+  damping: 0.96
+  mass: 1
+  gravity:
+    x: 0
+    y: -9.81
+    z: 0
+  velocityScale: 2000000
+  clothMaxVelocity: 500
+  clothLbmShader: {fileID: 7200000, guid: f203045f03954b2cbe6039115ef0fe70, type: 3}
+  clothRenderGo: {fileID: 0}
+  clothLbmCellSize: 1
+  forceSourceShader: {fileID: 7200000, guid: 2a2cdc3c12d0498c8fa70f80ca5b2a62, type: 3}
+  forceSourceRoot: {fileID: 0}
+  isEnableForceSource: 1
+  tofSensorShader: {fileID: 7200000, guid: 292a081a6c8d49cbae7d0ec229bf8cc6, type: 3}
+  tofSensorRoot: {fileID: 0}
+  tofRadius: 3
+  tofDefaultDistance: 2
+  isEnableTofSensor: 1
+  isEnableUnlitCloth: 1
+  unlitClothMaterial: {fileID: 2100000, guid: ba109450627820f4da541c506ef42f55, type: 2}
+  unlitClothRenderGo: {fileID: 0}
+--- !u!114 &6672519754525405614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797230859372298195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82a2cd13258d42a8b9c04a53956faa4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inGameDebugWindow: {fileID: 0}
+  obstacleMat: {fileID: 2100000, guid: f6593668f21a88e42bff3a239131f5d8, type: 2}
+  particleMat: {fileID: 2100000, guid: b4c06d078c61db8448b527627b859d98, type: 2}
+  clothMat: {fileID: 2100000, guid: a387145f1ec9d5242abb3147455d7c16, type: 2}
+--- !u!114 &4448909266645898385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797230859372298195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c967e0520616439289af44917d337215, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fanKeyData:
+  - key: 49
+    forceSource: {fileID: 0}
+    force: 0.03
+  - key: 50
+    forceSource: {fileID: 0}
+    force: 0.03
+  - key: 51
+    forceSource: {fileID: 0}
+    force: 0.03
