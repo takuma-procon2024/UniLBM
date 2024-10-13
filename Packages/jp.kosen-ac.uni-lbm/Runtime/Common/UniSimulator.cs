@@ -161,7 +161,8 @@ namespace UniLbm.Common
                 TofRadius = tofRadius,
                 ClothTransform = childTrans.localToWorldMatrix,
                 TofDefaultDistance = tofDefaultDistance,
-                ForceScale = tofForceScale
+                ForceScale = tofForceScale,
+                DistanceScale = tofDistanceScale
             };
         }
 
@@ -237,6 +238,7 @@ namespace UniLbm.Common
         [SerializeField] private float tofRadius = 2f;
         [SerializeField] private float tofDefaultDistance = 2f;
         [SerializeField] private float tofForceScale = 1;
+        [SerializeField] private float tofDistanceScale = 0.005f;
         [SerializeField] private bool isEnableTofSensor;
         
         [Title("Unlit Cloth")] [SerializeField] private bool isEnableUnlitCloth;

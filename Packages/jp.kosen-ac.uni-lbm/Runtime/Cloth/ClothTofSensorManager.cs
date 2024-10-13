@@ -17,6 +17,7 @@ namespace UniLbm.Cloth
         private readonly ClothSolver _clothSolver;
         private readonly ComputeShaderWrapper<Kernels, Uniforms> _shader;
         private readonly ILbmToFSensor[] _tofSensors;
+        private float _distanceScale;
 
         public ClothTofSensorManager(ComputeShader shader, GameObject tofSensorRoot, ClothSolver clothSolver,
             in Data data)
@@ -69,7 +70,7 @@ namespace UniLbm.Cloth
                 var sensor = _tofSensors[i];
                 tofData[i] = new ToFData
                 {
-                    distance = sensor.Distance,
+                    distance = sensor.Distance * _distanceScale,
                     position = new float2(sensor.Position.x, sensor.Position.y)
                 };
             }
@@ -88,8 +89,10 @@ namespace UniLbm.Cloth
         {
             _shader.SetFloat(Uniforms.tof_radius, data.TofRadius);
             _shader.SetMatrix(Uniforms.cloth_transform, data.ClothTransform);
-            _shader.SetFloat(Uniforms.tof_default_distance, data.TofDefaultDistance);
+            _shader.SetFloat(Uniforms.tof_default_distance, data.TofDefaultDistance * _distanceScale);
             _shader.SetFloat(Uniforms.force_scale, data.ForceScale);
+
+            _distanceScale = data.DistanceScale;
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -123,6 +126,7 @@ namespace UniLbm.Cloth
             public float4x4 ClothTransform { get; init; }
             public float TofDefaultDistance { get; init; }
             public float ForceScale { get; init; }
+            public float DistanceScale { get; init; }
         }
 
         #endregion
