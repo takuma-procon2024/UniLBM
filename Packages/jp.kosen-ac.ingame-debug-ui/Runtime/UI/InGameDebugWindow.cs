@@ -242,6 +242,7 @@ namespace UI
         public void AddField(string fieldName, in Action onClick)
         {
             var field = Instantiate(buttonFieldPrefab, content);
+            field.transform.SetAsFirstSibling();
             field.Label = fieldName;
             field.OnClick += onClick;
         }
