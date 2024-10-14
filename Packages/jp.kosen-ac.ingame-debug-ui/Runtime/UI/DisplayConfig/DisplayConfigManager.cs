@@ -5,25 +5,29 @@ namespace UI.DisplayConfig
 {
     public class DisplayConfigManager : MonoBehaviour
     {
-        [SerializeField] private Camera[] targetCameras;
-        private Dictionary<string, Camera> _camTable;
+        private readonly Dictionary<string, Camera> _camTable = new();
 
-        public string[] CamNames { get; private set; }
+        public IReadOnlyCollection<Camera> Cameras => _camTable.Values;
 
         private void Start()
         {
-            CamNames = new string[targetCameras.Length];
-            for (var i = 0; i < targetCameras.Length; i++)
-            {
-                CamNames[i] = targetCameras[i].name;
-                _camTable.Add(CamNames[i], targetCameras[i]);
-            }
-        }
+            var targetCameras = FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            foreach (var cam in targetCameras) _camTable.Add(cam.name, cam);
 
-        public void SetCameraActive(string camName, bool active)
-        {
-            if (_camTable.TryGetValue(camName, out var value))
-                value.enabled = active;
+            // DisplayConfigUIを探して初期化
+            var ui = FindAnyObjectByType<DisplayConfigUI>(FindObjectsInactive.Include);
+            if (ui != null) ui.Initialize(this);
+            else Debug.LogWarning("DisplayConfigUI not found");
+
+            // InGameDebugWindowを探してボタンを追加
+            var debugWindow = FindAnyObjectByType<InGameDebugWindow>();
+            if (debugWindow != null)
+                debugWindow.AddField("Display Config", () =>
+                {
+                    debugWindow.Close();
+                    ui.gameObject.SetActive(true);
+                });
+            else Debug.LogWarning("InGameDebugWindow not found");
         }
 
         public bool TrySetCameraTargetDisplay(string camName, int display)
