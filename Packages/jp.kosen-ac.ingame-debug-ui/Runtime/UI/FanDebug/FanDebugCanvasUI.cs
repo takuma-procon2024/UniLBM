@@ -17,12 +17,14 @@ namespace UI.FanDebug
 
         private readonly Vector3[] _corners = new Vector3[4];
         private Image[] _fans;
+        private InGameDebugWindow _inGameDebugWindow;
         private RenderTexture _prevCanvas, _currCanvas;
         private RectTransform _rectTransform;
         private IFanSetter _setter;
 
         private void Start()
         {
+            _inGameDebugWindow = FindAnyObjectByType<InGameDebugWindow>();
             TryGetComponent(out _setter);
             TryGetComponent(out _rectTransform);
             _rectTransform.GetWorldCorners(_corners);
@@ -40,6 +42,16 @@ namespace UI.FanDebug
             foreach (var fan in _fans) fan.color = Color.blue;
 
             closeButton.onClick.AddListener(() => fanDebugUI.SetActive(false));
+        }
+
+        private void OnEnable()
+        {
+            _inGameDebugWindow.IsOtherDebugWindowOpen = true;
+        }
+
+        private void OnDisable()
+        {
+            _inGameDebugWindow.IsOtherDebugWindowOpen = false;
         }
 
         public void OnDrag(PointerEventData eventData)

@@ -12,12 +12,23 @@ namespace UI.DisplayConfig
         [SerializeField] private Button closeButton;
         private readonly List<CameraField> _cameraFields = new();
         private DataStore.DataStore _dataStore;
+        private InGameDebugWindow _debugWindow;
         private bool _hasInvalidDisplayIndex;
-
         private DisplayConfigManager _manager;
+
+        private void OnEnable()
+        {
+            _debugWindow.IsOtherDebugWindowOpen = true;
+        }
+
+        private void OnDisable()
+        {
+            _debugWindow.IsOtherDebugWindowOpen = false;
+        }
 
         public void Initialize(DisplayConfigManager manager, InGameDebugWindow debugWindow)
         {
+            _debugWindow = debugWindow;
             _manager = manager;
             _dataStore = debugWindow.DataStore;
 

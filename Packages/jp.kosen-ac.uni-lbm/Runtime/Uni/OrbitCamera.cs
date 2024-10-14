@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UI;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace UniLbm.Uni
         [SerializeField] private float defaultX = 45;
 
         private float _distance, _timer, _x, _y;
+        private InGameDebugWindow _inGameDebugWindow;
         private Vector3 _initTargetPos;
         private bool _isFirstFrame = true;
 
@@ -34,6 +36,7 @@ namespace UniLbm.Uni
             _x = defaultX;
             _distance = defaultDistance;
             _initTargetPos = target.position;
+            _inGameDebugWindow = FindAnyObjectByType<InGameDebugWindow>();
 
             RotateCamera();
             transform.LookAt(target);
@@ -41,6 +44,7 @@ namespace UniLbm.Uni
 
         private void Update()
         {
+            if (_inGameDebugWindow.IsOtherDebugWindowOpen || _inGameDebugWindow.IsOpen) return;
             RotateCamera();
 
             var scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -58,6 +62,7 @@ namespace UniLbm.Uni
                 _prevTouchDistance = 0;
                 return;
             }
+
             if (_isFirstFrame)
             {
                 _isFirstFrame = false;
@@ -107,7 +112,7 @@ namespace UniLbm.Uni
             else
             {
                 _prevTouchDistance = 0;
-                
+
                 if (Input.touchCount == 1 || Input.GetMouseButton(0))
                 {
                     // 回転

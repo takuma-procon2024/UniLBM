@@ -24,7 +24,8 @@ namespace UI
         [SerializeField] private StringFieldUI stringFieldPrefab;
         [SerializeField] private SliderFieldUI sliderFieldPrefab;
         [SerializeField] private ButtonFieldUI buttonFieldPrefab;
-        private bool _isOpen;
+        public bool IsOpen { get; private set; }
+        public bool IsOtherDebugWindowOpen { get; set; }
         private RectTransform _rectTransform;
 
         public DataStore.DataStore DataStore { get; private set; }
@@ -54,22 +55,22 @@ namespace UI
             if (IsInMotion()) return;
             if (!IsPressOpenKey()) return;
 
-            if (_isOpen) Close();
+            if (IsOpen) Close();
             else Open();
         }
 
         public void Open()
         {
-            if (_isOpen) return;
+            if (IsOpen || IsOtherDebugWindowOpen) return;
             MoveWindow(defaultPos, activePos, 0.3f);
-            _isOpen = true;
+            IsOpen = true;
         }
 
         public void Close()
         {
-            if (!_isOpen) return;
+            if (!IsOpen) return;
             MoveWindow(activePos, defaultPos, 0.3f);
-            _isOpen = false;
+            IsOpen = false;
         }
 
         private bool IsPressOpenKey()

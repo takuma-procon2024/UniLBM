@@ -23,6 +23,16 @@ namespace UI
             SaveData();
         }
 
+        private void OnEnable()
+        {
+            inGameDebugWindow.IsOtherDebugWindowOpen = true;
+        }
+
+        private void OnDisable()
+        {
+            inGameDebugWindow.IsOtherDebugWindowOpen = false;
+        }
+
         public void Initialize(Transform cam, in float4 proj, float defaultFov, float defaultAspect)
         {
             _dataStore = inGameDebugWindow.DataStore;
