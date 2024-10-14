@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using UI;
 using UniLbm.Common;
 using Unity.Mathematics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace UniLbm.Cloth
 {
@@ -23,6 +26,8 @@ namespace UniLbm.Cloth
             SetData(in data);
 
             ResetBuffer();
+
+            InitDebugButton(Object.FindAnyObjectByType<InGameDebugWindow>());
         }
 
         public int2 ClothResolution => _res;
@@ -76,6 +81,17 @@ namespace UniLbm.Cloth
             GUI.Label(r20, "Normal Buffer");
 
             GUI.color = storeColor;
+        }
+
+        private void InitDebugButton(InGameDebugWindow win)
+        {
+            if (win == null)
+            {
+                Debug.LogWarning("InGameDebugWindow is not found.");
+                return;
+            }
+
+            win.AddField("Reset Cloth", ResetBuffer);
         }
 
         #endregion
@@ -149,7 +165,7 @@ namespace UniLbm.Cloth
             _shader.SetTexture(Kernels.simulation, Uniforms.pos_prev_buffer_out, _prevPosBuffer[1]);
             _shader.SetTexture(Kernels.simulation, Uniforms.pos_curr_buffer_out, _positionBuffer[1]);
         }
-        
+
         private void ResetBuffer()
         {
             _shader.Dispatch(Kernels.init, new uint3(new uint2(_res), 1));
