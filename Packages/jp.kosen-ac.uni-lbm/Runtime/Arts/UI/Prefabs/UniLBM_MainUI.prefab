@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 8628382977493521410}
   - component: {fileID: 3127005995273339969}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: UniLBM_MainUICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
