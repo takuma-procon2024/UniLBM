@@ -135,9 +135,10 @@ namespace UniLbm.Common
                 Mass = mass,
                 Gravity = gravity,
                 VelocityScale = velocityScale,
-                MaxVelocity = clothMaxVelocity,
+                MaxExtVelocity = clothMaxVelocity,
                 DeltaTime = deltaTime,
-                VerletIteration = verletIteration
+                VerletIteration = verletIteration,
+                MaxForce = clothMaxForce
             };
         }
 
@@ -218,6 +219,7 @@ namespace UniLbm.Common
         [SerializeField] private float3 gravity = new(0, -9.81f, 0);
         [SerializeField] private float velocityScale = 1.0f;
         [SerializeField] private float clothMaxVelocity = 1000;
+        [SerializeField] private float clothMaxForce = 300;
 
         [Title("Cloth LBM Integration")] [SerializeField]
         private ComputeShader clothLbmShader;

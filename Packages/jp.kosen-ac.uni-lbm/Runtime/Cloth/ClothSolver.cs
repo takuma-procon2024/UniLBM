@@ -132,8 +132,9 @@ namespace UniLbm.Cloth
             _shader.SetFloat(Uniforms.inv_mass, 1.0f / data.Mass);
             _shader.SetVector(Uniforms.gravity, new float4(data.Gravity, 0));
             _shader.SetFloat(Uniforms.velocity_scale, data.VelocityScale);
-            _shader.SetFloat(Uniforms.max_velocity, data.MaxVelocity);
+            _shader.SetFloat(Uniforms.max_ext_velocity, data.MaxExtVelocity);
             _shader.SetFloat(Uniforms.dt, data.DeltaTime / data.VerletIteration);
+            _shader.SetFloat(Uniforms.max_force, data.MaxForce);
 
             _shader.SetInts(Uniforms.cloth_resolution, _res.x, _res.y);
         }
@@ -180,7 +181,8 @@ namespace UniLbm.Cloth
             damp,
             inv_mass,
             dt,
-            max_velocity,
+            max_ext_velocity,
+            max_force,
 
             velocity_scale
         }
@@ -193,9 +195,10 @@ namespace UniLbm.Cloth
             public float Mass { get; init; }
             public float3 Gravity { get; init; }
             public float VelocityScale { get; init; }
-            public float MaxVelocity { get; init; }
+            public float MaxExtVelocity { get; init; }
             public float DeltaTime { get; init; }
             public int VerletIteration { get; init; }
+            public float MaxForce { get; init; }
         }
 
         #endregion
