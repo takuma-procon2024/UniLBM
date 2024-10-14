@@ -14,6 +14,8 @@ namespace UI.FanDebug
                 inGameDebugWindow.Close();
                 fanDebugUI.SetActive(true);
             });
+            
+            fanDebugUI.GetComponentInChildren<FanDebugCanvasUI>().Initialize(inGameDebugWindow);
         }
     }
 }

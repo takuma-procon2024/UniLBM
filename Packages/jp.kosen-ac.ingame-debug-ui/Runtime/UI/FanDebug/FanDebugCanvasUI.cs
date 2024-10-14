@@ -22,28 +22,6 @@ namespace UI.FanDebug
         private RectTransform _rectTransform;
         private IFanSetter _setter;
 
-        private void Start()
-        {
-            _inGameDebugWindow = FindAnyObjectByType<InGameDebugWindow>();
-            TryGetComponent(out _setter);
-            TryGetComponent(out _rectTransform);
-            _rectTransform.GetWorldCorners(_corners);
-
-            _fans = new Image[fanCount];
-            var cnt = 0;
-            for (var i = 0; i < fanRoot.transform.childCount; i++)
-                if (fanRoot.transform.GetChild(i).TryGetComponent(out _fans[cnt]))
-                    cnt++;
-            for (var i = 0; i < subFanRoot.transform.childCount; i++)
-                if (subFanRoot.transform.GetChild(i).TryGetComponent(out _fans[cnt]))
-                    cnt++;
-            Assert.IsTrue(fanCount == cnt);
-
-            foreach (var fan in _fans) fan.color = Color.blue;
-
-            closeButton.onClick.AddListener(() => fanDebugUI.SetActive(false));
-        }
-
         private void OnEnable()
         {
             _inGameDebugWindow.IsOtherDebugWindowOpen = true;
@@ -66,11 +44,34 @@ namespace UI.FanDebug
                 if (distanceSq < fanRadius * fanRadius)
                 {
                     fan.color = powerSlider.Color;
-                    _setter.SetFanPower(powerSlider.NormalValue, index);
+                    _setter?.SetFanPower(powerSlider.NormalValue, index);
                 }
 
                 index++;
             }
+        }
+
+        public void Initialize(InGameDebugWindow debugWindow)
+        {
+            _inGameDebugWindow = debugWindow;
+            TryGetComponent(out _setter);
+            TryGetComponent(out _rectTransform);
+            _rectTransform.GetWorldCorners(_corners);
+
+            _fans = new Image[fanCount];
+            var cnt = 0;
+            for (var i = 0; i < fanRoot.transform.childCount; i++)
+                if (fanRoot.transform.GetChild(i).TryGetComponent(out _fans[cnt]))
+                    cnt++;
+
+            for (var i = 0; i < subFanRoot.transform.childCount; i++)
+                if (subFanRoot.transform.GetChild(i).TryGetComponent(out _fans[cnt]))
+                    cnt++;
+            Assert.IsTrue(fanCount == cnt);
+
+            foreach (var fan in _fans) fan.color = powerSlider.Color;
+
+            closeButton.onClick.AddListener(() => fanDebugUI.SetActive(false));
         }
 
         private float2 NormalizePosition(in float2 position)

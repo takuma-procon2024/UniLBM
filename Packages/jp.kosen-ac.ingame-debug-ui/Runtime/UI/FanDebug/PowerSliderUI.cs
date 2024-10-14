@@ -9,11 +9,12 @@ namespace UI.FanDebug
     {
         [SerializeField] private int2 range = new(0, 1);
         [SerializeField] private TMP_Text topLabel, bottomLabel, valueLabel;
+        [SerializeField] private float2 saturateAndValue = new(0.5f, 1);
 
         private Slider _slider;
         public int Value { get; private set; }
-        public float NormalValue => _slider.normalizedValue;
-        public Color Color => Color.Lerp(Color.blue, Color.red, _slider.normalizedValue);
+        public float NormalValue => _slider?.normalizedValue ?? 0;
+        public Color Color => Color.HSVToRGB(NormalValue * 0.8f, saturateAndValue.x, saturateAndValue.y);
 
         private void Start()
         {
