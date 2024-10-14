@@ -1,10 +1,9 @@
-﻿using UI.Homography;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace UI.Parts
+namespace UI.Homography
 {
     /// <summary>
     ///     一定の範囲内をドラッグ可能なハンドルUI
@@ -73,8 +72,8 @@ namespace UI.Parts
 
             var uiRoot = GetComponentInParent<HomographyImageUI>();
             uiRoot.TryGetComponent(out RectTransform rootRect);
-            _min = -(float2)rootRect.sizeDelta / 2 + padding;
-            _max = (float2)rootRect.sizeDelta / 2 - padding;
+            _min = -(float2)rootRect.sizeDelta / 2;
+            _max = -_min;
         }
 
         public void MoveDefaultPos()
@@ -93,10 +92,7 @@ namespace UI.Parts
         private void ClampAndSetPos(in float2 pos)
         {
             Initialize();
-            _rectTransform.anchoredPosition = new float2(
-                math.clamp(pos.x, _min.x, _max.x),
-                math.clamp(pos.y, _min.y, _max.y)
-            );
+            _rectTransform.anchoredPosition = math.clamp(pos, _min - padding, _max + padding);
         }
     }
 }

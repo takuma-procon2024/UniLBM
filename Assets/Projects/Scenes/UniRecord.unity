@@ -1041,6 +1041,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 56408499553431770, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 56408499553431770, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.y
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 1316104655763139948, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -1050,6 +1060,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4884992815194208799, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 4884992815194208799, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.y
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 5305099990556434840, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
@@ -1170,6 +1190,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -0.00002002716
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556187020874157376, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556187020874157376, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.y
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417926718809110302, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417926718809110302, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: padding.y
+      value: 60
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

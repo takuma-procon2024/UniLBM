@@ -15,6 +15,8 @@ namespace UI.FieldUI
         [SerializeField] private TMP_Text valueText;
 
         private UIClickHandler _handler;
+        private bool _isInitialized;
+        private IEnumerator _motionHandle;
         private bool _value;
 
         public string Label
@@ -30,7 +32,19 @@ namespace UI.FieldUI
             {
                 _value = value;
                 valueText.text = value ? "ON" : "OFF";
-                StartCoroutine(MoveHandleCoroutine(Value ? 0f : 1f, Value ? 1f : 0f, 0.1f));
+                if (!_isInitialized)
+                {
+                    
+                    handle.anchorMin = new Vector2(Value ? 1f : 0f, 0.5f);
+                    handle.anchorMax = new Vector2(Value ? 1f : 0f, 0.5f);
+                    handle.pivot = new Vector2(Value ? 1f : 0f, 0.5f);
+                }
+                else
+                {
+                    if (_motionHandle != null) StopCoroutine(_motionHandle);
+                    _motionHandle = MoveHandleCoroutine(Value ? 0f : 1f, Value ? 1f : 0f, 0.1f);
+                    StartCoroutine(_motionHandle);
+                }
             }
         }
 
@@ -38,6 +52,7 @@ namespace UI.FieldUI
         {
             _handler = background.gameObject.AddComponent<UIClickHandler>();
             _handler.OnClick += OnClick;
+            _isInitialized = true;
         }
 
         private void OnDestroy()
@@ -71,6 +86,8 @@ namespace UI.FieldUI
                 handle.pivot = new Vector2(math.lerp(start, end, et), 0.5f);
                 yield return null;
             }
+
+            _motionHandle = null;
         }
 
         #endregion
