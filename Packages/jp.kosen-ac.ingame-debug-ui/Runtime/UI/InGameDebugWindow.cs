@@ -11,7 +11,6 @@ namespace UI
     {
         [Header("Settings")] [SerializeField] private string dataFilePath = "data.json";
 
-        [SerializeField] private KeyCode toggleKey = KeyCode.F1;
         [SerializeField] private float2 defaultPos = 0;
         [SerializeField] private float2 activePos = 0;
         [SerializeField] private RectTransform content;
@@ -24,9 +23,10 @@ namespace UI
         [SerializeField] private StringFieldUI stringFieldPrefab;
         [SerializeField] private SliderFieldUI sliderFieldPrefab;
         [SerializeField] private ButtonFieldUI buttonFieldPrefab;
+        [SerializeField] private UIClickHandler closeArea;
+        private RectTransform _rectTransform;
         public bool IsOpen { get; private set; }
         public bool IsOtherDebugWindowOpen { get; set; }
-        private RectTransform _rectTransform;
 
         public DataStore.DataStore DataStore { get; private set; }
 
@@ -37,11 +37,8 @@ namespace UI
             TryGetComponent(out _rectTransform);
 
             _rectTransform.anchoredPosition = defaultPos;
-        }
-
-        private void Update()
-        {
-            OpenAndClose();
+            closeArea.OnClick += _ => Close();
+            closeArea.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
@@ -50,32 +47,24 @@ namespace UI
             DataStore.Dispose();
         }
 
-        private void OpenAndClose()
-        {
-            if (IsInMotion()) return;
-            if (!IsPressOpenKey()) return;
-
-            if (IsOpen) Close();
-            else Open();
-        }
+        public event Action OnOpen, OnClose;
 
         public void Open()
         {
             if (IsOpen || IsOtherDebugWindowOpen) return;
             MoveWindow(defaultPos, activePos, 0.3f);
             IsOpen = true;
+            closeArea.gameObject.SetActive(true);
+            OnOpen?.Invoke();
         }
 
         public void Close()
         {
             if (!IsOpen) return;
+            closeArea.gameObject.SetActive(false);
             MoveWindow(activePos, defaultPos, 0.3f);
             IsOpen = false;
-        }
-
-        private bool IsPressOpenKey()
-        {
-            return Input.GetKeyDown(toggleKey);
+            OnClose?.Invoke();
         }
 
         private void ApplyValueToDataStore()
