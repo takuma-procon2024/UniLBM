@@ -916,47 +916,47 @@ PrefabInstance:
     - target: {fileID: 2189811347736204258, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3422849316391828406, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3522332486351822540, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4505357761913355751, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 5045379264290524959, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 5278111716138479196, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 6522710162974705545, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7364267997571256099, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7864007627071142844, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
       propertyPath: distance
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 8529959217652989375, guid: 90044f923ea6e3e4cafeb03c80d7a4b2,
         type: 3}
@@ -1156,6 +1156,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGameDebugUI
       objectReference: {fileID: 0}
+    - target: {fileID: 5347779146694820662, guid: 337a28724a3074a4a8c9b0914db88af0,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 350
+      objectReference: {fileID: 0}
     - target: {fileID: 6215129756875273640, guid: 337a28724a3074a4a8c9b0914db88af0,
         type: 3}
       propertyPath: m_SizeDelta.y
@@ -1179,6 +1184,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3160910561124256308, guid: fc9c7b080cf00c34c9635d770d505e9e,
+        type: 3}
+      propertyPath: m_Name
+      value: UniLBM_MainUICanvas
+      objectReference: {fileID: 0}
     - target: {fileID: 7816767495762656124, guid: fc9c7b080cf00c34c9635d770d505e9e,
         type: 3}
       propertyPath: m_Name

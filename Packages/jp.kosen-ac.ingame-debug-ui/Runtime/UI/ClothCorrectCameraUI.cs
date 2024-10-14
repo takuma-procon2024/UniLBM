@@ -35,6 +35,8 @@ namespace UI
 
         public void Initialize(Transform cam, in float4 proj, float defaultFov, float defaultAspect)
         {
+            ActivateAllDisplay();
+
             _dataStore = inGameDebugWindow.DataStore;
             LoadData(cam.position, proj, defaultFov, defaultAspect);
 
@@ -46,6 +48,16 @@ namespace UI
                 gameObject.SetActive(true);
             });
             closeBtn.onClick.AddListener(CloseWindow);
+        }
+
+        private static void ActivateAllDisplay()
+        {
+            Debug.Log($"Displays connected: {Display.displays.Length}");
+            foreach (var display in Display.displays)
+            {
+                display.Activate();
+                Debug.Log($"Display {display.systemWidth}x{display.systemHeight} activated");
+            }
         }
 
         private void CloseWindow()

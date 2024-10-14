@@ -59,6 +59,32 @@ namespace UI.DisplayConfig
                 _cameraFields.Add(ui);
             }
 
+            foreach (var canvas in manager.Canvases)
+            {
+                var ui = Instantiate(cameraFieldPrefab, contentRoot);
+                ui.CameraName = $"{canvas.name}(Canvas)";
+                ui.SetDisplayOptions(displayOptions);
+                if (canvas.targetDisplay < displayOptions.Count)
+                {
+                    ui.DisplayIndex = canvas.targetDisplay;
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"Camera {canvas.name} is set to invalid display index {canvas.targetDisplay}. If it's in the Editor, there's no problem.");
+                    _hasInvalidDisplayIndex = true;
+                }
+
+                ui.OnDisplayChanged += index =>
+                {
+                    if (!manager.TrySetCanvasTargetDisplay(canvas.name, index)) return false;
+                    if (!_hasInvalidDisplayIndex)
+                        SaveDisplayConfig();
+                    return true;
+                };
+                _cameraFields.Add(ui);
+            }
+
             closeButton.onClick.AddListener(() => gameObject.SetActive(false));
 
             LoadDisplayConfig();

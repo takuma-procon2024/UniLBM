@@ -13,8 +13,6 @@ namespace UniLbm.Lbm
 
         private void Start()
         {
-            ActivateDisplay();
-            
             clothCorrectCameraUI.gameObject.SetActive(true);
             clothCorrectCameraUI.Initialize(correctCamera.transform, new float4(1, -1, 1, -1),
                 correctCamera.fieldOfView, correctCamera.aspect);
@@ -24,13 +22,6 @@ namespace UniLbm.Lbm
         {
             correctCamera.transform.position = clothCorrectCameraUI.CamPos.xyz;
             SetCameraProjectionMatrix();
-        }
-
-        private void ActivateDisplay()
-        {
-            Debug.Log($"Displays connected: {Display.displays.Length}");
-            if (Display.displays.Length > 1)
-                Display.displays[1].Activate();
         }
 
         private void SetCameraProjectionMatrix()
