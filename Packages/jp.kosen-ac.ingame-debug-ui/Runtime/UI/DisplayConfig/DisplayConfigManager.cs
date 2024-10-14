@@ -14,13 +14,10 @@ namespace UI.DisplayConfig
             var targetCameras = FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var cam in targetCameras) _camTable.Add(cam.name, cam);
 
-            // DisplayConfigUIを探して初期化
             var ui = FindAnyObjectByType<DisplayConfigUI>(FindObjectsInactive.Include);
-            if (ui != null) ui.Initialize(this);
-            else Debug.LogWarning("DisplayConfigUI not found");
-
-            // InGameDebugWindowを探してボタンを追加
             var debugWindow = FindAnyObjectByType<InGameDebugWindow>();
+
+            // InGameDebugWindowにボタンを追加
             if (debugWindow != null)
                 debugWindow.AddField("Display Config", () =>
                 {
@@ -28,6 +25,10 @@ namespace UI.DisplayConfig
                     ui.gameObject.SetActive(true);
                 });
             else Debug.LogWarning("InGameDebugWindow not found");
+
+            // DisplayConfigUIを初期化
+            if (ui != null) ui.Initialize(this, debugWindow);
+            else Debug.LogWarning("DisplayConfigUI not found");
         }
 
         public bool TrySetCameraTargetDisplay(string camName, int display)
