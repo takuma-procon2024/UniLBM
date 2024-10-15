@@ -31,7 +31,8 @@ namespace UniLbm.Common
                 new LbmParticle.Data
                 {
                     ParticleSpeed = particleSpeed,
-                    MaxLifetime = maxLifetime
+                    MaxLifetime = maxLifetime,
+                    ParticleLayer = particleLayer
                 });
             ClothRenderer.Initialize(clothMaterial, clothRenderGo, _clothSolver);
             if (isEnableUnlitCloth)
@@ -42,7 +43,7 @@ namespace UniLbm.Common
                 new LbmForceSourceManager(forceSourceShader, _lbmSolver, _particle, forceSourceRoot);
             _clothTofSensorManager = new ClothTofSensorManager(tofSensorShader, tofSensorRoot, _clothSolver,
                 GetClothTofSensorData());
-            _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver);
+            _obstacles = new LbmObstacles(obstacleMaterial, _lbmSolver, particleLayer);
         }
 
         private void Simulate()
@@ -203,6 +204,7 @@ namespace UniLbm.Common
         [SerializeField] private uint oneSideParticleNum = 100;
         [SerializeField] private float particleSpeed = 0.1f;
         [SerializeField] private float maxLifetime = 10f;
+        [SerializeField] private int particleLayer;
 
         [Title("Obstacles")] [SerializeField] private Material obstacleMaterial;
         [SerializeField] private bool isDrawObstacles = true;

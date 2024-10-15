@@ -14,7 +14,7 @@ namespace UniLbm.Lbm
         private readonly RenderParams _renderParams;
         private readonly int _vertexCount;
 
-        public LbmObstacles(Material material, ILbmSolver lbmSolver)
+        public LbmObstacles(Material material, ILbmSolver lbmSolver, int layer)
         {
             _material = new MaterialWrapper<Props>(material);
             _vertexCount = lbmSolver.CellRes * lbmSolver.CellRes * lbmSolver.CellRes;
@@ -26,7 +26,8 @@ namespace UniLbm.Lbm
                 {
                     min = Vector3.zero,
                     max = new float3(lbmSolver.CellRes * matSize)
-                }
+                },
+                layer = layer
             };
 
             SetBuffers(lbmSolver);

@@ -23,6 +23,8 @@ namespace UniLbm.Lbm
         /// </summary>
         public readonly int Bounds;
 
+        private int _particleLayer;
+
         public LbmParticle(ComputeShader shader, ILbmSolver lbmSolver, Material mat, uint oneSideParticleNum,
             in Data data)
         {
@@ -43,7 +45,8 @@ namespace UniLbm.Lbm
                 {
                     min = Vector3.zero,
                     max = new Vector3(Bounds, Bounds, Bounds)
-                }
+                },
+                layer = _particleLayer
             };
             material.SetBuffer(Props.particles, _particlesBuffer);
 
@@ -60,7 +63,7 @@ namespace UniLbm.Lbm
             _shader.SetFloat(Uniforms.delta_time, deltaTime);
             _shader.Dispatch(Kernels.update_particle, (uint)_oneSideParticleNum);
 
-            Graphics.RenderPrimitives(_renderParams, MeshTopology.Points, _particleNum);
+            Graphics.RenderPrimitives(in _renderParams, MeshTopology.Points, _particleNum);
         }
 
         #region ComputeShader
@@ -90,6 +93,7 @@ namespace UniLbm.Lbm
                 _shader.SetInt(Uniforms.one_side_particle_num, _oneSideParticleNum);
             }
 
+            _particleLayer = data.ParticleLayer;
             _shader.SetFloat(Uniforms.particle_speed, data.ParticleSpeed);
             _shader.SetFloat(Uniforms.max_lifetime, data.MaxLifetime);
         }
@@ -125,6 +129,7 @@ namespace UniLbm.Lbm
         {
             public float ParticleSpeed { get; init; }
             public float MaxLifetime { get; init; }
+            public int ParticleLayer { get; init; }
         }
 
         [StructLayout(LayoutKind.Sequential)]
