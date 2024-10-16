@@ -213,7 +213,7 @@ namespace UniLbm.Common
         [SerializeField] private Material clothMaterial;
         [SerializeField] private uint2 clothResolution = new(128, 128);
         [SerializeField] private float deltaTime = 1 / 60f;
-        [Range(1, 16)] [SerializeField] private int verletIteration = 4;
+        [Range(1, 256)] [SerializeField] private int verletIteration = 4;
         [SerializeField] private float restLength = 0.02f;
         [SerializeField] private float stiffness = 10000f;
         [SerializeField] private float damping = 0.996f;
