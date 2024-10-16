@@ -15,6 +15,8 @@ namespace UI
         [SerializeField] private FloatFieldUI aspectField;
         [SerializeField] private BoolFieldUI useFrustumField;
         [SerializeField] private InGameDebugWindow inGameDebugWindow;
+        [SerializeField] private VectorFieldUI clothPosField;
+        [SerializeField] private VectorFieldUI clothSizeField;
 
         private DataStore.DataStore _dataStore;
 
@@ -33,12 +35,13 @@ namespace UI
             inGameDebugWindow.IsOtherDebugWindowOpen = false;
         }
 
-        public void Initialize(Transform cam, in float4 proj, float defaultFov, float defaultAspect)
+        public void Initialize(Transform cam,Transform unlitCloth,  in float4 proj, float defaultFov, float defaultAspect)
         {
             ActivateAllDisplay();
 
             _dataStore = inGameDebugWindow.DataStore;
-            LoadData(cam.position, proj, defaultFov, defaultAspect);
+            LoadData(cam.position, proj, defaultFov, defaultAspect, unlitCloth.position,
+                unlitCloth.localScale);
 
             GetComponentInChildren<HomographyImageUI>()?.Initialize();
             gameObject.SetActive(false);
@@ -65,7 +68,8 @@ namespace UI
             gameObject.SetActive(false);
         }
 
-        private void LoadData(in float3 pos, in float4 proj, float defaultFov, float defaultAspect)
+        private void LoadData(in float3 pos, in float4 proj, float defaultFov, float defaultAspect, in float3 clothPos,
+            in float3 clothSize)
         {
             fovField.Range = new float2(1, 179);
 
@@ -74,6 +78,11 @@ namespace UI
             fovField.Value = _dataStore.TryGetData("Fov", out float fov) ? fov : defaultFov;
             aspectField.Value = _dataStore.TryGetData("Aspect", out float aspect) ? aspect : defaultAspect;
             useFrustumField.Value = _dataStore.TryGetData("UseFrustum", out bool useFrustum) && useFrustum;
+            clothPosField.Value =
+                _dataStore.TryGetData("ClothPos", out float4 clothP) ? clothP : new float4(clothPos, 0);
+            clothSizeField.Value = _dataStore.TryGetData("ClothSize", out float4 clothS)
+                ? clothS
+                : new float4(clothSize, 0);
         }
 
         private void SaveData()
@@ -83,6 +92,8 @@ namespace UI
             _dataStore.SetData("Fov", fovField.Value);
             _dataStore.SetData("Aspect", aspectField.Value);
             _dataStore.SetData("UseFrustum", useFrustumField.Value);
+            _dataStore.SetData("ClothPos", clothPosField.Value);
+            _dataStore.SetData("ClothSize", clothSizeField.Value);
         }
 
         #region Properties
@@ -115,6 +126,18 @@ namespace UI
         {
             get => useFrustumField.Value;
             set => useFrustumField.Value = value;
+        }
+
+        public float4 ClothPos
+        {
+            get => clothPosField.Value;
+            set => clothPosField.Value = value;
+        }
+
+        public float4 ClothSize
+        {
+            get => clothSizeField.Value;
+            set => clothSizeField.Value = value;
         }
 
         #endregion
