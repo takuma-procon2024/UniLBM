@@ -83,12 +83,16 @@ namespace UniLbm.Common
 
             var win = inGameDebugWindow;
 
+            win.AddField("§ LBM Particles");
             win.AddField("ParticleSpeed", particleSpeed);
             win.AddField("MaxLifetime", maxLifetime);
             win.AddField("DrawObstacle", isDrawObstacles);
+            win.AddField("§ Cloth");
             win.AddField("ClothVelScale", velocityScale);
             win.AddField("ClothMaxVel", clothMaxVelocity);
+            win.AddField("§ LBM");
             win.AddField("ForceSource", isEnableForceSource);
+            win.AddField("§ ToF Sensor");
             win.AddField("ToF Sensor", isEnableTofSensor);
             win.AddField("ToFDefaultDistance", tofDefaultDistance);
             win.AddField("TofForceScale", tofForceScale);

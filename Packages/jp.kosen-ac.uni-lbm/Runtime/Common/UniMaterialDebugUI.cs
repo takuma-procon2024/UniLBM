@@ -27,6 +27,7 @@ namespace UniLbm.Common
             _clothMatWrapper = new MaterialWrapper<ClothProp>(clothMat);
 
             var win = inGameDebugWindow;
+            win.AddField("§ Materials");
             win.AddField("ObstacleVelScale", _obstacleMatWrapper.GetFloat(ObstacleProp.velocity_scale));
             win.AddField("ParticleMinVel", _particleMatWrapper.GetFloat(ParticleProp.min_velocity));
             win.AddField("ParticleMaxVel", _particleMatWrapper.GetFloat(ParticleProp.max_velocity));

@@ -23,6 +23,7 @@ namespace UI
         [SerializeField] private StringFieldUI stringFieldPrefab;
         [SerializeField] private SliderFieldUI sliderFieldPrefab;
         [SerializeField] private ButtonFieldUI buttonFieldPrefab;
+        [SerializeField] private SectionFieldUI sectionFieldPrefab;
         [SerializeField] private UIClickHandler closeArea;
         private RectTransform _rectTransform;
         public bool IsOpen { get; private set; }
@@ -235,6 +236,12 @@ namespace UI
             field.transform.SetAsFirstSibling();
             field.Label = fieldName;
             field.OnClick += onClick;
+        }
+
+        public void AddField(string fieldName)
+        {
+            var field = Instantiate(sectionFieldPrefab, content);
+            field.Label = fieldName;
         }
 
         public void AddField(string fieldName, float value)
