@@ -12,7 +12,10 @@ namespace UniLbm.Projector
         {
             if (!_isInitialized) return;
 
-            transform.position = _clothCorrectCameraUI.ClothPos.xyz;
+            transform.SetPositionAndRotation(
+                _clothCorrectCameraUI.ClothPos.xyz,
+                Quaternion.Euler(_clothCorrectCameraUI.ClothRot.xyz)
+            );
             transform.localScale = _clothCorrectCameraUI.ClothSize.xyz;
         }
 

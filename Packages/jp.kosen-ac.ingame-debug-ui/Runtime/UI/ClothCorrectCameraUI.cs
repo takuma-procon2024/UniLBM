@@ -10,6 +10,7 @@ namespace UI
     {
         [SerializeField] private Button closeBtn;
         [SerializeField] private VectorFieldUI camPosField;
+        [SerializeField] private VectorFieldUI camRotField;
         [SerializeField] private VectorFieldUI camProjField;
         [SerializeField] private SliderFieldUI fovField;
         [SerializeField] private FloatFieldUI aspectField;
@@ -17,6 +18,7 @@ namespace UI
         [SerializeField] private InGameDebugWindow inGameDebugWindow;
         [SerializeField] private VectorFieldUI clothPosField;
         [SerializeField] private VectorFieldUI clothSizeField;
+        [SerializeField] private VectorFieldUI clothRotField;
 
         private DataStore.DataStore _dataStore;
 
@@ -35,13 +37,14 @@ namespace UI
             inGameDebugWindow.IsOtherDebugWindowOpen = false;
         }
 
-        public void Initialize(Transform cam,Transform unlitCloth,  in float4 proj, float defaultFov, float defaultAspect)
+        public void Initialize(Transform cam, Transform unlitCloth, in float4 proj, float defaultFov,
+            float defaultAspect)
         {
             ActivateAllDisplay();
 
             _dataStore = inGameDebugWindow.DataStore;
-            LoadData(cam.position, proj, defaultFov, defaultAspect, unlitCloth.position,
-                unlitCloth.localScale);
+            LoadData(cam.position, cam.eulerAngles, proj, defaultFov, defaultAspect, unlitCloth.position,
+                unlitCloth.localScale, unlitCloth.eulerAngles);
 
             GetComponentInChildren<HomographyImageUI>()?.Initialize();
             gameObject.SetActive(false);
@@ -68,12 +71,14 @@ namespace UI
             gameObject.SetActive(false);
         }
 
-        private void LoadData(in float3 pos, in float4 proj, float defaultFov, float defaultAspect, in float3 clothPos,
-            in float3 clothSize)
+        private void LoadData(in float3 pos, in float3 camRot, in float4 proj, float defaultFov, float defaultAspect,
+            in float3 clothPos,
+            in float3 clothSize, in float3 clothRot)
         {
             fovField.Range = new float2(1, 179);
 
             camPosField.Value = _dataStore.TryGetData("CamPos", out float4 camX) ? camX : new float4(pos, 0);
+            camRotField.Value = _dataStore.TryGetData("CamRot", out float4 camR) ? camR : new float4(camRot, 0);
             camProjField.Value = _dataStore.TryGetData("CamProj", out float4 camY) ? camY : proj;
             fovField.Value = _dataStore.TryGetData("Fov", out float fov) ? fov : defaultFov;
             aspectField.Value = _dataStore.TryGetData("Aspect", out float aspect) ? aspect : defaultAspect;
@@ -83,17 +88,21 @@ namespace UI
             clothSizeField.Value = _dataStore.TryGetData("ClothSize", out float4 clothS)
                 ? clothS
                 : new float4(clothSize, 0);
+            clothRotField.Value =
+                _dataStore.TryGetData("ClothRot", out float4 clothR) ? clothR : new float4(clothRot, 0);
         }
 
         private void SaveData()
         {
             _dataStore.SetData("CamPos", camPosField.Value);
+            _dataStore.SetData("CamRot", camRotField.Value);
             _dataStore.SetData("CamProj", camProjField.Value);
             _dataStore.SetData("Fov", fovField.Value);
             _dataStore.SetData("Aspect", aspectField.Value);
             _dataStore.SetData("UseFrustum", useFrustumField.Value);
             _dataStore.SetData("ClothPos", clothPosField.Value);
             _dataStore.SetData("ClothSize", clothSizeField.Value);
+            _dataStore.SetData("ClothRot", clothRotField.Value);
         }
 
         #region Properties
@@ -102,6 +111,12 @@ namespace UI
         {
             get => camPosField.Value;
             set => camPosField.Value = value;
+        }
+
+        public float4 CamRot
+        {
+            get => camRotField.Value;
+            set => camRotField.Value = value;
         }
 
         public float4 CamProj
@@ -138,6 +153,12 @@ namespace UI
         {
             get => clothSizeField.Value;
             set => clothSizeField.Value = value;
+        }
+
+        public float4 ClothRot
+        {
+            get => clothRotField.Value;
+            set => clothRotField.Value = value;
         }
 
         #endregion

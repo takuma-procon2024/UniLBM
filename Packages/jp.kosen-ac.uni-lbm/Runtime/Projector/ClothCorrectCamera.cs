@@ -25,7 +25,10 @@ namespace UniLbm.Projector
 
         private void Update()
         {
-            correctCamera.transform.position = clothCorrectCameraUI.CamPos.xyz;
+            correctCamera.transform.SetPositionAndRotation(
+                clothCorrectCameraUI.CamPos.xyz,
+                Quaternion.Euler(clothCorrectCameraUI.CamRot.xyz)
+            );
             SetCameraProjectionMatrix();
         }
 
@@ -37,7 +40,7 @@ namespace UniLbm.Projector
                 clothCorrectCameraUI.CamProj = _prevProjParam;
                 return;
             }
-            
+
             var proj = clothCorrectCameraUI.UseFrustum
                 ? Matrix4x4.Frustum(
                     projParam.w, projParam.z, projParam.y, projParam.x,
