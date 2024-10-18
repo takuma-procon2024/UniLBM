@@ -1,6 +1,9 @@
 ﻿Shader "Projection/Homography"
 {
-    Properties {}
+    Properties
+    {
+        _ui_texture ("UI Texture", 2D) = "white"
+    }
     SubShader
     {
         // No culling or depth
@@ -17,6 +20,8 @@
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
         float4x4 _HomographyMatrix, _HomographyInvMatrix;
+        sampler2D _ui_texture;
+        float4 _ui_texture_ST;
 
         float2 apply_homography(in float2 u, in float4x4 mat)
         {
@@ -56,9 +61,14 @@
             {
                 float2 p = IN.texcoord;
                 float2 uv = apply_homography(p, _HomographyInvMatrix);
-                float4 col = any(uv < 0.f) || any(uv > 1.f)
+                bool is_in_range_uv = any(uv < 0.f) || any(uv > 1.f);
+                float4 col = is_in_range_uv
                                  ? float4(0, 0, 0, 1)
                                  : SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, uv);
+                float4 ui_color = is_in_range_uv
+                                      ? float4(0, 0, 0, 0)
+                                      : tex2D(_ui_texture, (uv - _ui_texture_ST.zw) * _ui_texture_ST.xy);
+                col = all(ui_color.xyz < 0.001f) || ui_color.a < 0.001f ? col : ui_color;
                 return col;
                 // return SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, IN.texcoord);
             }
