@@ -40,6 +40,8 @@ namespace UI
             _rectTransform.anchoredPosition = defaultPos;
             closeArea.OnClick += _ => Close();
             closeArea.gameObject.SetActive(false);
+            
+            DontDestroyOnLoad(GetComponentInParent<Canvas>().gameObject);
         }
 
         private void OnDestroy()
