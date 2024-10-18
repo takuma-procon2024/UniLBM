@@ -6,14 +6,30 @@ namespace UI
     [RequireComponent(typeof(Button))]
     public class DebugWindowOpenButton : MonoBehaviour
     {
+        private InGameDebugWindow _debugWindow;
+        private Image _image;
+
         private void Start()
         {
             TryGetComponent(out Button button);
-            var debugWindow = FindAnyObjectByType<InGameDebugWindow>();
-            button.onClick.AddListener(() => debugWindow.Open());
+            TryGetComponent(out _image);
 
-            debugWindow.OnOpen += () => button.gameObject.SetActive(false);
-            debugWindow.OnClose += () => button.gameObject.SetActive(true);
+            _debugWindow = FindAnyObjectByType<InGameDebugWindow>();
+            button.onClick.AddListener(() =>
+            {
+                if (!IsButtonEnable()) return;
+                _debugWindow.Open();
+            });
+        }
+
+        private void Update()
+        {
+            _image.enabled = IsButtonEnable();
+        }
+
+        private bool IsButtonEnable()
+        {
+            return !_debugWindow.IsOpen && !_debugWindow.IsOtherDebugWindowOpen;
         }
     }
 }
