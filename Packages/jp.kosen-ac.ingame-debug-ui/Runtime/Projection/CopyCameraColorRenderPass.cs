@@ -14,7 +14,7 @@ namespace Projection
         public CopyCameraColorRenderPass(RenderTexture cameraOutput)
         {
             _cameraOutput = cameraOutput;
-            renderPassEvent = RenderPassEvent.AfterRendering;
+            renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
