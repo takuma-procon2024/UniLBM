@@ -3,6 +3,7 @@
     Properties
     {
         _main_tex("Texture", 2D) = "white" {}
+        _ui_tex("UI Texture", 2D) = "black" {}
         _pos_scale("Position Scale", Vector) = (1, 1, 1, 1)
         [KeywordEnum(NONE, X, Y, XY)] _UV_INV("UV Invert", Float) = 0
     }
@@ -22,6 +23,8 @@
         float4 _pos_scale;
         sampler2D _main_tex;
         float4 _main_tex_ST;
+        sampler2D _ui_tex;
+        float4 _ui_tex_ST;
         ENDHLSL
 
         Pass
@@ -66,8 +69,10 @@
                 uv = 1 - uv;
                 #endif
 
+                float4 ui_col = tex2D(_ui_tex, uv);
                 float4 col = tex2D(_main_tex, uv);
-                return col;
+
+                return all(ui_col.rgb < 0.001f) || ui_col.a < 0.001f ? col : ui_col;
             }
             ENDHLSL
         }
