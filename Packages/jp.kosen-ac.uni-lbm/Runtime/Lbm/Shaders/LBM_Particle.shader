@@ -66,7 +66,7 @@
                 return o;
             }
 
-            [maxvertexcount(8)]
+            [maxvertexcount(12)]
             void geom(point v2g input[1], inout TriangleStream<g2f> out_stream)
             {
                 // 全ての頂点で共通の値を計算しておく
@@ -114,13 +114,34 @@
                 o.vertex = TransformObjectToHClip(p01 * size);
                 out_stream.Append(o);
 
+                o.vertex = TransformObjectToHClip(p11 * size);
+                out_stream.Append(o);
+
+                out_stream.RestartStrip();
+
+                o.vertex = TransformObjectToHClip(p11 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p10 * size);
+                out_stream.Append(o);
+
+                o.vertex = TransformObjectToHClip(p00 * size);
+                out_stream.Append(o);
+
+                out_stream.RestartStrip();
+
+                // 裏面
+                o.vertex = TransformObjectToHClip(p00 * size);
+                out_stream.Append(o);
+
                 o.vertex = TransformObjectToHClip(p10 * size);
                 out_stream.Append(o);
 
                 o.vertex = TransformObjectToHClip(p11 * size);
                 out_stream.Append(o);
 
-                // 裏面
+                out_stream.RestartStrip();
+
                 o.vertex = TransformObjectToHClip(p11 * size);
                 out_stream.Append(o);
 
@@ -128,9 +149,6 @@
                 out_stream.Append(o);
 
                 o.vertex = TransformObjectToHClip(p00 * size);
-                out_stream.Append(o);
-
-                o.vertex = TransformObjectToHClip(p10 * size);
                 out_stream.Append(o);
 
                 out_stream.RestartStrip();
