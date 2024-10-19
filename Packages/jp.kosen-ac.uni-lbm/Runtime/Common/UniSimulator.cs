@@ -1,4 +1,5 @@
-﻿using TriInspector;
+﻿using System;
+using TriInspector;
 using UI;
 using UniLbm.Cloth;
 using UniLbm.Lbm;
@@ -67,6 +68,11 @@ namespace UniLbm.Common
             _clothSolver.Update();
             _particle.Update(1 / 60f);
             if (isDrawObstacles) _obstacles.Update();
+        }
+
+        public void ResetCloth()
+        {
+            _clothSolver.ResetBuffer();
         }
 
         #region Ingame Debug

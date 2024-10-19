@@ -166,7 +166,7 @@ namespace UniLbm.Cloth
             _shader.SetTexture(Kernels.simulation, Uniforms.pos_curr_buffer_out, _positionBuffer[1]);
         }
 
-        private void ResetBuffer()
+        public void ResetBuffer()
         {
             _shader.Dispatch(Kernels.init, new uint3(new uint2(_res), 1));
             Graphics.Blit(_positionBuffer[1], _positionBuffer[0]);
