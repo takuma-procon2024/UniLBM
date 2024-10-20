@@ -32,7 +32,7 @@
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma shader_feature _UV_INV_Y _UV_INV_X _UV_INV_XY _UV_INV_NONE
+            #pragma multi_compile _ _UV_INV_Y _UV_INV_X _UV_INV_XY _UV_INV_NONE
 
             struct appdata
             {
