@@ -5,7 +5,8 @@
         _main_tex("Texture", 2D) = "white" {}
         _ui_tex("UI Texture", 2D) = "black" {}
         _pos_scale("Position Scale", Vector) = (1, 1, 1, 1)
-        [KeywordEnum(NONE, X, Y, XY)] _UV_INV("UV Invert", Float) = 0
+        _uv_inv_y ("UV INV Y", Int) = -1
+        _uv_inv_x ("UV INV X", Int) = -1
     }
     SubShader
     {
@@ -25,6 +26,7 @@
         float4 _main_tex_ST;
         sampler2D _ui_tex;
         float4 _ui_tex_ST;
+        float _uv_inv_y, _uv_inv_x;
         ENDHLSL
 
         Pass
@@ -32,7 +34,6 @@
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ _UV_INV_Y _UV_INV_X _UV_INV_XY _UV_INV_NONE
 
             struct appdata
             {
@@ -59,15 +60,8 @@
             float4 frag(in v2f i) : SV_Target
             {
                 float2 uv = i.uv;
-                #if defined(_UV_INV_Y)
-                uv.y = 1 - uv.y;
-                #endif
-                #if defined(_UV_INV_X)
-                uv.x = 1 - uv.x;
-                #endif
-                #if defined(_UV_INV_XY)
-                uv = 1 - uv;
-                #endif
+                uv.y = _uv_inv_y > 0 ? 1 - uv.y : uv.y;
+                uv.x = _uv_inv_x > 0 ? 1 - uv.x : uv.x;
 
                 float4 ui_col = tex2D(_ui_tex, uv);
                 float4 col = tex2D(_main_tex, uv);

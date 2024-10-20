@@ -32,17 +32,17 @@
         },
         {
             "m_Id": "6da0aaeae59c46f79fec05b905fb6d86"
+        },
+        {
+            "m_Id": "0d00c9193c6d47a1a71288a694798d46"
+        },
+        {
+            "m_Id": "e2ef5d18cc0c4cb5983fb2e19b7d6549"
         }
     ],
     "m_Keywords": [
         {
             "m_Id": "1c3fcfee66c84607b2ebd56fe0fe3513"
-        },
-        {
-            "m_Id": "29a754f55e6341f9a5cc562ee89f29dc"
-        },
-        {
-            "m_Id": "c0dedaf8c54f4f9dbb94e7e21230c4c1"
         }
     ],
     "m_Dropdowns": [],
@@ -819,6 +819,34 @@
 }
 
 {
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "0d00c9193c6d47a1a71288a694798d46",
+    "m_Guid": {
+        "m_GuidSerialized": "745ade7f-6523-4308-b4f3-05fd7b17f966"
+    },
+    "m_Name": "UV Inv Y",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "UV Inv Y",
+    "m_DefaultReferenceName": "_UV_Inv_Y",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": -1.0,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
+    }
+}
+
+{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "0d6ba324e7db47e6993544c5efc45640",
@@ -1364,31 +1392,6 @@
         "z": 0.0,
         "w": 0.0
     }
-}
-
-{
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.ShaderKeyword",
-    "m_ObjectId": "29a754f55e6341f9a5cc562ee89f29dc",
-    "m_Guid": {
-        "m_GuidSerialized": "1ffdb6e9-e8f1-4d43-85dd-e84f479719ff"
-    },
-    "m_Name": "InvUV_X",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "InvUV_X",
-    "m_DefaultReferenceName": "_INVUV_X",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_KeywordType": 0,
-    "m_KeywordDefinition": 1,
-    "m_KeywordScope": 0,
-    "m_KeywordStages": 63,
-    "m_Entries": [],
-    "m_Value": 0,
-    "m_IsEditable": true
 }
 
 {
@@ -1987,7 +1990,7 @@
     "m_SourceType": 1,
     "m_FunctionName": "InvertUV",
     "m_FunctionSource": "",
-    "m_FunctionBody": "float2 uv = UV;\n#if defined(_INVUV_Y)\r\nuv.y = 1 - uv.y;\r\n#endif\r\n#if defined(_INVUV_X)\r\nuv.x = 1 - uv.x;\r\n#endif\nOUT = uv;"
+    "m_FunctionBody": "float2 uv = UV;\nuv.y = _UV_Inv_Y > 0 ? 1 - uv.y : uv.y;\nuv.x = _UV_Inv_X > 0 ? 1 - uv.x : uv.x;\nOUT = uv;"
 }
 
 {
@@ -3622,31 +3625,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.ShaderKeyword",
-    "m_ObjectId": "c0dedaf8c54f4f9dbb94e7e21230c4c1",
-    "m_Guid": {
-        "m_GuidSerialized": "a36a440d-1144-457d-bd84-d8c72fbe29f6"
-    },
-    "m_Name": "InvUV_Y",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "InvUV_Y",
-    "m_DefaultReferenceName": "_INVUV_Y",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_KeywordType": 0,
-    "m_KeywordDefinition": 1,
-    "m_KeywordScope": 0,
-    "m_KeywordStages": 63,
-    "m_Entries": [],
-    "m_Value": 0,
-    "m_IsEditable": true
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicValueMaterialSlot",
     "m_ObjectId": "c15f60d754954ad1a74f26a634f14f03",
@@ -4164,10 +4142,10 @@
             "m_Id": "6da0aaeae59c46f79fec05b905fb6d86"
         },
         {
-            "m_Id": "29a754f55e6341f9a5cc562ee89f29dc"
+            "m_Id": "0d00c9193c6d47a1a71288a694798d46"
         },
         {
-            "m_Id": "c0dedaf8c54f4f9dbb94e7e21230c4c1"
+            "m_Id": "e2ef5d18cc0c4cb5983fb2e19b7d6549"
         }
     ]
 }
@@ -4359,6 +4337,34 @@
         "e31": 0.0,
         "e32": 0.0,
         "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "e2ef5d18cc0c4cb5983fb2e19b7d6549",
+    "m_Guid": {
+        "m_GuidSerialized": "2ad37b7e-3e1a-4db9-899f-9ccf4d62f559"
+    },
+    "m_Name": "UV Inv X",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "UV Inv X",
+    "m_DefaultReferenceName": "_UV_Inv_X",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": -1.0,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
     }
 }
 
