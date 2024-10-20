@@ -19,6 +19,8 @@ namespace UI
         [SerializeField] private VectorFieldUI clothPosField;
         [SerializeField] private VectorFieldUI clothSizeField;
         [SerializeField] private VectorFieldUI clothRotField;
+        [SerializeField] private BoolFieldUI flipClothField;
+        [SerializeField] private BoolFieldUI flipSimulateClothField;
 
         private DataStore.DataStore _dataStore;
 
@@ -90,6 +92,9 @@ namespace UI
                 : new float4(clothSize, 0);
             clothRotField.Value =
                 _dataStore.TryGetData("ClothRot", out float4 clothR) ? clothR : new float4(clothRot, 0);
+            flipClothField.Value = _dataStore.TryGetData("FlipCloth", out bool flipCloth) && flipCloth;
+            flipSimulateClothField.Value = _dataStore.TryGetData("FlipSimulateCloth", out bool flipSimulateCloth) &&
+                                           flipSimulateCloth;
         }
 
         private void SaveData()
@@ -103,6 +108,8 @@ namespace UI
             _dataStore.SetData("ClothPos", clothPosField.Value);
             _dataStore.SetData("ClothSize", clothSizeField.Value);
             _dataStore.SetData("ClothRot", clothRotField.Value);
+            _dataStore.SetData("FlipCloth", flipClothField.Value);
+            _dataStore.SetData("FlipSimulateCloth", flipSimulateClothField.Value);
         }
 
         #region Properties
@@ -159,6 +166,18 @@ namespace UI
         {
             get => clothRotField.Value;
             set => clothRotField.Value = value;
+        }
+
+        public bool FlipCloth
+        {
+            get => flipClothField.Value;
+            set => flipClothField.Value = value;
+        }
+
+        public bool FlipSimulateCloth
+        {
+            get => flipSimulateClothField.Value;
+            set => flipSimulateClothField.Value = value;
         }
 
         #endregion
